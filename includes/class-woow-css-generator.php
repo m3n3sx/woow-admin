@@ -1,0 +1,1104 @@
+<?php
+/**
+ * WOOW_CSS_Generator Class
+ *
+ * Dynamically generates CSS from settings with <100ms performance target.
+ *
+ * @package WoowAdmin
+ * @since 1.0.0
+ */
+
+declare(strict_types=1);
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+/**
+ * CSS Generator Class
+ */
+class WOOW_CSS_Generator {
+    /**
+     * Settings manager instance
+     *
+     * @var WOOW_Settings
+     */
+    private WOOW_Settings $settings;
+
+    /**
+     * Accumulated CSS string
+     *
+     * @var string
+     */
+    private string $css = '';
+
+    /**
+     * CSS generation time in milliseconds
+     *
+     * @var float
+     */
+    private float $generation_time = 0.0;
+
+    /**
+     * Constructor
+     *
+     * @param WOOW_Settings $settings Settings manager instance
+     */
+    public function __construct( WOOW_Settings $settings ) {
+        $this->settings = $settings;
+    }
+
+    /**
+     * Generate complete CSS from settings
+     *
+     * @return string Generated CSS
+     */
+    public function generate(): string {
+        $start = microtime( true );
+        $this->css = '';
+
+        // Generate CSS sections
+        $this->add_css_variables();
+        
+        if ( $this->settings->get_option( 'admin_bar.enabled', true ) ) {
+            $this->add_admin_bar_styles();
+        }
+        
+        if ( $this->settings->get_option( 'admin_menu.enabled', true ) ) {
+            $this->add_admin_menu_styles();
+        }
+        
+        if ( $this->settings->get_option( 'dashboard_widgets.enabled', true ) ) {
+            $this->add_dashboard_widget_styles();
+        }
+        
+        if ( $this->settings->get_option( 'form_controls.enabled', true ) ) {
+            $this->add_form_control_styles();
+        }
+        
+        if ( $this->settings->get_option( 'buttons.enabled', true ) ) {
+            $this->add_button_styles();
+        }
+        
+        if ( $this->settings->get_option( 'backgrounds.enabled', true ) ) {
+            $this->add_background_styles();
+        }
+        
+        if ( $this->settings->get_option( 'typography.enabled', true ) ) {
+            $this->add_typography_styles();
+        }
+        
+        if ( $this->settings->get_option( 'effects.enabled', true ) ) {
+            $this->add_effect_styles();
+        }
+        
+        // Add responsive styles
+        $this->add_responsive_styles();
+
+        // Minify in production
+        if ( defined( 'WP_DEBUG' ) && ! WP_DEBUG ) {
+            $this->css = $this->minify( $this->css );
+        }
+
+        $this->generation_time = ( microtime( true ) - $start ) * 1000;
+
+        return $this->css;
+    }
+
+    /**
+     * Get generation metrics
+     *
+     * @return array Metrics including generation time and CSS size
+     */
+    public function get_metrics(): array {
+        return [
+            'generation_time' => round( $this->generation_time, 2 ),
+            'css_size' => strlen( $this->css ),
+            'css_size_kb' => round( strlen( $this->css ) / 1024, 2 ),
+        ];
+    }
+
+    /**
+     * Add CSS variables to :root
+     *
+     * @return void
+     */
+    private function add_css_variables(): void {
+        $admin_bar = $this->settings->get_section( 'admin_bar' );
+        $admin_menu = $this->settings->get_section( 'admin_menu' );
+        $buttons = $this->settings->get_section( 'buttons' );
+        $form_controls = $this->settings->get_section( 'form_controls' );
+        $effects = $this->settings->get_section( 'effects' );
+
+        $this->css .= ":root {\n";
+        
+        // Color variables
+        $this->css .= "    --woow-primary: {$buttons['primary_bg']};\n";
+        $this->css .= "    --woow-primary-text: {$buttons['primary_text']};\n";
+        $this->css .= "    --woow-secondary: {$buttons['secondary_bg']};\n";
+        $this->css .= "    --woow-secondary-text: {$buttons['secondary_text']};\n";
+        $this->css .= "    --woow-destructive: {$buttons['destructive_bg']};\n";
+        $this->css .= "    --woow-destructive-text: {$buttons['destructive_text']};\n";
+        $this->css .= "    --woow-border: {$form_controls['border_color']};\n";
+        $this->css .= "    --woow-focus-ring: {$form_controls['focus_ring_color']};\n";
+        
+        // Spacing variables
+        $this->css .= "    --woow-spacing-xs: 4px;\n";
+        $this->css .= "    --woow-spacing-sm: 8px;\n";
+        $this->css .= "    --woow-spacing-md: 16px;\n";
+        $this->css .= "    --woow-spacing-lg: 24px;\n";
+        $this->css .= "    --woow-spacing-xl: 32px;\n";
+        $this->css .= "    --woow-spacing-2xl: 48px;\n";
+        
+        // Border radius variables
+        $this->css .= "    --woow-radius-sm: 8px;\n";
+        $this->css .= "    --woow-radius-md: 12px;\n";
+        $this->css .= "    --woow-radius-lg: 16px;\n";
+        $this->css .= "    --woow-radius-xl: 24px;\n";
+        
+        // Shadow variables
+        $this->css .= "    --woow-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);\n";
+        $this->css .= "    --woow-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);\n";
+        $this->css .= "    --woow-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);\n";
+        $this->css .= "    --woow-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);\n";
+        
+        // Animation variables
+        $this->css .= "    --woow-transition-speed: {$effects['animation_duration']};\n";
+        $this->css .= "    --woow-easing: {$effects['easing_function']};\n";
+        
+        $this->css .= "}\n\n";
+    }
+
+    /**
+     * Add admin bar styles
+     *
+     * @return void
+     */
+    private function add_admin_bar_styles(): void {
+        $bar = $this->settings->get_section( 'admin_bar' );
+
+        $this->css .= "/* Admin Bar Styling */\n";
+        $this->css .= "#wpadminbar {\n";
+        $this->css .= "    height: {$bar['height']} !important;\n";
+        $this->css .= "    width: calc(100% - 32px) !important;\n";
+        $this->css .= "    position: {$bar['position']} !important;\n";
+        
+        if ( $bar['position'] === 'sticky' ) {
+            $this->css .= "    top: {$bar['top_offset']} !important;\n";
+        } else {
+            $this->css .= "    top: 0 !important;\n";
+        }
+        
+        $this->css .= "    left: 16px !important;\n";
+        $this->css .= "    margin: 16px !important;\n";
+        $this->css .= "    border-radius: {$bar['border_radius']} !important;\n";
+        $this->css .= "    z-index: 99999 !important;\n";
+        $this->css .= "    box-shadow: {$this->get_shadow_value($bar['shadow_style'])} !important;\n";
+        $transition_speed = $bar['transition_speed'] ?? '200ms';
+        $this->css .= "    transition: all {$transition_speed} var(--woow-easing) !important;\n";
+        
+        // Background based on type
+        if ( $bar['background_type'] === 'gradient' ) {
+            $this->css .= "    background: linear-gradient(to right, {$bar['gradient_start']}, {$bar['gradient_end']}) !important;\n";
+        } else {
+            $this->css .= "    background: {$bar['background_color']} !important;\n";
+        }
+        
+        // Glassmorphism effect
+        if ( $bar['glassmorphism'] ) {
+            $this->css .= $this->get_glassmorphism_css( $bar['blur_strength'], $bar['opacity'] );
+        }
+        
+        $this->css .= "}\n\n";
+        
+        // Admin bar items
+        $this->css .= "#wpadminbar .ab-item {\n";
+        $this->css .= "    color: {$bar['text_color']} !important;\n";
+        $this->css .= "    font-size: {$bar['font_size']} !important;\n";
+        $this->css .= "    font-weight: {$bar['font_weight']} !important;\n";
+        $this->css .= "    height: {$bar['height']} !important;\n";
+        $this->css .= "    line-height: {$bar['height']} !important;\n";
+        $this->css .= "    padding: 0 16px !important;\n";
+        $this->css .= "    transition: background 200ms var(--woow-easing);\n";
+        $this->css .= "}\n\n";
+        
+        // Hover states
+        $this->css .= "#wpadminbar .ab-item:hover {\n";
+        $this->css .= "    background: {$bar['hover_bg_color']} !important;\n";
+        $this->css .= "    color: {$bar['hover_text_color']} !important;\n";
+        $this->css .= "    border-radius: 12px;\n";
+        $this->css .= "}\n\n";
+        
+        // WordPress logo
+        $this->css .= "#wpadminbar #wp-admin-bar-wp-logo > .ab-item .ab-icon {\n";
+        $this->css .= "    width: 32px !important;\n";
+        $this->css .= "    height: 32px !important;\n";
+        $this->css .= "    background: linear-gradient(to bottom right, #6366f1, #8b5cf6) !important;\n";
+        $this->css .= "    border-radius: 8px;\n";
+        $this->css .= "    display: flex;\n";
+        $this->css .= "    align-items: center;\n";
+        $this->css .= "    justify-content: center;\n";
+        $this->css .= "}\n\n";
+        
+        // Submenus
+        $this->css .= "#wpadminbar .ab-submenu {\n";
+        $this->css .= "    background: rgba(255, 255, 255, 0.95) !important;\n";
+        $this->css .= "    backdrop-filter: blur(12px) !important;\n";
+        $this->css .= "    border-radius: 12px !important;\n";
+        $this->css .= "    box-shadow: var(--woow-shadow-lg) !important;\n";
+        $this->css .= "    border: 1px solid rgba(255, 255, 255, 0.4) !important;\n";
+        $this->css .= "    margin-top: 8px !important;\n";
+        $this->css .= "    padding: 8px !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= "#wpadminbar .ab-submenu .ab-item {\n";
+        $this->css .= "    color: #0f172a !important;\n";
+        $this->css .= "    border-radius: 8px !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= "#wpadminbar .ab-submenu .ab-item:hover {\n";
+        $this->css .= "    background: rgba(99, 102, 241, 0.1) !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Custom CSS
+        if ( ! empty( $bar['custom_css'] ) ) {
+            $this->css .= "/* Admin Bar Custom CSS */\n";
+            $this->css .= $this->sanitize_css( $bar['custom_css'] ) . "\n\n";
+        }
+    }
+
+    /**
+     * Add admin menu styles
+     *
+     * @return void
+     */
+    private function add_admin_menu_styles(): void {
+        $menu = $this->settings->get_section( 'admin_menu' );
+
+        $this->css .= "/* Admin Menu Styling */\n";
+        $this->css .= "#adminmenuwrap, #adminmenu, #adminmenuback {\n";
+        $this->css .= "    width: {$menu['width_expanded']} !important;\n";
+        $this->css .= "    position: sticky !important;\n";
+        $this->css .= "    top: 96px !important;\n";
+        $this->css .= "    left: 16px !important;\n";
+        $this->css .= "    height: calc(100vh - 128px) !important;\n";
+        $this->css .= "    margin: 96px 0 16px 16px !important;\n";
+        $this->css .= "    border-radius: {$menu['border_radius']} !important;\n";
+        $this->css .= "    box-shadow: {$this->get_shadow_value($menu['shadow_style'])} !important;\n";
+        $this->css .= "    overflow-y: auto !important;\n";
+        $this->css .= "    overflow-x: hidden !important;\n";
+        
+        if ( $menu['glassmorphism'] ) {
+            $this->css .= $this->get_glassmorphism_css( $menu['blur_strength'], $menu['opacity'] );
+            $this->css .= "    background: rgba(255, 255, 255, {$menu['opacity']}) !important;\n";
+        } else {
+            $this->css .= "    background: {$menu['background_color']} !important;\n";
+        }
+        
+        $this->css .= "    border: 1px solid rgba(255, 255, 255, 0.4) !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= "#adminmenuback {\n";
+        $this->css .= "    background: transparent !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= "#adminmenu {\n";
+        $this->css .= "    padding: 12px !important;\n";
+        $this->css .= "    background: transparent !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Menu items
+        $this->css .= "#adminmenu li.menu-top {\n";
+        $this->css .= "    margin: 4px 0 !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= "#adminmenu li.menu-top > a {\n";
+        $this->css .= "    padding: 10px 12px !important;\n";
+        $this->css .= "    border-radius: 12px !important;\n";
+        $this->css .= "    transition: all 200ms var(--woow-easing) !important;\n";
+        $this->css .= "    color: #0f172a !important;\n";
+        $this->css .= "    font-size: 14px !important;\n";
+        $this->css .= "    font-weight: 500 !important;\n";
+        $this->css .= "    display: flex !important;\n";
+        $this->css .= "    align-items: center !important;\n";
+        $this->css .= "    gap: 12px !important;\n";
+        $this->css .= "    height: {$menu['menu_item_height']} !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Hover state
+        $this->css .= "#adminmenu li.menu-top:hover > a {\n";
+        $this->css .= "    background: {$menu['hover_bg_color']} !important;\n";
+        $this->css .= "    color: #6366f1 !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Active state with gradient
+        $this->css .= "#adminmenu li.wp-has-current-submenu > a,\n";
+        $this->css .= "#adminmenu li.current > a,\n";
+        $this->css .= "#adminmenu li.wp-menu-open > a {\n";
+        $this->css .= "    background: linear-gradient(to bottom right, {$menu['active_gradient_start']}, {$menu['active_gradient_end']}) !important;\n";
+        $this->css .= "    color: #ffffff !important;\n";
+        $this->css .= "    font-weight: 600 !important;\n";
+        $this->css .= "    box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3) !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Menu icons
+        $this->css .= "#adminmenu .wp-menu-image dashicons-before:before {\n";
+        $this->css .= "    font-size: 20px !important;\n";
+        $this->css .= "    width: 20px !important;\n";
+        $this->css .= "    height: 20px !important;\n";
+        $this->css .= "    color: #64748b;\n";
+        $this->css .= "    transition: color 200ms;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= "#adminmenu li.menu-top:hover .wp-menu-image dashicons-before:before {\n";
+        $this->css .= "    color: #6366f1 !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= "#adminmenu li.wp-has-current-submenu .wp-menu-image dashicons-before:before,\n";
+        $this->css .= "#adminmenu li.current .wp-menu-image dashicons-before:before {\n";
+        $this->css .= "    color: #ffffff !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Badges
+        $this->css .= "#adminmenu .awaiting-mod,\n";
+        $this->css .= "#adminmenu .update-plugins {\n";
+        $this->css .= "    background: rgba(99, 102, 241, 0.1) !important;\n";
+        $this->css .= "    color: #6366f1 !important;\n";
+        $this->css .= "    border: 1px solid rgba(99, 102, 241, 0.2) !important;\n";
+        $this->css .= "    border-radius: 6px !important;\n";
+        $this->css .= "    font-size: 11px !important;\n";
+        $this->css .= "    font-weight: 600 !important;\n";
+        $this->css .= "    padding: 2px 8px !important;\n";
+        $this->css .= "    margin-left: 8px !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= "#adminmenu li.current .awaiting-mod,\n";
+        $this->css .= "#adminmenu li.current .update-plugins {\n";
+        $this->css .= "    background: rgba(255, 255, 255, 0.2) !important;\n";
+        $this->css .= "    color: #ffffff !important;\n";
+        $this->css .= "    border-color: rgba(255, 255, 255, 0.3) !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Submenu
+        $this->css .= "#adminmenu .wp-submenu {\n";
+        $this->css .= "    background: rgba(255, 255, 255, 0.95) !important;\n";
+        $this->css .= "    backdrop-filter: blur(8px) !important;\n";
+        $this->css .= "    border-radius: 12px !important;\n";
+        $this->css .= "    margin: 4px 8px 8px 8px !important;\n";
+        $this->css .= "    padding: 8px !important;\n";
+        $this->css .= "    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05) !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= "#adminmenu .wp-submenu li a {\n";
+        $this->css .= "    padding: 8px 12px 8px 36px !important;\n";
+        $this->css .= "    border-radius: 8px !important;\n";
+        $this->css .= "    color: #64748b !important;\n";
+        $this->css .= "    font-size: 13px !important;\n";
+        $this->css .= "    transition: all 200ms;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= "#adminmenu .wp-submenu li a:hover {\n";
+        $this->css .= "    background: rgba(99, 102, 241, 0.05) !important;\n";
+        $this->css .= "    color: #6366f1 !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= "#adminmenu .wp-submenu li.current a {\n";
+        $this->css .= "    color: #6366f1 !important;\n";
+        $this->css .= "    font-weight: 600 !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Collapsed state
+        $this->css .= ".folded #adminmenuwrap,\n";
+        $this->css .= ".folded #adminmenu {\n";
+        $this->css .= "    width: {$menu['width_collapsed']} !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".folded #adminmenu .wp-menu-name {\n";
+        $this->css .= "    display: none !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".folded #adminmenu .wp-menu-image {\n";
+        $this->css .= "    margin: 0 auto !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Custom CSS
+        if ( ! empty( $menu['custom_css'] ) ) {
+            $this->css .= "/* Admin Menu Custom CSS */\n";
+            $this->css .= $this->sanitize_css( $menu['custom_css'] ) . "\n\n";
+        }
+    }
+
+    /**
+     * Add dashboard widget styles
+     *
+     * @return void
+     */
+    private function add_dashboard_widget_styles(): void {
+        $widgets = $this->settings->get_section( 'dashboard_widgets' );
+
+        $this->css .= "/* Dashboard Widgets Styling */\n";
+        $this->css .= ".postbox,\n";
+        $this->css .= "#dashboard-widgets .postbox,\n";
+        $this->css .= ".wrap > div.card {\n";
+        $this->css .= "    border-radius: {$widgets['border_radius']} !important;\n";
+        $this->css .= "    padding: {$widgets['padding']} !important;\n";
+        $this->css .= "    margin-bottom: {$widgets['margin_bottom']} !important;\n";
+        $this->css .= "    box-shadow: {$this->get_shadow_value($widgets['shadow_style'])} !important;\n";
+        $this->css .= "    border: none !important;\n";
+        $this->css .= "    transition: all 200ms var(--woow-easing);\n";
+        
+        if ( $widgets['glassmorphism'] ) {
+            $this->css .= $this->get_glassmorphism_css( $widgets['blur_strength'], $widgets['opacity'] );
+            $this->css .= "    background: rgba(255, 255, 255, {$widgets['opacity']}) !important;\n";
+        } else {
+            $this->css .= "    background: {$widgets['background_color']} !important;\n";
+        }
+        
+        $this->css .= "    border: 1px solid rgba(255, 255, 255, 0.4) !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Hover effects
+        if ( $widgets['hover_transform'] ) {
+            $this->css .= ".postbox:hover,\n";
+            $this->css .= "#dashboard-widgets .postbox:hover {\n";
+            $this->css .= "    transform: translateY(-2px);\n";
+            $this->css .= "    box-shadow: {$this->get_shadow_value($widgets['hover_shadow'])} !important;\n";
+            $this->css .= "}\n\n";
+        }
+        
+        // Headers
+        $this->css .= ".postbox-header,\n";
+        $this->css .= ".postbox h2,\n";
+        $this->css .= ".postbox h3,\n";
+        $this->css .= "#dashboard-widgets .postbox h2 {\n";
+        $this->css .= "    background: transparent !important;\n";
+        $this->css .= "    border: none !important;\n";
+        $this->css .= "    padding: 0 !important;\n";
+        $this->css .= "    margin-bottom: 16px !important;\n";
+        $this->css .= "    font-size: {$widgets['header_font_size']} !important;\n";
+        $this->css .= "    font-weight: {$widgets['header_font_weight']} !important;\n";
+        $this->css .= "    color: {$widgets['header_text_color']} !important;\n";
+        $this->css .= "    line-height: 1.4 !important;\n";
+        $this->css .= "    letter-spacing: -0.01em !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Welcome panel
+        $this->css .= "#welcome-panel {\n";
+        $this->css .= "    background: linear-gradient(to bottom right, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1)) !important;\n";
+        $this->css .= "    backdrop-filter: blur(12px) !important;\n";
+        $this->css .= "    border: 1px solid rgba(255, 255, 255, 0.4) !important;\n";
+        $this->css .= "    border-radius: {$widgets['border_radius']} !important;\n";
+        $this->css .= "    padding: 32px !important;\n";
+        $this->css .= "    margin-bottom: {$widgets['margin_bottom']} !important;\n";
+        $this->css .= "    box-shadow: {$this->get_shadow_value($widgets['shadow_style'])} !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= "#welcome-panel h2 {\n";
+        $this->css .= "    font-size: 32px !important;\n";
+        $this->css .= "    font-weight: 700 !important;\n";
+        $this->css .= "    color: #0f172a !important;\n";
+        $this->css .= "    margin-bottom: 8px !important;\n";
+        $this->css .= "}\n\n";
+        
+        // At a Glance widget
+        $this->css .= "#dashboard_right_now li {\n";
+        $this->css .= "    background: rgba(255, 255, 255, 0.6) !important;\n";
+        $this->css .= "    backdrop-filter: blur(8px) !important;\n";
+        $this->css .= "    border: 1px solid rgba(255, 255, 255, 0.4) !important;\n";
+        $this->css .= "    border-radius: 16px !important;\n";
+        $this->css .= "    padding: 16px !important;\n";
+        $this->css .= "    margin-bottom: 12px !important;\n";
+        $this->css .= "    display: flex !important;\n";
+        $this->css .= "    align-items: center !important;\n";
+        $this->css .= "    justify-content: space-between !important;\n";
+        $this->css .= "    transition: all 200ms;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= "#dashboard_right_now li:hover {\n";
+        $this->css .= "    background: rgba(255, 255, 255, 0.8) !important;\n";
+        $this->css .= "    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= "#dashboard_right_now li .dashicons {\n";
+        $this->css .= "    width: 40px !important;\n";
+        $this->css .= "    height: 40px !important;\n";
+        $this->css .= "    font-size: 20px !important;\n";
+        $this->css .= "    background: linear-gradient(to bottom right, #6366f1, #8b5cf6) !important;\n";
+        $this->css .= "    color: #ffffff !important;\n";
+        $this->css .= "    border-radius: 12px !important;\n";
+        $this->css .= "    display: flex !important;\n";
+        $this->css .= "    align-items: center !important;\n";
+        $this->css .= "    justify-content: center !important;\n";
+        $this->css .= "    margin-right: 12px !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Custom CSS
+        if ( ! empty( $widgets['custom_css'] ) ) {
+            $this->css .= "/* Dashboard Widgets Custom CSS */\n";
+            $this->css .= $this->sanitize_css( $widgets['custom_css'] ) . "\n\n";
+        }
+    }
+
+    /**
+     * Add form control styles
+     *
+     * @return void
+     */
+    private function add_form_control_styles(): void {
+        $forms = $this->settings->get_section( 'form_controls' );
+
+        $this->css .= "/* Form Controls Styling */\n";
+        $this->css .= "input[type=\"text\"],\n";
+        $this->css .= "input[type=\"email\"],\n";
+        $this->css .= "input[type=\"url\"],\n";
+        $this->css .= "input[type=\"password\"],\n";
+        $this->css .= "input[type=\"search\"],\n";
+        $this->css .= "input[type=\"number\"],\n";
+        $this->css .= "input[type=\"tel\"],\n";
+        $this->css .= "input[type=\"date\"],\n";
+        $this->css .= "input[type=\"time\"] {\n";
+        $this->css .= "    height: {$forms['input_height']} !important;\n";
+        $this->css .= "    padding: 10px 14px !important;\n";
+        $this->css .= "    border: 1px solid {$forms['border_color']} !important;\n";
+        $this->css .= "    border-radius: {$forms['border_radius']} !important;\n";
+        $this->css .= "    color: {$forms['text_color']} !important;\n";
+        $this->css .= "    font-size: 15px !important;\n";
+        $this->css .= "    font-weight: 400 !important;\n";
+        $this->css .= "    line-height: 1.5 !important;\n";
+        $this->css .= "    transition: all 200ms var(--woow-easing) !important;\n";
+        
+        if ( $forms['glassmorphism'] ) {
+            $this->css .= $this->get_glassmorphism_css( $forms['blur_strength'], 0.6 );
+            $this->css .= "    background: {$forms['background_color']} !important;\n";
+        } else {
+            $this->css .= "    background: {$forms['background_color']} !important;\n";
+        }
+        
+        $this->css .= "}\n\n";
+        
+        // Focus state
+        $rgb = $this->hex_to_rgb( $forms['focus_ring_color'] );
+        $this->css .= "input:focus,\n";
+        $this->css .= "textarea:focus,\n";
+        $this->css .= "select:focus {\n";
+        $this->css .= "    outline: none !important;\n";
+        $this->css .= "    border-color: {$forms['focus_ring_color']} !important;\n";
+        $this->css .= "    background: rgba(255, 255, 255, 0.8) !important;\n";
+        $this->css .= "    box-shadow: 0 0 0 4px rgba({$rgb}, {$forms['focus_ring_opacity']}) !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Textarea
+        $this->css .= "textarea {\n";
+        $this->css .= "    padding: 14px !important;\n";
+        $this->css .= "    border: 1px solid {$forms['border_color']} !important;\n";
+        $this->css .= "    border-radius: {$forms['border_radius']} !important;\n";
+        $this->css .= "    background: {$forms['background_color']} !important;\n";
+        $this->css .= "    font-size: 15px !important;\n";
+        $this->css .= "    min-height: 120px !important;\n";
+        $this->css .= "    transition: all 200ms var(--woow-easing) !important;\n";
+        
+        if ( $forms['glassmorphism'] ) {
+            $this->css .= $this->get_glassmorphism_css( $forms['blur_strength'], 0.6 );
+        }
+        
+        $this->css .= "}\n\n";
+        
+        // Select
+        $this->css .= "select {\n";
+        $this->css .= "    height: {$forms['input_height']} !important;\n";
+        $this->css .= "    padding: 10px 14px !important;\n";
+        $this->css .= "    border: 1px solid {$forms['border_color']} !important;\n";
+        $this->css .= "    border-radius: {$forms['border_radius']} !important;\n";
+        $this->css .= "    background: {$forms['background_color']} !important;\n";
+        $this->css .= "    font-size: 15px !important;\n";
+        $this->css .= "    cursor: pointer !important;\n";
+        
+        if ( $forms['glassmorphism'] ) {
+            $this->css .= $this->get_glassmorphism_css( $forms['blur_strength'], 0.6 );
+        }
+        
+        $this->css .= "}\n\n";
+        
+        // Checkbox
+        $this->css .= "input[type=\"checkbox\"] {\n";
+        $this->css .= "    width: {$forms['checkbox_size']} !important;\n";
+        $this->css .= "    height: {$forms['checkbox_size']} !important;\n";
+        $this->css .= "    border: 2px solid #e2e8f0 !important;\n";
+        $this->css .= "    border-radius: 6px !important;\n";
+        $this->css .= "    background: #ffffff !important;\n";
+        $this->css .= "    cursor: pointer !important;\n";
+        $this->css .= "    transition: all 200ms var(--woow-easing) !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= "input[type=\"checkbox\"]:checked {\n";
+        $this->css .= "    background: {$forms['focus_ring_color']} !important;\n";
+        $this->css .= "    border-color: {$forms['focus_ring_color']} !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Radio
+        $this->css .= "input[type=\"radio\"] {\n";
+        $this->css .= "    width: {$forms['checkbox_size']} !important;\n";
+        $this->css .= "    height: {$forms['checkbox_size']} !important;\n";
+        $this->css .= "    border: 2px solid #e2e8f0 !important;\n";
+        $this->css .= "    background: #ffffff !important;\n";
+        $this->css .= "    cursor: pointer !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= "input[type=\"radio\"]:checked {\n";
+        $this->css .= "    border-color: {$forms['focus_ring_color']} !important;\n";
+        $this->css .= "    background: {$forms['focus_ring_color']} !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Labels
+        $this->css .= "label {\n";
+        $this->css .= "    font-size: 14px !important;\n";
+        $this->css .= "    font-weight: 600 !important;\n";
+        $this->css .= "    color: #0f172a !important;\n";
+        $this->css .= "    line-height: 1.5 !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Helper text
+        $this->css .= ".description {\n";
+        $this->css .= "    font-size: 13px !important;\n";
+        $this->css .= "    color: #64748b !important;\n";
+        $this->css .= "    line-height: 1.6 !important;\n";
+        $this->css .= "    margin-top: 6px !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Custom CSS
+        if ( ! empty( $forms['custom_css'] ) ) {
+            $this->css .= "/* Form Controls Custom CSS */\n";
+            $this->css .= $this->sanitize_css( $forms['custom_css'] ) . "\n\n";
+        }
+    }
+
+    /**
+     * Add button styles
+     *
+     * @return void
+     */
+    private function add_button_styles(): void {
+        $buttons = $this->settings->get_section( 'buttons' );
+
+        $this->css .= "/* Button Styling */\n";
+        
+        // Primary button
+        $this->css .= ".button-primary {\n";
+        $this->css .= "    height: {$buttons['height']} !important;\n";
+        $this->css .= "    padding: 10px 16px !important;\n";
+        $this->css .= "    border: none !important;\n";
+        $this->css .= "    border-radius: {$buttons['border_radius']} !important;\n";
+        $this->css .= "    background: {$buttons['primary_bg']} !important;\n";
+        $this->css .= "    color: {$buttons['primary_text']} !important;\n";
+        $this->css .= "    font-size: 14px !important;\n";
+        $this->css .= "    font-weight: 600 !important;\n";
+        $this->css .= "    line-height: 1.5 !important;\n";
+        $this->css .= "    box-shadow: none !important;\n";
+        $this->css .= "    transition: all {$buttons['transition_speed']} var(--woow-easing) !important;\n";
+        $this->css .= "    cursor: pointer !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".button-primary:hover {\n";
+        $this->css .= "    transform: scale({$buttons['hover_scale']});\n";
+        $this->css .= "    box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3) !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".button-primary:active {\n";
+        $this->css .= "    transform: scale(1);\n";
+        $this->css .= "}\n\n";
+        
+        $rgb = $this->hex_to_rgb( $buttons['primary_bg'] );
+        $this->css .= ".button-primary:focus {\n";
+        $this->css .= "    outline: none !important;\n";
+        $this->css .= "    box-shadow: 0 0 0 4px rgba({$rgb}, 0.2) !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Secondary button
+        $this->css .= ".button,\n";
+        $this->css .= ".button-secondary {\n";
+        $this->css .= "    height: {$buttons['height']} !important;\n";
+        $this->css .= "    padding: 10px 16px !important;\n";
+        $this->css .= "    border: 1px solid {$buttons['secondary_border']} !important;\n";
+        $this->css .= "    border-radius: {$buttons['border_radius']} !important;\n";
+        $this->css .= "    background: {$buttons['secondary_bg']} !important;\n";
+        $this->css .= "    color: {$buttons['secondary_text']} !important;\n";
+        $this->css .= "    font-size: 14px !important;\n";
+        $this->css .= "    font-weight: 600 !important;\n";
+        $this->css .= "    transition: all {$buttons['transition_speed']} var(--woow-easing) !important;\n";
+        $this->css .= "    cursor: pointer !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".button:hover,\n";
+        $this->css .= ".button-secondary:hover {\n";
+        $this->css .= "    background: rgba(99, 102, 241, 0.1) !important;\n";
+        $this->css .= "    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Destructive button
+        $this->css .= ".button.delete,\n";
+        $this->css .= ".submitdelete {\n";
+        $this->css .= "    background: {$buttons['destructive_bg']} !important;\n";
+        $this->css .= "    color: {$buttons['destructive_text']} !important;\n";
+        $this->css .= "    border: none !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".button.delete:hover,\n";
+        $this->css .= ".submitdelete:hover {\n";
+        $this->css .= "    background: #dc2626 !important;\n";
+        $this->css .= "    transform: scale({$buttons['hover_scale']});\n";
+        $this->css .= "}\n\n";
+        
+        // Custom CSS
+        if ( ! empty( $buttons['custom_css'] ) ) {
+            $this->css .= "/* Buttons Custom CSS */\n";
+            $this->css .= $this->sanitize_css( $buttons['custom_css'] ) . "\n\n";
+        }
+    }
+
+    /**
+     * Add background styles
+     *
+     * @return void
+     */
+    private function add_background_styles(): void {
+        $bg = $this->settings->get_section( 'backgrounds' );
+
+        $this->css .= "/* Background Styling */\n";
+        $this->css .= "#wpbody-content {\n";
+        $this->css .= "    padding: 16px !important;\n";
+        $this->css .= "    margin-left: 0 !important;\n";
+        
+        if ( $bg['type'] === 'solid' ) {
+            $this->css .= "    background: {$bg['solid_color']} !important;\n";
+        } elseif ( $bg['type'] === 'gradient' ) {
+            $colors = $bg['gradient_colors'];
+            $angle = $bg['gradient_angle'];
+            
+            if ( $bg['gradient_type'] === 'linear' ) {
+                $gradient = "linear-gradient({$angle}deg";
+                foreach ( $colors as $color ) {
+                    $gradient .= ", {$color}";
+                }
+                $gradient .= ")";
+                $this->css .= "    background: {$gradient} !important;\n";
+            } elseif ( $bg['gradient_type'] === 'radial' ) {
+                $gradient = "radial-gradient(circle";
+                foreach ( $colors as $color ) {
+                    $gradient .= ", {$color}";
+                }
+                $gradient .= ")";
+                $this->css .= "    background: {$gradient} !important;\n";
+            } elseif ( $bg['gradient_type'] === 'conic' ) {
+                $gradient = "conic-gradient(from {$angle}deg";
+                foreach ( $colors as $color ) {
+                    $gradient .= ", {$color}";
+                }
+                $gradient .= ")";
+                $this->css .= "    background: {$gradient} !important;\n";
+            }
+        } elseif ( $bg['type'] === 'image' && ! empty( $bg['image_url'] ) ) {
+            $this->css .= "    background-image: url('{$bg['image_url']}') !important;\n";
+            $this->css .= "    background-position: {$bg['image_position']} !important;\n";
+            $this->css .= "    background-size: {$bg['image_size']} !important;\n";
+            $this->css .= "    background-repeat: no-repeat !important;\n";
+        }
+        
+        $this->css .= "}\n\n";
+        
+        // Custom CSS
+        if ( ! empty( $bg['custom_css'] ) ) {
+            $this->css .= "/* Background Custom CSS */\n";
+            $this->css .= $this->sanitize_css( $bg['custom_css'] ) . "\n\n";
+        }
+    }
+
+    /**
+     * Add typography styles
+     *
+     * @return void
+     */
+    private function add_typography_styles(): void {
+        $typo = $this->settings->get_section( 'typography' );
+
+        $this->css .= "/* Typography Styling */\n";
+        
+        // H1
+        $this->css .= "h1 {\n";
+        $this->css .= "    font-size: {$typo['h1_size']} !important;\n";
+        $this->css .= "    font-weight: {$typo['h1_weight']} !important;\n";
+        $this->css .= "    line-height: {$typo['h1_line_height']} !important;\n";
+        $this->css .= "    letter-spacing: -0.02em !important;\n";
+        $this->css .= "}\n\n";
+        
+        // H2
+        $this->css .= "h2 {\n";
+        $this->css .= "    font-size: {$typo['h2_size']} !important;\n";
+        $this->css .= "    font-weight: {$typo['h2_weight']} !important;\n";
+        $this->css .= "    line-height: {$typo['h2_line_height']} !important;\n";
+        $this->css .= "    letter-spacing: -0.01em !important;\n";
+        $this->css .= "}\n\n";
+        
+        // H3
+        $this->css .= "h3 {\n";
+        $this->css .= "    font-size: {$typo['h3_size']} !important;\n";
+        $this->css .= "    font-weight: {$typo['h3_weight']} !important;\n";
+        $this->css .= "    line-height: {$typo['h3_line_height']} !important;\n";
+        $this->css .= "    letter-spacing: -0.01em !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Body
+        $this->css .= "body {\n";
+        $this->css .= "    font-size: {$typo['body_size']} !important;\n";
+        $this->css .= "    font-weight: {$typo['body_weight']} !important;\n";
+        $this->css .= "    line-height: {$typo['body_line_height']} !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Buttons and labels
+        $this->css .= "button, label {\n";
+        $this->css .= "    font-size: 14px !important;\n";
+        $this->css .= "    font-weight: 600 !important;\n";
+        $this->css .= "    line-height: 1.5 !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Small text
+        $this->css .= "small {\n";
+        $this->css .= "    font-size: 13px !important;\n";
+        $this->css .= "    line-height: 1.5 !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Custom CSS
+        if ( ! empty( $typo['custom_css'] ) ) {
+            $this->css .= "/* Typography Custom CSS */\n";
+            $this->css .= $this->sanitize_css( $typo['custom_css'] ) . "\n\n";
+        }
+    }
+
+    /**
+     * Add effect styles
+     *
+     * @return void
+     */
+    private function add_effect_styles(): void {
+        $effects = $this->settings->get_section( 'effects' );
+
+        $this->css .= "/* Effects and Animations */\n";
+        
+        // Global transitions
+        $this->css .= "* {\n";
+        $this->css .= "    transition-property: background, color, border, transform, box-shadow, opacity;\n";
+        $this->css .= "    transition-duration: {$effects['animation_duration']};\n";
+        $this->css .= "    transition-timing-function: {$effects['easing_function']};\n";
+        $this->css .= "}\n\n";
+        
+        // Glassmorphism utilities
+        $this->css .= ".woow-glass {\n";
+        $this->css .= "    backdrop-filter: blur(8px);\n";
+        $this->css .= "    -webkit-backdrop-filter: blur(8px);\n";
+        $this->css .= "    background: rgba(255, 255, 255, 0.8);\n";
+        $this->css .= "    border: 1px solid rgba(255, 255, 255, 0.4);\n";
+        $this->css .= "    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".woow-glass-strong {\n";
+        $this->css .= "    backdrop-filter: blur({$effects['glassmorphism_blur']});\n";
+        $this->css .= "    -webkit-backdrop-filter: blur({$effects['glassmorphism_blur']});\n";
+        $this->css .= "    background: rgba(255, 255, 255, 0.9);\n";
+        $this->css .= "    border: 1px solid rgba(255, 255, 255, 0.4);\n";
+        $this->css .= "    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".woow-glass-subtle {\n";
+        $this->css .= "    backdrop-filter: blur(6px);\n";
+        $this->css .= "    -webkit-backdrop-filter: blur(6px);\n";
+        $this->css .= "    background: rgba(255, 255, 255, 0.6);\n";
+        $this->css .= "    border: 1px solid rgba(255, 255, 255, 0.3);\n";
+        $this->css .= "}\n\n";
+        
+        // Fade in animation
+        $this->css .= "@keyframes woowFadeIn {\n";
+        $this->css .= "    from {\n";
+        $this->css .= "        opacity: 0;\n";
+        $this->css .= "        transform: translateY(20px);\n";
+        $this->css .= "    }\n";
+        $this->css .= "    to {\n";
+        $this->css .= "        opacity: 1;\n";
+        $this->css .= "        transform: translateY(0);\n";
+        $this->css .= "    }\n";
+        $this->css .= "}\n\n";
+        
+        // Respect reduced motion
+        if ( $effects['respect_reduced_motion'] ) {
+            $this->css .= "@media (prefers-reduced-motion: reduce) {\n";
+            $this->css .= "    * {\n";
+            $this->css .= "        animation-duration: 0.01ms !important;\n";
+            $this->css .= "        transition-duration: 0.01ms !important;\n";
+            $this->css .= "    }\n";
+            $this->css .= "}\n\n";
+        }
+        
+        // Custom CSS
+        if ( ! empty( $effects['custom_css'] ) ) {
+            $this->css .= "/* Effects Custom CSS */\n";
+            $this->css .= $this->sanitize_css( $effects['custom_css'] ) . "\n\n";
+        }
+    }
+
+    /**
+     * Add responsive styles
+     *
+     * @return void
+     */
+    private function add_responsive_styles(): void {
+        $this->css .= "/* Responsive Styles */\n";
+        
+        // Mobile: < 768px
+        $this->css .= "@media (max-width: 767px) {\n";
+        $this->css .= "    #adminmenuwrap, #adminmenu {\n";
+        $this->css .= "        position: relative !important;\n";
+        $this->css .= "        width: 100% !important;\n";
+        $this->css .= "        margin: 16px !important;\n";
+        $this->css .= "        height: auto !important;\n";
+        $this->css .= "    }\n\n";
+        
+        $this->css .= "    #wpadminbar {\n";
+        $this->css .= "        height: 56px !important;\n";
+        $this->css .= "        border-radius: 16px !important;\n";
+        $this->css .= "    }\n\n";
+        
+        $this->css .= "    .postbox {\n";
+        $this->css .= "        padding: 16px !important;\n";
+        $this->css .= "        border-radius: 16px !important;\n";
+        $this->css .= "    }\n\n";
+        
+        $this->css .= "    body {\n";
+        $this->css .= "        font-size: 14px !important;\n";
+        $this->css .= "    }\n\n";
+        
+        $this->css .= "    h1 { font-size: 24px !important; }\n";
+        $this->css .= "    h2 { font-size: 20px !important; }\n";
+        $this->css .= "    h3 { font-size: 18px !important; }\n\n";
+        
+        // Touch targets
+        $this->css .= "    button, input, select, a {\n";
+        $this->css .= "        min-height: 48px !important;\n";
+        $this->css .= "        min-width: 48px !important;\n";
+        $this->css .= "    }\n";
+        $this->css .= "}\n\n";
+        
+        // Tablet: 768px - 1023px
+        $this->css .= "@media (min-width: 768px) and (max-width: 1023px) {\n";
+        $this->css .= "    #adminmenuwrap, #adminmenu {\n";
+        $this->css .= "        width: 240px !important;\n";
+        $this->css .= "    }\n";
+        $this->css .= "}\n\n";
+        
+        // Desktop: > 1024px
+        $this->css .= "@media (min-width: 1024px) {\n";
+        $this->css .= "    /* Full layout enabled */\n";
+        $this->css .= "}\n\n";
+    }
+
+    /**
+     * Get shadow value from preset name
+     *
+     * @param string $style Shadow style preset
+     * @return string CSS shadow value
+     */
+    private function get_shadow_value( string $style ): string {
+        $shadows = [
+            'none' => 'none',
+            'sm'   => '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            'md'   => '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            'lg'   => '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+            'xl'   => '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+        ];
+
+        return $shadows[ $style ] ?? $shadows['md'];
+    }
+
+    /**
+     * Convert hex color to RGB string
+     *
+     * @param string $hex Hex color code
+     * @return string RGB values as comma-separated string
+     */
+    private function hex_to_rgb( string $hex ): string {
+        $hex = ltrim( $hex, '#' );
+        
+        if ( strlen( $hex ) === 3 ) {
+            $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+        }
+
+        $r = hexdec( substr( $hex, 0, 2 ) );
+        $g = hexdec( substr( $hex, 2, 2 ) );
+        $b = hexdec( substr( $hex, 4, 2 ) );
+
+        return "$r,$g,$b";
+    }
+
+    /**
+     * Generate glassmorphism CSS
+     *
+     * @param string $blur Blur strength
+     * @param float  $opacity Background opacity
+     * @return string Glassmorphism CSS
+     */
+    private function get_glassmorphism_css( string $blur, float $opacity ): string {
+        $css = '';
+        $css .= "    backdrop-filter: blur({$blur}) !important;\n";
+        $css .= "    -webkit-backdrop-filter: blur({$blur}) !important;\n";
+        return $css;
+    }
+
+    /**
+     * Sanitize custom CSS
+     *
+     * @param string $css Custom CSS code
+     * @return string Sanitized CSS
+     */
+    private function sanitize_css( string $css ): string {
+        // Remove dangerous patterns
+        $dangerous_patterns = [
+            '/<script[^>]*>.*?<\/script>/is',
+            '/javascript:/i',
+            '/on\w+\s*=/i',
+            '/<iframe[^>]*>.*?<\/iframe>/is',
+            '/<object[^>]*>.*?<\/object>/is',
+            '/<embed[^>]*>/i',
+            '/expression\s*\(/i',
+            '/import\s+/i',
+            '/@import/i',
+        ];
+
+        foreach ( $dangerous_patterns as $pattern ) {
+            $css = preg_replace( $pattern, '', $css );
+        }
+
+        // Strip tags
+        $css = wp_strip_all_tags( $css, true );
+
+        return $css;
+    }
+
+    /**
+     * Minify CSS by removing comments and whitespace
+     *
+     * @param string $css CSS to minify
+     * @return string Minified CSS
+     */
+    private function minify( string $css ): string {
+        // Remove comments
+        $css = preg_replace( '!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $css );
+        
+        // Remove whitespace
+        $css = str_replace( [ "\r\n", "\r", "\n", "\t", '  ', '    ', '    ' ], '', $css );
+        
+        // Remove spaces around selectors and properties
+        $css = preg_replace( '/\s*([{}|:;,])\s*/', '$1', $css );
+        
+        // Remove trailing semicolons
+        $css = str_replace( ';}', '}', $css );
+        
+        return trim( $css );
+    }
+}

@@ -1,0 +1,378 @@
+/**
+ * Button Component Styles
+ * 
+ * Button variants with consistent sizing and hover effects.
+ * Implements primary, secondary, and destructive styles.
+ * 
+ * @package WoowAdmin
+ * @since 1.0.0
+ */
+
+/* Base Button */
+.woow-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--woow-spacing-sm);
+  height: 40px;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  border-radius: var(--woow-radius-lg);
+  background: transparent;
+  color: var(--woow-foreground);
+  font-size: var(--woow-font-size-button);
+  font-weight: var(--woow-font-weight-semibold);
+  line-height: 1.5;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--woow-transition-normal);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.woow-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+}
+
+/* Primary Button */
+.woow-button-primary {
+  background: var(--woow-primary);
+  color: #ffffff;
+  border-color: var(--woow-primary);
+}
+
+.woow-button-primary:hover {
+  background: #5558e3;
+  border-color: #5558e3;
+  transform: scale(1.02);
+  box-shadow: var(--woow-shadow-md);
+}
+
+.woow-button-primary:active {
+  transform: scale(0.98);
+}
+
+/* Secondary Button */
+.woow-button-secondary {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--woow-primary);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.woow-button-secondary:hover {
+  background: rgba(99, 102, 241, 0.1);
+  border-color: var(--woow-primary);
+  transform: scale(1.02);
+  box-shadow: var(--woow-shadow-sm);
+}
+
+.woow-button-secondary:active {
+  transform: scale(0.98);
+}
+
+/* Outline Button */
+.woow-button-outline {
+  background: transparent;
+  color: var(--woow-primary);
+  border-color: var(--woow-primary);
+}
+
+.woow-button-outline:hover {
+  background: rgba(99, 102, 241, 0.05);
+  transform: scale(1.02);
+}
+
+/* Ghost Button */
+.woow-button-ghost {
+  background: transparent;
+  color: var(--woow-foreground);
+  border-color: transparent;
+}
+
+.woow-button-ghost:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Destructive Button */
+.woow-button-destructive {
+  background: var(--woow-destructive);
+  color: #ffffff;
+  border-color: var(--woow-destructive);
+}
+
+.woow-button-destructive:hover {
+  background: #dc2626;
+  border-color: #dc2626;
+  transform: scale(1.02);
+  box-shadow: var(--woow-shadow-md);
+}
+
+/* Success Button */
+.woow-button-success {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #10b981;
+}
+
+.woow-button-success:hover {
+  background: #059669;
+  border-color: #059669;
+  transform: scale(1.02);
+  box-shadow: var(--woow-shadow-md);
+}
+
+/* Warning Button */
+.woow-button-warning {
+  background: #f59e0b;
+  color: #ffffff;
+  border-color: #f59e0b;
+}
+
+.woow-button-warning:hover {
+  background: #d97706;
+  border-color: #d97706;
+  transform: scale(1.02);
+  box-shadow: var(--woow-shadow-md);
+}
+
+/* Button Sizes */
+
+/* Small Button */
+.woow-button-sm {
+  height: 32px;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+/* Large Button */
+.woow-button-lg {
+  height: 48px;
+  padding: 12px 20px;
+  font-size: 16px;
+}
+
+/* Icon Button */
+.woow-button-icon {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  min-width: 40px;
+}
+
+.woow-button-icon.woow-button-sm {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+}
+
+.woow-button-icon.woow-button-lg {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+}
+
+/* Button with Icon */
+.woow-button-with-icon {
+  padding-left: 12px;
+}
+
+.woow-button-icon-left {
+  margin-right: -4px;
+}
+
+.woow-button-icon-right {
+  margin-left: -4px;
+}
+
+/* Loading Button */
+.woow-button-loading {
+  position: relative;
+  color: transparent;
+  pointer-events: none;
+}
+
+.woow-button-loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 50%;
+  left: 50%;
+  margin-left: -8px;
+  margin-top: -8px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: woowButtonSpin 600ms linear infinite;
+}
+
+@keyframes woowButtonSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Disabled Button */
+.woow-button:disabled,
+.woow-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Button Group */
+.woow-button-group {
+  display: inline-flex;
+  gap: var(--woow-spacing-xs);
+}
+
+.woow-button-group-attached {
+  gap: 0;
+}
+
+.woow-button-group-attached .woow-button {
+  border-radius: 0;
+}
+
+.woow-button-group-attached .woow-button:first-child {
+  border-top-left-radius: var(--woow-radius-lg);
+  border-bottom-left-radius: var(--woow-radius-lg);
+}
+
+.woow-button-group-attached .woow-button:last-child {
+  border-top-right-radius: var(--woow-radius-lg);
+  border-bottom-right-radius: var(--woow-radius-lg);
+}
+
+.woow-button-group-attached .woow-button:not(:last-child) {
+  border-right-width: 0;
+}
+
+/* Full Width Button */
+.woow-button-block {
+  width: 100%;
+  display: flex;
+}
+
+/* Gradient Button */
+.woow-button-gradient {
+  background: linear-gradient(
+    to bottom right,
+    var(--woow-primary),
+    var(--woow-secondary)
+  );
+  color: #ffffff;
+  border: none;
+}
+
+.woow-button-gradient:hover {
+  background: linear-gradient(
+    to bottom right,
+    #5558e3,
+    #7c3aed
+  );
+  transform: scale(1.02);
+  box-shadow: var(--woow-shadow-lg);
+}
+
+/* Link Button */
+.woow-button-link {
+  height: auto;
+  padding: 0;
+  background: transparent;
+  color: var(--woow-primary);
+  border: none;
+  text-decoration: underline;
+}
+
+.woow-button-link:hover {
+  color: #5558e3;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+  .woow-button {
+    min-height: 44px;
+    height: auto;
+    padding: 12px 16px;
+  }
+
+  .woow-button-sm {
+    min-height: 36px;
+    padding: 8px 12px;
+  }
+
+  .woow-button-lg {
+    min-height: 52px;
+    padding: 14px 20px;
+  }
+
+  .woow-button-icon {
+    min-width: 44px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .woow-button-group {
+    flex-wrap: wrap;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .woow-button {
+    transition: none;
+  }
+
+  .woow-button:hover,
+  .woow-button-primary:hover,
+  .woow-button-secondary:hover,
+  .woow-button-outline:hover,
+  .woow-button-destructive:hover,
+  .woow-button-gradient:hover {
+    transform: none;
+  }
+
+  .woow-button-loading::after {
+    animation: none;
+  }
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  .woow-button-secondary {
+    background: rgba(30, 41, 59, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--woow-primary);
+  }
+
+  .woow-button-secondary:hover {
+    background: rgba(99, 102, 241, 0.15);
+  }
+
+  .woow-button-ghost {
+    color: var(--woow-foreground);
+  }
+
+  .woow-button-ghost:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+/* Print Styles */
+@media print {
+  .woow-button {
+    border: 1px solid #000;
+    box-shadow: none;
+  }
+
+  .woow-button:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}

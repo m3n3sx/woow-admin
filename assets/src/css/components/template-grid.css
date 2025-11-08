@@ -1,0 +1,404 @@
+/**
+ * Template Grid Styles
+ * 
+ * Design template selector with grid layout and thumbnails.
+ * Displays template cards with preview images.
+ * 
+ * @package WoowAdmin
+ * @since 1.0.0
+ */
+
+/* Template Grid */
+.woow-template-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--woow-spacing-lg);
+  margin-bottom: var(--woow-spacing-lg);
+}
+
+/* Template Card */
+.woow-template-card {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-radius: var(--woow-radius-xl);
+  box-shadow: var(--woow-shadow-md);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all var(--woow-transition-normal);
+  position: relative;
+}
+
+.woow-template-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--woow-shadow-xl);
+  border-color: var(--woow-primary);
+}
+
+.woow-template-card.active {
+  border-color: var(--woow-primary);
+  border-width: 2px;
+  box-shadow: var(--woow-shadow-lg), 0 0 0 4px rgba(99, 102, 241, 0.2);
+}
+
+.woow-template-card.active::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  background: var(--woow-primary);
+  border-radius: 50%;
+  z-index: 2;
+}
+
+.woow-template-card.active::after {
+  content: '✓';
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+}
+
+/* Template Thumbnail */
+.woow-template-thumbnail {
+  width: 100%;
+  height: 200px;
+  background: linear-gradient(
+    to bottom right,
+    #f8fafc,
+    #eff6ff,
+    #eef2ff
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.woow-template-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--woow-transition-normal);
+}
+
+.woow-template-card:hover .woow-template-thumbnail img {
+  transform: scale(1.05);
+}
+
+.woow-template-thumbnail-placeholder {
+  font-size: 48px;
+  color: var(--woow-muted-foreground);
+  opacity: 0.3;
+}
+
+/* Template Content */
+.woow-template-content {
+  padding: var(--woow-spacing-md);
+}
+
+.woow-template-header {
+  margin-bottom: var(--woow-spacing-sm);
+}
+
+.woow-template-name {
+  font-size: var(--woow-font-size-h3);
+  font-weight: var(--woow-font-weight-semibold);
+  color: var(--woow-foreground);
+  margin: 0 0 var(--woow-spacing-xs) 0;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: var(--woow-spacing-sm);
+}
+
+.woow-template-description {
+  font-size: var(--woow-font-size-small);
+  color: var(--woow-muted-foreground);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Template Features */
+.woow-template-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--woow-spacing-xs);
+  margin-top: var(--woow-spacing-sm);
+}
+
+.woow-template-feature {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(99, 102, 241, 0.05);
+  color: var(--woow-primary);
+  font-size: 11px;
+  font-weight: var(--woow-font-weight-medium);
+}
+
+.woow-template-feature-icon {
+  font-size: 12px;
+}
+
+/* Template Badge */
+.woow-template-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: var(--woow-font-weight-semibold);
+  line-height: 1;
+  z-index: 1;
+}
+
+.woow-template-badge-default {
+  background: rgba(99, 102, 241, 0.9);
+  color: #ffffff;
+  backdrop-filter: blur(8px);
+}
+
+.woow-template-badge-popular {
+  background: rgba(16, 185, 129, 0.9);
+  color: #ffffff;
+  backdrop-filter: blur(8px);
+}
+
+.woow-template-badge-new {
+  background: rgba(245, 158, 11, 0.9);
+  color: #ffffff;
+  backdrop-filter: blur(8px);
+}
+
+.woow-template-badge-pro {
+  background: linear-gradient(to right, #6366f1, #8b5cf6);
+  color: #ffffff;
+  backdrop-filter: blur(8px);
+}
+
+/* Template Actions */
+.woow-template-actions {
+  display: flex;
+  gap: var(--woow-spacing-xs);
+  margin-top: var(--woow-spacing-md);
+  padding-top: var(--woow-spacing-md);
+  border-top: 1px solid var(--woow-border);
+}
+
+.woow-template-action-button {
+  flex: 1;
+  height: 32px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: var(--woow-radius-md);
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  color: var(--woow-foreground);
+  font-size: 13px;
+  font-weight: var(--woow-font-weight-medium);
+  cursor: pointer;
+  transition: all var(--woow-transition-normal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.woow-template-action-button:hover {
+  background: rgba(99, 102, 241, 0.1);
+  border-color: var(--woow-primary);
+  color: var(--woow-primary);
+}
+
+.woow-template-action-button-primary {
+  background: var(--woow-primary);
+  color: #ffffff;
+  border-color: var(--woow-primary);
+}
+
+.woow-template-action-button-primary:hover {
+  background: #5558e3;
+  border-color: #5558e3;
+  color: #ffffff;
+}
+
+/* Template Meta */
+.woow-template-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--woow-spacing-md);
+  margin-top: var(--woow-spacing-sm);
+  padding-top: var(--woow-spacing-sm);
+  border-top: 1px solid var(--woow-border);
+  font-size: var(--woow-font-size-small);
+  color: var(--woow-muted-foreground);
+}
+
+.woow-template-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.woow-template-meta-icon {
+  font-size: 14px;
+}
+
+/* Empty State */
+.woow-template-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: var(--woow-spacing-2xl);
+  color: var(--woow-muted-foreground);
+}
+
+.woow-template-empty-icon {
+  font-size: 48px;
+  margin-bottom: var(--woow-spacing-md);
+  opacity: 0.5;
+}
+
+.woow-template-empty-text {
+  font-size: var(--woow-font-size-body);
+  margin-bottom: var(--woow-spacing-sm);
+}
+
+/* Responsive */
+@media (min-width: 1600px) {
+  .woow-template-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 1023px) {
+  .woow-template-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--woow-spacing-md);
+  }
+
+  .woow-template-thumbnail {
+    height: 160px;
+  }
+}
+
+@media (max-width: 767px) {
+  .woow-template-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .woow-template-thumbnail {
+    height: 200px;
+  }
+
+  .woow-template-content {
+    padding: var(--woow-spacing-md);
+  }
+
+  .woow-template-actions {
+    flex-direction: column;
+  }
+
+  .woow-template-action-button {
+    width: 100%;
+  }
+
+  .woow-template-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--woow-spacing-xs);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .woow-template-card,
+  .woow-template-thumbnail img,
+  .woow-template-action-button {
+    transition: none;
+  }
+
+  .woow-template-card:hover,
+  .woow-template-card:hover .woow-template-thumbnail img {
+    transform: none;
+  }
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  .woow-template-card {
+    background: rgba(30, 41, 59, 0.9);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .woow-template-card:hover {
+    border-color: var(--woow-primary);
+  }
+
+  .woow-template-card.active {
+    border-color: var(--woow-primary);
+  }
+
+  .woow-template-thumbnail {
+    background: linear-gradient(
+      to bottom right,
+      #0f172a,
+      #1e293b,
+      #334155
+    );
+  }
+
+  .woow-template-action-button {
+    background: rgba(30, 41, 59, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .woow-template-feature {
+    background: rgba(99, 102, 241, 0.1);
+  }
+}
+
+/* Print Styles */
+@media print {
+  .woow-template-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .woow-template-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #e2e8f0;
+  }
+
+  .woow-template-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .woow-template-actions {
+    display: none;
+  }
+
+  .woow-template-thumbnail {
+    height: 150px;
+  }
+}

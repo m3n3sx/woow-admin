@@ -1,0 +1,78 @@
+/**
+ * Glassmorphism Utilities
+ * 
+ * Glass effect classes with backdrop-filter blur and semi-transparent backgrounds.
+ * Based on Figma design specifications.
+ * 
+ * @package WoowAdmin
+ * @since 1.0.0
+ */
+
+/* Standard Glass Effect */
+.woow-glass {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: var(--woow-shadow-md);
+}
+
+/* Strong Glass Effect (Primary UI Elements) */
+.woow-glass-strong {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: var(--woow-shadow-lg);
+}
+
+/* Subtle Glass Effect (Secondary Elements) */
+.woow-glass-subtle {
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: var(--woow-shadow-sm);
+}
+
+/* Dark Mode Glass Variants */
+@media (prefers-color-scheme: dark) {
+  .woow-glass {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .woow-glass-strong {
+    background: rgba(30, 41, 59, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .woow-glass-subtle {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+}
+
+/* Glass with Hover Effect */
+.woow-glass-hover {
+  transition: all var(--woow-transition-normal);
+}
+
+.woow-glass-hover:hover {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: var(--woow-shadow-xl);
+  transform: translateY(-2px);
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .woow-glass-hover {
+    transition: none;
+  }
+
+  .woow-glass-hover:hover {
+    transform: none;
+  }
+}

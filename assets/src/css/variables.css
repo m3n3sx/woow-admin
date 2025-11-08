@@ -1,0 +1,62 @@
+/**
+ * WOOW! Admin - CSS Variables
+ * Design System based on Professional Blue palette
+ */
+
+:root {
+  /* Colors - Professional Blue Palette */
+  --woow-primary: #6366f1;
+  --woow-secondary: #8b5cf6;
+  --woow-background: #fafafa;
+  --woow-card: #ffffff;
+  --woow-foreground: #0f172a;
+  --woow-border: #e2e8f0;
+  --woow-muted-foreground: #64748b;
+  --woow-destructive: #ef4444;
+  
+  /* Spacing (4px base) */
+  --woow-spacing-xs: 4px;
+  --woow-spacing-sm: 8px;
+  --woow-spacing-md: 16px;
+  --woow-spacing-lg: 24px;
+  --woow-spacing-xl: 32px;
+  --woow-spacing-2xl: 48px;
+  
+  /* Border Radius */
+  --woow-radius-sm: 8px;
+  --woow-radius-md: 10px;
+  --woow-radius-lg: 12px;
+  --woow-radius-xl: 16px;
+  --woow-radius-2xl: 20px;
+  --woow-radius-3xl: 24px;
+  
+  /* Shadows */
+  --woow-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  --woow-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --woow-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --woow-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  
+  /* Typography */
+  --woow-font-size-sm: 13px;
+  --woow-font-size-base: 14px;
+  --woow-font-size-md: 15px;
+  --woow-font-size-lg: 18px;
+  --woow-font-size-xl: 20px;
+  --woow-font-size-2xl: 24px;
+  --woow-font-size-3xl: 32px;
+  
+  --woow-font-weight-normal: 400;
+  --woow-font-weight-medium: 500;
+  --woow-font-weight-semibold: 600;
+  --woow-font-weight-bold: 700;
+  
+  /* Glassmorphism */
+  --woow-glass-blur: 8px;
+  --woow-glass-blur-strong: 12px;
+  --woow-glass-bg: rgba(255, 255, 255, 0.8);
+  --woow-glass-bg-strong: rgba(255, 255, 255, 0.9);
+  --woow-glass-border: rgba(255, 255, 255, 0.4);
+  
+  /* Transitions */
+  --woow-transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}

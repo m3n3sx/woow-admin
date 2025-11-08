@@ -1,0 +1,224 @@
+/**
+ * Tab Navigation Styles
+ * 
+ * Horizontal tab navigation with active state indicators.
+ * Implements smooth transitions and hover effects.
+ * 
+ * @package WoowAdmin
+ * @since 1.0.0
+ */
+
+/* Tab Button */
+.woow-tab-button {
+  display: flex;
+  align-items: center;
+  gap: var(--woow-spacing-sm);
+  padding: 10px 16px;
+  border: none;
+  border-radius: var(--woow-radius-lg);
+  background: transparent;
+  color: var(--woow-muted-foreground);
+  font-size: var(--woow-font-size-button);
+  font-weight: var(--woow-font-weight-medium);
+  line-height: 1.5;
+  cursor: pointer;
+  transition: all var(--woow-transition-normal);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.woow-tab-button:hover {
+  background: rgba(99, 102, 241, 0.05);
+  color: var(--woow-primary);
+}
+
+.woow-tab-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+}
+
+/* Active Tab */
+.woow-tab-button.active {
+  background: var(--woow-primary);
+  color: #ffffff;
+  font-weight: var(--woow-font-weight-semibold);
+  box-shadow: var(--woow-shadow-md);
+}
+
+.woow-tab-button.active:hover {
+  background: var(--woow-primary);
+  color: #ffffff;
+}
+
+/* Tab Icon */
+.woow-tab-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.woow-tab-button.active .woow-tab-icon {
+  color: #ffffff;
+}
+
+/* Tab Badge (for notifications) */
+.woow-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--woow-primary);
+  font-size: 11px;
+  font-weight: var(--woow-font-weight-semibold);
+  line-height: 1;
+}
+
+.woow-tab-button.active .woow-tab-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+/* Disabled Tab */
+.woow-tab-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Tab Separator */
+.woow-tab-separator {
+  width: 1px;
+  height: 24px;
+  background: var(--woow-border);
+  margin: 0 var(--woow-spacing-xs);
+}
+
+/* Vertical Tab Layout (Sidebar) */
+.woow-tabs-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: var(--woow-spacing-xs);
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.woow-tabs-vertical .woow-tab-button {
+  width: 100%;
+  justify-content: flex-start;
+  border-radius: var(--woow-radius-lg);
+}
+
+.woow-tabs-vertical .woow-tab-button.active {
+  background: linear-gradient(
+    to bottom right,
+    var(--woow-primary),
+    var(--woow-secondary)
+  );
+}
+
+/* Tab Group */
+.woow-tab-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--woow-spacing-xs);
+}
+
+.woow-tab-group-label {
+  font-size: var(--woow-font-size-small);
+  font-weight: var(--woow-font-weight-semibold);
+  color: var(--woow-muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0 var(--woow-spacing-md);
+  margin-top: var(--woow-spacing-md);
+  margin-bottom: var(--woow-spacing-xs);
+}
+
+.woow-tab-group:first-child .woow-tab-group-label {
+  margin-top: 0;
+}
+
+/* Responsive Tabs */
+@media (max-width: 1023px) {
+  .woow-tabs {
+    padding: var(--woow-spacing-xs);
+  }
+
+  .woow-tab-button {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .woow-tab-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 767px) {
+  .woow-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .woow-tab-button {
+    flex-shrink: 0;
+  }
+
+  /* Hide text on mobile, show only icons */
+  .woow-tab-text {
+    display: none;
+  }
+
+  .woow-tab-button {
+    padding: 10px;
+    min-width: 44px;
+    justify-content: center;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .woow-tab-button {
+    transition: none;
+  }
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  .woow-tab-button {
+    color: var(--woow-muted-foreground);
+  }
+
+  .woow-tab-button:hover {
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--woow-primary);
+  }
+
+  .woow-tab-button.active {
+    background: var(--woow-primary);
+    color: #ffffff;
+  }
+
+  .woow-tab-separator {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Print Styles */
+@media print {
+  .woow-tabs {
+    display: none;
+  }
+}

@@ -1,0 +1,330 @@
+/**
+ * Admin Page Layout Styles
+ * 
+ * Main layout structure for WOOW! Admin settings page.
+ * Implements glassmorphism design with gradient background.
+ * 
+ * @package WoowAdmin
+ * @since 1.0.0
+ */
+
+/* Main Wrapper */
+.woow-admin-wrap {
+  min-height: 100vh;
+  background: linear-gradient(
+    to bottom right,
+    #f8fafc,  /* slate-50 */
+    #eff6ff,  /* blue-50 */
+    #eef2ff   /* indigo-50 */
+  );
+  padding: var(--woow-spacing-lg);
+}
+
+/* Header */
+.woow-header {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: var(--woow-radius-3xl);
+  box-shadow: var(--woow-shadow-lg);
+  padding: var(--woow-spacing-lg);
+  margin-bottom: var(--woow-spacing-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--woow-spacing-md);
+}
+
+.woow-header-title {
+  display: flex;
+  align-items: center;
+  gap: var(--woow-spacing-md);
+}
+
+.woow-header-title h1 {
+  font-size: var(--woow-font-size-h1);
+  font-weight: var(--woow-font-weight-bold);
+  color: var(--woow-foreground);
+  margin: 0;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.woow-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--woow-spacing-sm);
+}
+
+/* Tab Navigation */
+.woow-tabs {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: var(--woow-radius-xl);
+  box-shadow: var(--woow-shadow-md);
+  padding: var(--woow-spacing-sm);
+  margin-bottom: var(--woow-spacing-lg);
+  display: flex;
+  gap: var(--woow-spacing-xs);
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--woow-primary) transparent;
+}
+
+.woow-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.woow-tabs::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.woow-tabs::-webkit-scrollbar-thumb {
+  background: var(--woow-primary);
+  border-radius: 2px;
+}
+
+/* Main Content Area */
+.woow-content {
+  display: flex;
+  gap: var(--woow-spacing-lg);
+  align-items: flex-start;
+}
+
+/* Sidebar */
+.woow-sidebar {
+  width: 320px;
+  min-width: 320px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: var(--woow-radius-3xl);
+  box-shadow: var(--woow-shadow-lg);
+  padding: var(--woow-spacing-lg);
+  position: sticky;
+  top: var(--woow-spacing-lg);
+  max-height: calc(100vh - var(--woow-spacing-2xl));
+  overflow-y: auto;
+}
+
+.woow-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.woow-sidebar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.woow-sidebar::-webkit-scrollbar-thumb {
+  background: var(--woow-primary);
+  border-radius: 3px;
+}
+
+/* Tab Content */
+.woow-tab-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.woow-tab-pane {
+  display: none;
+}
+
+.woow-tab-pane.active {
+  display: block;
+  animation: woowFadeIn 300ms ease-out;
+}
+
+@keyframes woowFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Preview Panel */
+.woow-preview-panel {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: var(--woow-radius-3xl);
+  box-shadow: var(--woow-shadow-lg);
+  padding: var(--woow-spacing-lg);
+  position: sticky;
+  top: var(--woow-spacing-lg);
+  max-height: calc(100vh - var(--woow-spacing-2xl));
+  overflow: hidden;
+}
+
+.woow-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--woow-spacing-md);
+  padding-bottom: var(--woow-spacing-md);
+  border-bottom: 1px solid var(--woow-border);
+}
+
+.woow-preview-header h3 {
+  font-size: var(--woow-font-size-h3);
+  font-weight: var(--woow-font-weight-semibold);
+  color: var(--woow-foreground);
+  margin: 0;
+}
+
+.woow-preview-controls {
+  display: flex;
+  gap: var(--woow-spacing-xs);
+}
+
+.woow-preview-iframe-wrapper {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 200px);
+  border-radius: var(--woow-radius-lg);
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.woow-preview-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* Preview Mode Variants */
+.woow-preview-iframe-wrapper.mode-desktop {
+  width: 100%;
+}
+
+.woow-preview-iframe-wrapper.mode-tablet {
+  width: 768px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.woow-preview-iframe-wrapper.mode-mobile {
+  width: 375px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* Loading State */
+.woow-preview-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.woow-preview-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(99, 102, 241, 0.1);
+  border-top-color: var(--woow-primary);
+  border-radius: 50%;
+  animation: woowSpin 800ms linear infinite;
+}
+
+@keyframes woowSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Section Header */
+.woow-section-header {
+  margin-bottom: var(--woow-spacing-lg);
+  padding: var(--woow-spacing-lg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: var(--woow-radius-3xl);
+  box-shadow: var(--woow-shadow-md);
+}
+
+.woow-section-header h2 {
+  font-size: var(--woow-font-size-h2);
+  font-weight: var(--woow-font-weight-bold);
+  color: var(--woow-foreground);
+  margin: 0 0 var(--woow-spacing-sm) 0;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.woow-section-description {
+  font-size: var(--woow-font-size-body);
+  color: var(--woow-muted-foreground);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Footer */
+.woow-footer {
+  margin-top: var(--woow-spacing-2xl);
+  padding: var(--woow-spacing-lg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: var(--woow-radius-3xl);
+  box-shadow: var(--woow-shadow-md);
+  text-align: center;
+}
+
+.woow-footer-text {
+  font-size: var(--woow-font-size-small);
+  color: var(--woow-muted-foreground);
+  margin: 0;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .woow-tab-pane.active {
+    animation: none;
+  }
+
+  .woow-preview-loading-spinner {
+    animation: none;
+  }
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  .woow-admin-wrap {
+    background: linear-gradient(
+      to bottom right,
+      #0f172a,  /* slate-900 */
+      #1e293b,  /* slate-800 */
+      #334155   /* slate-700 */
+    );
+  }
+
+  .woow-header,
+  .woow-tabs,
+  .woow-sidebar,
+  .woow-preview-panel,
+  .woow-section-header,
+  .woow-footer {
+    background: rgba(30, 41, 59, 0.9);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .woow-preview-iframe-wrapper {
+    background: #1e293b;
+  }
+}

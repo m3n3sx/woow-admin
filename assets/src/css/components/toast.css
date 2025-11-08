@@ -1,0 +1,316 @@
+/**
+ * Toast Notification Styles
+ * 
+ * Toast notifications with glassmorphism effect.
+ * Positioned at bottom-right with fade animations.
+ * 
+ * @package WoowAdmin
+ * @since 1.0.0
+ */
+
+/* Toast Container */
+.woow-toast-container {
+  position: fixed;
+  bottom: var(--woow-spacing-lg);
+  right: var(--woow-spacing-lg);
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: var(--woow-spacing-sm);
+  max-width: 400px;
+  pointer-events: none;
+}
+
+/* Toast */
+.woow-toast {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-left-width: 4px;
+  border-radius: var(--woow-radius-lg);
+  box-shadow: var(--woow-shadow-xl);
+  padding: var(--woow-spacing-md);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--woow-spacing-sm);
+  min-width: 300px;
+  max-width: 400px;
+  pointer-events: auto;
+  animation: woowToastSlideIn 300ms ease-out;
+}
+
+.woow-toast.hiding {
+  animation: woowToastSlideOut 200ms ease-in forwards;
+}
+
+@keyframes woowToastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes woowToastSlideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+/* Toast Icon */
+.woow-toast-icon {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* Toast Content */
+.woow-toast-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.woow-toast-title {
+  font-size: var(--woow-font-size-button);
+  font-weight: var(--woow-font-weight-semibold);
+  color: var(--woow-foreground);
+  margin: 0 0 4px 0;
+  line-height: 1.4;
+}
+
+.woow-toast-message {
+  font-size: var(--woow-font-size-small);
+  color: var(--woow-muted-foreground);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Toast Close Button */
+.woow-toast-close {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--woow-muted-foreground);
+  font-size: 18px;
+  cursor: pointer;
+  transition: all var(--woow-transition-normal);
+  padding: 0;
+}
+
+.woow-toast-close:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--woow-foreground);
+}
+
+/* Toast Variants */
+
+/* Success Toast */
+.woow-toast-success {
+  border-left-color: #10b981;
+}
+
+.woow-toast-success .woow-toast-icon {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+/* Error Toast */
+.woow-toast-error {
+  border-left-color: var(--woow-destructive);
+}
+
+.woow-toast-error .woow-toast-icon {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--woow-destructive);
+}
+
+/* Warning Toast */
+.woow-toast-warning {
+  border-left-color: #f59e0b;
+}
+
+.woow-toast-warning .woow-toast-icon {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+}
+
+/* Info Toast */
+.woow-toast-info {
+  border-left-color: #0ea5e9;
+}
+
+.woow-toast-info .woow-toast-icon {
+  background: rgba(14, 165, 233, 0.1);
+  color: #0ea5e9;
+}
+
+/* Toast Progress Bar */
+.woow-toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.1);
+  border-bottom-left-radius: var(--woow-radius-lg);
+  border-bottom-right-radius: var(--woow-radius-lg);
+  overflow: hidden;
+}
+
+.woow-toast-progress-bar {
+  height: 100%;
+  background: currentColor;
+  animation: woowToastProgress 3000ms linear forwards;
+}
+
+@keyframes woowToastProgress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+.woow-toast-success .woow-toast-progress-bar {
+  color: #10b981;
+}
+
+.woow-toast-error .woow-toast-progress-bar {
+  color: var(--woow-destructive);
+}
+
+.woow-toast-warning .woow-toast-progress-bar {
+  color: #f59e0b;
+}
+
+.woow-toast-info .woow-toast-progress-bar {
+  color: #0ea5e9;
+}
+
+/* Toast with Action */
+.woow-toast-actions {
+  display: flex;
+  gap: var(--woow-spacing-xs);
+  margin-top: var(--woow-spacing-sm);
+}
+
+.woow-toast-action-button {
+  height: 28px;
+  padding: 4px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--woow-foreground);
+  font-size: 12px;
+  font-weight: var(--woow-font-weight-medium);
+  cursor: pointer;
+  transition: all var(--woow-transition-normal);
+}
+
+.woow-toast-action-button:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: var(--woow-primary);
+  color: var(--woow-primary);
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+  .woow-toast-container {
+    bottom: var(--woow-spacing-md);
+    right: var(--woow-spacing-md);
+    left: var(--woow-spacing-md);
+    max-width: none;
+  }
+
+  .woow-toast {
+    min-width: 0;
+    max-width: none;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .woow-toast {
+    animation: woowToastFadeIn 200ms ease-out;
+  }
+
+  .woow-toast.hiding {
+    animation: woowToastFadeOut 200ms ease-in forwards;
+  }
+
+  @keyframes woowToastFadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes woowToastFadeOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  .woow-toast-progress-bar {
+    animation: none;
+  }
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  .woow-toast {
+    background: rgba(30, 41, 59, 0.95);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .woow-toast-close:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .woow-toast-action-button {
+    background: rgba(30, 41, 59, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .woow-toast-action-button:hover {
+    background: rgba(30, 41, 59, 1);
+  }
+
+  .woow-toast-progress {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Print Styles */
+@media print {
+  .woow-toast-container {
+    display: none;
+  }
+}

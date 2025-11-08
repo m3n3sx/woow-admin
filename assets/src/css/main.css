@@ -1,0 +1,297 @@
+/**
+ * WOOW! Admin - Main Stylesheet
+ * 
+ * Imports all component styles and utilities.
+ * This is the entry point for the CSS bundle.
+ * 
+ * @package WoowAdmin
+ * @since 1.0.0
+ */
+
+/* CSS Variables and Base Styles */
+@import './variables.css';
+
+/* Utilities */
+@import './utilities/glassmorphism.css';
+
+/* Components */
+@import './components/admin-page.css';
+@import './components/tabs.css';
+@import './components/cards.css';
+@import './components/buttons.css';
+@import './components/forms.css';
+@import './components/palette-grid.css';
+@import './components/template-grid.css';
+@import './components/toast.css';
+
+/* WordPress Overrides */
+@import './wordpress-overrides/admin-bar.css';
+@import './wordpress-overrides/admin-menu.css';
+@import './wordpress-overrides/dashboard.css';
+
+/* Responsive Styles */
+@import './responsive.css';
+
+/* Global Resets and Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: var(--woow-font-size-body);
+  line-height: 1.6;
+  color: var(--woow-foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Focus Visible Styles */
+*:focus-visible {
+  outline: 2px solid var(--woow-primary);
+  outline-offset: 2px;
+}
+
+/* Selection Styles */
+::selection {
+  background: rgba(99, 102, 241, 0.2);
+  color: var(--woow-foreground);
+}
+
+::-moz-selection {
+  background: rgba(99, 102, 241, 0.2);
+  color: var(--woow-foreground);
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Utility Classes */
+.woow-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.woow-hidden {
+  display: none !important;
+}
+
+.woow-visible {
+  display: block !important;
+}
+
+/* Text Utilities */
+.woow-text-center {
+  text-align: center;
+}
+
+.woow-text-left {
+  text-align: left;
+}
+
+.woow-text-right {
+  text-align: right;
+}
+
+.woow-text-muted {
+  color: var(--woow-muted-foreground);
+}
+
+.woow-text-primary {
+  color: var(--woow-primary);
+}
+
+.woow-text-destructive {
+  color: var(--woow-destructive);
+}
+
+/* Spacing Utilities */
+.woow-mt-0 { margin-top: 0; }
+.woow-mt-1 { margin-top: var(--woow-spacing-xs); }
+.woow-mt-2 { margin-top: var(--woow-spacing-sm); }
+.woow-mt-3 { margin-top: var(--woow-spacing-md); }
+.woow-mt-4 { margin-top: var(--woow-spacing-lg); }
+
+.woow-mb-0 { margin-bottom: 0; }
+.woow-mb-1 { margin-bottom: var(--woow-spacing-xs); }
+.woow-mb-2 { margin-bottom: var(--woow-spacing-sm); }
+.woow-mb-3 { margin-bottom: var(--woow-spacing-md); }
+.woow-mb-4 { margin-bottom: var(--woow-spacing-lg); }
+
+.woow-p-0 { padding: 0; }
+.woow-p-1 { padding: var(--woow-spacing-xs); }
+.woow-p-2 { padding: var(--woow-spacing-sm); }
+.woow-p-3 { padding: var(--woow-spacing-md); }
+.woow-p-4 { padding: var(--woow-spacing-lg); }
+
+/* Flex Utilities */
+.woow-flex {
+  display: flex;
+}
+
+.woow-flex-col {
+  flex-direction: column;
+}
+
+.woow-items-center {
+  align-items: center;
+}
+
+.woow-justify-center {
+  justify-content: center;
+}
+
+.woow-justify-between {
+  justify-content: space-between;
+}
+
+.woow-gap-1 { gap: var(--woow-spacing-xs); }
+.woow-gap-2 { gap: var(--woow-spacing-sm); }
+.woow-gap-3 { gap: var(--woow-spacing-md); }
+.woow-gap-4 { gap: var(--woow-spacing-lg); }
+
+/* Loading Spinner */
+.woow-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(99, 102, 241, 0.1);
+  border-top-color: var(--woow-primary);
+  border-radius: 50%;
+  animation: woowSpin 800ms linear infinite;
+}
+
+@keyframes woowSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Badge */
+.woow-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: var(--woow-font-weight-semibold);
+  line-height: 1;
+}
+
+.woow-badge-primary {
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--woow-primary);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.woow-badge-secondary {
+  background: rgba(100, 116, 139, 0.1);
+  color: #64748b;
+  border: 1px solid rgba(100, 116, 139, 0.2);
+}
+
+.woow-badge-success {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.woow-badge-warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.woow-badge-error {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--woow-destructive);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Divider */
+.woow-divider {
+  height: 1px;
+  background: var(--woow-border);
+  margin: var(--woow-spacing-md) 0;
+}
+
+/* Skeleton Loader */
+.woow-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.05) 25%,
+    rgba(0, 0, 0, 0.1) 50%,
+    rgba(0, 0, 0, 0.05) 75%
+  );
+  background-size: 200% 100%;
+  animation: woowSkeleton 1.5s ease-in-out infinite;
+  border-radius: var(--woow-radius-md);
+}
+
+@keyframes woowSkeleton {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Tooltip */
+.woow-tooltip {
+  position: relative;
+}
+
+.woow-tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 8px;
+  padding: 6px 12px;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: var(--woow-font-weight-medium);
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--woow-transition-normal);
+  z-index: 1000;
+}
+
+.woow-tooltip:hover::after {
+  opacity: 1;
+}
+
+/* Print Styles */
+@media print {
+  .woow-admin-wrap {
+    background: #ffffff !important;
+  }
+
+  .woow-header-actions,
+  .woow-tabs,
+  .woow-preview-panel,
+  .woow-toast-container {
+    display: none !important;
+  }
+}
