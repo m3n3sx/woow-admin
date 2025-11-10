@@ -126,6 +126,9 @@ $current_template = $settings['general']['current_template'] ?? 'default';
                     <h2><?php esc_html_e( 'WOOW!', 'woow-admin' ); ?></h2>
                     <p><?php esc_html_e( 'Admin Styler', 'woow-admin' ); ?></p>
                 </div>
+                <button type="button" class="woow-sidebar-toggle" aria-label="<?php esc_attr_e( 'Toggle sidebar', 'woow-admin' ); ?>" title="<?php esc_attr_e( 'Collapse/Expand Sidebar', 'woow-admin' ); ?>">
+                    <span class="dashicons dashicons-arrow-left-alt2"></span>
+                </button>
             </div>
             
             <!-- Navigation Section -->
@@ -273,9 +276,14 @@ $current_template = $settings['general']['current_template'] ?? 'default';
             <!-- Preview Header -->
             <div class="woow-preview-header">
                 <h3><?php esc_html_e( 'Live Preview', 'woow-admin' ); ?></h3>
-                <button type="button" class="woow-preview-refresh" title="<?php esc_attr_e( 'Refresh Preview', 'woow-admin' ); ?>">
-                    <span class="dashicons dashicons-update"></span>
-                </button>
+                <div class="woow-preview-actions">
+                    <button type="button" class="woow-preview-refresh" title="<?php esc_attr_e( 'Refresh Preview', 'woow-admin' ); ?>">
+                        <span class="dashicons dashicons-update"></span>
+                    </button>
+                    <button type="button" class="woow-preview-toggle" aria-label="<?php esc_attr_e( 'Toggle preview', 'woow-admin' ); ?>" title="<?php esc_attr_e( 'Collapse/Expand Preview', 'woow-admin' ); ?>">
+                        <span class="dashicons dashicons-arrow-right-alt2"></span>
+                    </button>
+                </div>
             </div>
             
             <!-- Preview Body -->

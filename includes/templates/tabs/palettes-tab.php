@@ -64,7 +64,22 @@ $current_palette = $settings['general']['current_palette'] ?? 'professional_blue
             ?>
 
             <div class="woow-color-overrides-grid">
-                <?php foreach ( $color_labels as $key => $label ) : ?>
+                <?php foreach ( $color_labels as $key => $label ) : 
+                    // Provide default colors for color picker (HTML5 requires valid hex)
+                    $default_colors = [
+                        'primary' => '#6366f1',
+                        'secondary' => '#8b5cf6',
+                        'background' => '#fafafa',
+                        'card' => '#ffffff',
+                        'foreground' => '#0f172a',
+                        'border' => '#e2e8f0',
+                        'muted_foreground' => '#64748b',
+                        'accent' => '#a78bfa',
+                        'destructive' => '#ef4444',
+                    ];
+                    $color_value = $color_overrides[ $key ] ?? '';
+                    $display_value = ! empty( $color_value ) ? $color_value : ( $default_colors[ $key ] ?? '#6366f1' );
+                ?>
                     <div class="woow-form-group">
                         <label class="woow-label">
                             <?php echo esc_html( $label ); ?>
@@ -73,13 +88,13 @@ $current_palette = $settings['general']['current_palette'] ?? 'professional_blue
                             <input 
                                 type="color" 
                                 name="color_overrides[<?php echo esc_attr( $key ); ?>]" 
-                                value="<?php echo esc_attr( $color_overrides[ $key ] ?? '' ); ?>"
+                                value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $display_value, $default_colors[ $key ] ?? '#6366f1' ) ); ?>"
                                 class="woow-color-input"
-                                data-default=""
+                                data-default="<?php echo esc_attr( $default_colors[ $key ] ?? '#6366f1' ); ?>"
                             />
                             <input 
                                 type="text" 
-                                value="<?php echo esc_attr( $color_overrides[ $key ] ?? '' ); ?>"
+                                value="<?php echo esc_attr( $color_value ); ?>"
                                 class="woow-color-text"
                                 pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
                                 placeholder="<?php esc_attr_e( 'Use palette default', 'woow-admin' ); ?>"

@@ -27,6 +27,9 @@
   align-self: flex-start;
   max-height: calc(100vh - 32px); /* Account for WP admin bar */
   overflow: hidden;
+  
+  /* Smooth transition for collapse */
+  transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Logo Section (h-16 = 64px) */
@@ -37,6 +40,39 @@
   align-items: center;
   gap: 12px;
   border-bottom: 1px solid rgba(243, 244, 246, 0.5);
+  position: relative;
+}
+
+/* Sidebar Toggle Button */
+.woow-sidebar-toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  color: #6b7280;
+}
+
+.woow-sidebar-toggle:hover {
+  background: rgba(99, 102, 241, 0.05);
+  border-color: #6366f1;
+  color: #6366f1;
+}
+
+.woow-sidebar-toggle .dashicons {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Logo Icon Container */
@@ -197,6 +233,40 @@
   box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3),
               0 2px 4px -2px rgba(99, 102, 241, 0.3),
               0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+/* Collapsed State */
+.woow-sidebar.collapsed {
+  width: 80px;
+}
+
+.woow-sidebar.collapsed .woow-logo-text {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  transition: opacity 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.woow-sidebar.collapsed .woow-sidebar-toggle .dashicons {
+  transform: rotate(180deg);
+}
+
+.woow-sidebar.collapsed .woow-nav-label,
+.woow-sidebar.collapsed .woow-nav-badge {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  transition: opacity 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.woow-sidebar.collapsed .woow-nav-item {
+  justify-content: center;
+  padding: 12px;
+}
+
+.woow-sidebar.collapsed .woow-sidebar-logo {
+  padding: 0 20px;
+  justify-content: center;
 }
 
 /* Responsive Behavior */

@@ -6,9 +6,11 @@
  *
  * @package WoowAdmin
  * @since 1.0.0
+ * 
+ * Note: strict_types disabled to allow flexible type handling in validation
  */
 
-declare(strict_types=1);
+// declare(strict_types=1); // Disabled - causes issues with mixed type validation
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -930,44 +932,87 @@ class WOOW_Settings {
      * Validate settings against expected types and ranges
      *
      * @param array $settings Settings to validate
-     * @return array Validation result with 'valid' boolean and 'errors' array
+     * @return array Validation result with 'valid' boolean, 'errors' array, and 'validFields' array
      */
     public function validate_settings( array $settings ): array {
         $errors = [];
+        $valid_fields = [];
 
         foreach ( $settings as $section => $section_data ) {
             if ( ! is_array( $section_data ) ) {
-                $errors[] = "Section '$section' must be an array";
+                $errors[] = [
+                    'field'   => $section,
+                    'message' => "Section '$section' must be an array",
+                    'value'   => gettype( $section_data ),
+                ];
                 continue;
             }
 
             foreach ( $section_data as $key => $value ) {
                 $full_key = "$section.$key";
+                $is_valid = true;
+                $error_message = '';
 
                 // Validate based on key patterns
-                if ( strpos( $key, 'color' ) !== false || strpos( $key, '_bg' ) !== false || strpos( $key, '_text' ) !== false ) {
+                // Check line_height first (unitless float) before checking height (unit value)
+                if ( strpos( $key, 'line_height' ) !== false ) {
+                    if ( ! is_numeric( $value ) || $value < 1.0 || $value > 3.0 ) {
+                        $is_valid = false;
+                        $error_message = "Line height must be between 1.0 and 3.0";
+                    }
+                }
+                // Check image_size, image_position, image_repeat (keywords, not units)
+                elseif ( $key === 'image_size' || $key === 'image_position' || $key === 'image_repeat' || $key === 'pattern' ) {
+                    // These are keyword values, always valid if string
+                    if ( ! is_string( $value ) ) {
+                        $is_valid = false;
+                        $error_message = "Value must be a string";
+                    }
+                    // Valid keywords for image_size: cover, contain, auto
+                    // Valid keywords for image_position: center, top, bottom, left, right
+                    // Valid keywords for image_repeat: no-repeat, repeat, repeat-x, repeat-y
+                    // Valid keywords for pattern: none, dots, grid, diagonal
+                }
+                elseif ( strpos( $key, 'color' ) !== false || strpos( $key, '_bg' ) !== false || strpos( $key, '_text' ) !== false ) {
                     if ( ! $this->sanitize_color( $value ) ) {
-                        $errors[] = "Invalid color format for '$full_key': $value";
+                        $is_valid = false;
+                        $error_message = "Invalid color format (expected #hex or rgba())";
                     }
                 } elseif ( strpos( $key, 'height' ) !== false || strpos( $key, 'width' ) !== false || strpos( $key, 'size' ) !== false || strpos( $key, 'radius' ) !== false || strpos( $key, 'padding' ) !== false || strpos( $key, 'margin' ) !== false || strpos( $key, 'offset' ) !== false || strpos( $key, 'blur' ) !== false ) {
-                    if ( ! $this->sanitize_unit( $value ) ) {
-                        $errors[] = "Invalid unit format for '$full_key': $value";
+                    // Convert to string if numeric (for validation)
+                    $value_str = is_numeric( $value ) ? (string) $value : $value;
+                    if ( ! $this->sanitize_unit( $value_str ) ) {
+                        $is_valid = false;
+                        $error_message = "Invalid unit format (expected number with px/rem/em/%)";
                     }
                 } elseif ( strpos( $key, 'opacity' ) !== false ) {
                     if ( ! is_numeric( $value ) || $value < 0 || $value > 1 ) {
-                        $errors[] = "Opacity for '$full_key' must be between 0 and 1";
+                        $is_valid = false;
+                        $error_message = "Opacity must be between 0 and 1";
                     }
                 } elseif ( strpos( $key, 'enabled' ) !== false || strpos( $key, 'glassmorphism' ) !== false || strpos( $key, 'hover_transform' ) !== false ) {
                     if ( ! is_bool( $value ) ) {
-                        $errors[] = "Value for '$full_key' must be boolean";
+                        $is_valid = false;
+                        $error_message = "Value must be boolean (true/false)";
                     }
+                }
+
+                if ( $is_valid ) {
+                    $valid_fields[] = $full_key;
+                } else {
+                    $errors[] = [
+                        'field'   => $full_key,
+                        'message' => $error_message,
+                        'value'   => $value,
+                    ];
                 }
             }
         }
 
         return [
-            'valid' => empty( $errors ),
-            'errors' => $errors,
+            'valid'       => empty( $errors ),
+            'errors'      => $errors,
+            'validFields' => $valid_fields,
         ];
     }
 
@@ -1011,10 +1056,15 @@ class WOOW_Settings {
     /**
      * Sanitize color value
      *
-     * @param string $color Color value
+     * @param mixed $color Color value (string expected)
      * @return string|false Sanitized color or false if invalid
      */
-    public function sanitize_color( string $color ) {
+    public function sanitize_color( $color ) {
+        // Must be a string
+        if ( ! is_string( $color ) ) {
+            return false;
+        }
+        
         $color = trim( $color );
 
         // Hex color validation
@@ -1033,10 +1083,19 @@ class WOOW_Settings {
     /**
      * Sanitize unit value (px, rem, em, %)
      *
-     * @param string $value Unit value
+     * @param mixed $value Unit value (string or numeric)
      * @return string|false Sanitized unit or false if invalid
      */
-    public function sanitize_unit( string $value ) {
+    public function sanitize_unit( $value ) {
+        // Convert to string if numeric
+        if ( is_numeric( $value ) ) {
+            $value = (string) $value;
+        }
+        
+        if ( ! is_string( $value ) ) {
+            return false;
+        }
+        
         $value = trim( $value );
 
         // Validate unit format
@@ -1239,7 +1298,56 @@ class WOOW_Settings {
         $this->settings = array_replace_recursive( $this->settings, $settings );
         
         // Save to database
-        return update_option( self::OPTION_NAME, $this->settings );
+        // Note: update_option() returns false if value hasn't changed
+        // This is normal WordPress behavior, not an error
+        $result = update_option( self::OPTION_NAME, $this->settings );
+        
+        if ( ! $result ) {
+            // Check if option exists and value is same (not an error)
+            $existing = get_option( self::OPTION_NAME );
+            if ( $existing === $this->settings ) {
+                error_log( '[WOOW Admin] Settings unchanged - no database update needed' );
+                return true; // Not an error - settings are already correct
+            }
+            error_log( '[WOOW Admin] Database update failed - settings differ from stored' );
+        } else {
+            error_log( '[WOOW Admin] Settings updated in database successfully' );
+        }
+        
+        return $result;
+    }
+
+    /**
+     * Reset all settings to defaults
+     *
+     * @return bool True on success, false on failure
+     */
+    public function reset_to_defaults(): bool {
+        // Get default settings
+        $defaults = $this->get_default_settings();
+        
+        // Replace current settings with defaults
+        $this->settings = $defaults;
+        
+        // Delete the option first to force update
+        delete_option( self::OPTION_NAME );
+        
+        // Save to database - this will now always return true since option doesn't exist
+        $result = add_option( self::OPTION_NAME, $this->settings, '', 'no' );
+        
+        if ( $result ) {
+            error_log( '[WOOW Admin] Settings reset to defaults successfully' );
+        } else {
+            // If add_option fails, try update_option as fallback
+            $result = update_option( self::OPTION_NAME, $this->settings );
+            if ( $result ) {
+                error_log( '[WOOW Admin] Settings reset to defaults successfully (via update)' );
+            } else {
+                error_log( '[WOOW Admin] Failed to reset settings to defaults' );
+            }
+        }
+        
+        return $result;
     }
 
 }

@@ -15,6 +15,7 @@ import { ImportExport } from './components/ImportExport.js';
 import { TabManager } from './components/TabManager.js';
 import { KeyboardShortcuts } from './components/KeyboardShortcuts.js';
 import { HeaderController } from './components/HeaderController.js';
+import { LayoutController } from './components/LayoutController.js';
 import { Validator } from './utils/Validator.js';
 
 /**
@@ -71,6 +72,7 @@ class WoowAdmin {
         try {
             // Initialize components
             this.components.headerController = new HeaderController(this);
+            this.components.layoutController = new LayoutController(this);
             this.components.colorPicker = new ColorPicker(this);
             this.components.livePreview = new LivePreview(this);
             this.components.paletteSelector = new PaletteSelector(this);
@@ -108,6 +110,15 @@ class WoowAdmin {
             console.log('[WOOW Admin] Save button event listener attached');
         } else {
             console.error('[WOOW Admin] Save button NOT found!');
+        }
+
+        // Reset button
+        const resetButton = document.querySelector('#woow-reset-btn');
+        if (resetButton) {
+            resetButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.resetSettings();
+            });
         }
 
         // Real-time toggle
@@ -485,6 +496,10 @@ class WoowAdmin {
      * @returns {Promise<boolean>} Success status
      */
     async saveSettings() {
+        console.log('[WOOW Admin] saveSettings() called');
+        console.log('[WOOW Admin] Current nonce:', this.nonce);
+        console.log('[WOOW Admin] AJAX URL:', this.ajaxUrl);
+        
         try {
             // Notify header controller
             if (this.components.headerController) {
@@ -496,6 +511,7 @@ class WoowAdmin {
             if (saveButton) {
                 saveButton.disabled = true;
                 saveButton.textContent = this.i18n.saving || 'Saving...';
+                console.log('[WOOW Admin] Save button disabled');
             }
 
             // Collect form data
@@ -705,6 +721,68 @@ class WoowAdmin {
             if (saveButton) {
                 saveButton.disabled = false;
                 this.updateSaveButtonState();
+            }
+        }
+    }
+
+    /**
+     * Reset all settings to defaults
+     */
+    async resetSettings() {
+        // Confirm with user
+        if (!confirm('Are you sure you want to reset all settings to defaults? This cannot be undone.')) {
+            return;
+        }
+
+        try {
+            console.log('[WOOW Admin] Reset settings called');
+            console.log('[WOOW Admin] Nonce:', this.nonce);
+            console.log('[WOOW Admin] AJAX URL:', this.ajaxUrl);
+            
+            // Show loading state
+            const resetButton = document.querySelector('#woow-reset-btn');
+            if (resetButton) {
+                resetButton.disabled = true;
+                resetButton.textContent = 'Resetting...';
+            }
+
+            // Prepare AJAX request
+            const data = new FormData();
+            data.append('action', 'woow_reset_settings');
+            data.append('nonce', this.nonce);
+            
+            console.log('[WOOW Admin] FormData prepared:', {
+                action: 'woow_reset_settings',
+                nonce: this.nonce
+            });
+
+            // Send request
+            const response = await fetch(this.ajaxUrl, {
+                method: 'POST',
+                body: data
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                this.showNotification('Settings reset to defaults successfully!', 'success');
+                
+                // Reload page to show default values
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                this.showNotification(result.data || 'Failed to reset settings', 'error');
+            }
+        } catch (error) {
+            console.error('[WOOW Admin] Reset error:', error);
+            this.showNotification('Network error. Please try again.', 'error');
+        } finally {
+            // Restore button state
+            const resetButton = document.querySelector('#woow-reset-btn');
+            if (resetButton) {
+                resetButton.disabled = false;
+                resetButton.innerHTML = '<span class="dashicons dashicons-image-rotate"></span> Reset';
             }
         }
     }

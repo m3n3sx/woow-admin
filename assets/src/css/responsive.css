@@ -259,6 +259,11 @@
     width: 320px;
     min-width: 320px;
   }
+  
+  /* Allow collapsed state to override min-width */
+  .woow-sidebar.collapsed {
+    min-width: 80px;
+  }
 
   /* Grids - 2 Columns */
   .woow-palette-grid,

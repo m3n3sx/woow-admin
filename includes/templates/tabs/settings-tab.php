@@ -151,6 +151,36 @@ $backups = []; // Will be populated by backup manager
         </div>
     </div>
 
+    <!-- Interface Layout -->
+    <div class="woow-card">
+        <div class="woow-card-header">
+            <h3><?php esc_html_e( 'Interface Layout', 'woow-admin' ); ?></h3>
+        </div>
+        <div class="woow-card-body">
+            <div class="woow-form-group">
+                <label class="woow-toggle">
+                    <input type="checkbox" name="advanced[sidebar_collapsed]" value="1" <?php checked( $advanced['sidebar_collapsed'] ?? false, true ); ?> class="woow-toggle-input" id="sidebar-collapse-toggle" />
+                    <span class="woow-toggle-slider"></span>
+                    <span class="woow-toggle-label"><?php esc_html_e( 'Collapse Sidebar by Default', 'woow-admin' ); ?></span>
+                </label>
+                <p class="woow-field-description">
+                    <?php esc_html_e( 'Start with the sidebar navigation collapsed to save screen space.', 'woow-admin' ); ?>
+                </p>
+            </div>
+            
+            <div class="woow-form-group">
+                <label class="woow-toggle">
+                    <input type="checkbox" name="advanced[preview_collapsed]" value="1" <?php checked( $advanced['preview_collapsed'] ?? false, true ); ?> class="woow-toggle-input" id="preview-collapse-toggle" />
+                    <span class="woow-toggle-slider"></span>
+                    <span class="woow-toggle-label"><?php esc_html_e( 'Collapse Live Preview by Default', 'woow-admin' ); ?></span>
+                </label>
+                <p class="woow-field-description">
+                    <?php esc_html_e( 'Start with the live preview panel collapsed to maximize content area.', 'woow-admin' ); ?>
+                </p>
+            </div>
+        </div>
+    </div>
+
     <!-- Debug Mode -->
     <div class="woow-card">
         <div class="woow-card-header">

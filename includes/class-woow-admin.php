@@ -156,6 +156,7 @@ class WOOW_Admin {
 
 		// Register AJAX handlers
 		add_action( 'wp_ajax_woow_save_settings', array( $this, 'ajax_save_settings' ) );
+		add_action( 'wp_ajax_woow_reset_settings', array( $this, 'ajax_reset_settings' ) );
 		add_action( 'wp_ajax_woow_apply_palette', array( $this, 'ajax_apply_palette' ) );
 		add_action( 'wp_ajax_woow_apply_template', array( $this, 'ajax_apply_template' ) );
 		add_action( 'wp_ajax_woow_preview_css', array( $this, 'ajax_preview_css' ) );
@@ -256,7 +257,7 @@ class WOOW_Admin {
 	 * Inject generated CSS into admin head
 	 *
 	 * This applies the customizations to the entire WordPress admin,
-	 * not just the WOOW! Admin settings page.
+	 * including the WOOW! Admin settings page.
 	 *
 	 * @return void
 	 */
@@ -283,6 +284,27 @@ class WOOW_Admin {
 			echo wp_strip_all_tags( $css ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo "\n</style>\n";
 			echo "<!-- /WOOW! Admin Custom Styles -->\n\n";
+			
+			// Add JavaScript for submenu positioning
+			echo "<script>\n";
+			echo "jQuery(document).ready(function($) {\n";
+			echo "  $('#adminmenu li.wp-has-submenu').on('mouseenter', function() {\n";
+			echo "    var \$item = $(this);\n";
+			echo "    var \$submenu = \$item.find('.wp-submenu');\n";
+			echo "    var isFolded = $('body').hasClass('folded');\n";
+			echo "    \n";
+			echo "    // For expanded menu: only position hover submenus (not active ones)\n";
+			echo "    // For collapsed menu: position ALL submenus\n";
+			echo "    if (\$submenu.length) {\n";
+			echo "      var shouldPosition = isFolded || (!\$item.hasClass('wp-has-current-submenu') && !\$item.hasClass('wp-menu-open'));\n";
+			echo "      if (shouldPosition) {\n";
+			echo "        var itemTop = \$item.position().top;\n";
+			echo "        \$submenu.css('top', itemTop + 'px');\n";
+			echo "      }\n";
+			echo "    }\n";
+			echo "  });\n";
+			echo "});\n";
+			echo "</script>\n\n";
 		}
 	}
 
@@ -447,69 +469,138 @@ class WOOW_Admin {
 	 * @return void
 	 */
 	public function ajax_save_settings(): void {
-		// Verify nonce
-		check_ajax_referer( 'woow_admin_nonce', 'nonce' );
+		try {
+			// Log AJAX call for debugging
+			error_log( '[WOOW Admin] ajax_save_settings called' );
+			error_log( '[WOOW Admin] POST data: ' . print_r( array_keys( $_POST ), true ) );
+			error_log( '[WOOW Admin] Nonce received: ' . ( $_POST['nonce'] ?? 'MISSING' ) );
 
-		// Check capabilities
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Insufficient permissions', 'woow-admin' ) ) );
-		}
+			// Verify nonce
+			if ( ! check_ajax_referer( 'woow_admin_nonce', 'nonce', false ) ) {
+				error_log( '[WOOW Admin] Nonce verification failed' );
+				wp_send_json_error( array(
+					'message' => __( 'Security check failed', 'woow-admin' ),
+					'code'    => 'invalid_nonce',
+				) );
+				wp_die();
+			}
+			
+			error_log( '[WOOW Admin] Nonce verified successfully' );
 
-		// Check rate limit
-		if ( ! $this->check_rate_limit() ) {
+			// Check capabilities
+			if ( ! current_user_can( 'manage_options' ) ) {
+				error_log( '[WOOW Admin] Insufficient permissions' );
+				wp_send_json_error( array(
+					'message' => __( 'Insufficient permissions', 'woow-admin' ),
+					'code'    => 'insufficient_permissions',
+				) );
+				wp_die();
+			}
+
+			// Check rate limit
+			if ( ! $this->check_rate_limit() ) {
+				error_log( '[WOOW Admin] Rate limit exceeded' );
+				wp_send_json_error( array(
+					'message' => __( 'Rate limit exceeded. Please try again later.', 'woow-admin' ),
+					'code'    => 'rate_limit_exceeded',
+				) );
+				wp_die();
+			}
+
+			// Get settings from request
+			$settings_json = isset( $_POST['settings'] ) ? wp_unslash( $_POST['settings'] ) : '';
+
+			if ( empty( $settings_json ) ) {
+				error_log( '[WOOW Admin] No settings provided' );
+				wp_send_json_error( array(
+					'message' => __( 'No settings provided', 'woow-admin' ),
+					'code'    => 'no_settings',
+				) );
+				wp_die();
+			}
+
+			// Decode JSON
+			$settings = json_decode( $settings_json, true );
+
+			if ( json_last_error() !== JSON_ERROR_NONE ) {
+				error_log( '[WOOW Admin] JSON decode error: ' . json_last_error_msg() );
+				wp_send_json_error( array(
+					'message' => __( 'Invalid JSON format', 'woow-admin' ),
+					'code'    => 'invalid_json',
+					'error'   => json_last_error_msg(),
+				) );
+				wp_die();
+			}
+
+			if ( empty( $settings ) || ! is_array( $settings ) ) {
+				error_log( '[WOOW Admin] Settings is empty or not an array' );
+				wp_send_json_error( array(
+					'message' => __( 'Invalid settings format', 'woow-admin' ),
+					'code'    => 'invalid_format',
+				) );
+				wp_die();
+			}
+
+			error_log( '[WOOW Admin] Settings received: ' . print_r( array_keys( $settings ), true ) );
+
+			// Validate settings
+			$validation = $this->settings->validate_settings( $settings );
+
+			if ( ! $validation['valid'] ) {
+				error_log( '[WOOW Admin] Validation failed: ' . print_r( $validation['errors'], true ) );
+				wp_send_json_error( array(
+					'message' => __( 'Invalid settings provided', 'woow-admin' ),
+					'code'    => 'invalid_settings',
+					'errors'  => $validation['errors'],
+				) );
+				wp_die();
+			}
+
+			// Save settings
+			$result = $this->settings->save_settings( $settings );
+
+			if ( ! $result ) {
+				error_log( '[WOOW Admin] Failed to save settings to database' );
+				wp_send_json_error( array(
+					'message' => __( 'Failed to save settings', 'woow-admin' ),
+					'code'    => 'save_failed',
+				) );
+				wp_die();
+			}
+
+			error_log( '[WOOW Admin] Settings saved successfully' );
+
+			// Clear CSS cache
+			$this->cache->flush();
+
+			// Generate new CSS
+			$css = $this->css_generator->generate();
+			$metrics = $this->css_generator->get_metrics();
+
+			// Get updated settings
+			$updated_settings = $this->settings->get_all();
+
+			error_log( '[WOOW Admin] Sending success response' );
+
+			wp_send_json_success( array(
+				'message'  => __( 'Settings saved successfully', 'woow-admin' ),
+				'settings' => $updated_settings,
+				'css'      => $css,
+				'metrics'  => $metrics,
+			) );
+
+		} catch ( Exception $e ) {
+			error_log( '[WOOW Admin] Exception in ajax_save_settings: ' . $e->getMessage() );
+			error_log( '[WOOW Admin] Stack trace: ' . $e->getTraceAsString() );
+
 			wp_send_json_error( array(
-				'message' => __( 'Rate limit exceeded. Please try again later.', 'woow-admin' ),
-				'code'    => 'rate_limit_exceeded',
+				'message' => __( 'An error occurred while saving settings', 'woow-admin' ),
+				'code'    => 'exception',
+				'error'   => $e->getMessage(),
 			) );
 		}
 
-		// Get settings from request
-		$settings = isset( $_POST['settings'] ) ? json_decode( stripslashes( $_POST['settings'] ), true ) : array();
-
-		if ( empty( $settings ) ) {
-			wp_send_json_error( array(
-				'message' => __( 'No settings provided', 'woow-admin' ),
-				'code'    => 'no_settings',
-			) );
-		}
-
-		// Validate settings
-		$validation = $this->settings->validate_settings( $settings );
-
-		if ( ! $validation['valid'] ) {
-			wp_send_json_error( array(
-				'message' => __( 'Invalid settings provided', 'woow-admin' ),
-				'code'    => 'invalid_settings',
-				'errors'  => $validation['errors'],
-			) );
-		}
-
-		// Save settings
-		$result = $this->settings->save_settings( $settings );
-
-		if ( ! $result ) {
-			wp_send_json_error( array(
-				'message' => __( 'Failed to save settings', 'woow-admin' ),
-				'code'    => 'save_failed',
-			) );
-		}
-
-		// Clear CSS cache
-		$this->cache->flush();
-
-		// Generate new CSS
-		$css = $this->css_generator->generate();
-		$metrics = $this->css_generator->get_metrics();
-
-		// Get updated settings
-		$updated_settings = $this->settings->get_all();
-
-		wp_send_json_success( array(
-			'message'  => __( 'Settings saved successfully', 'woow-admin' ),
-			'settings' => $updated_settings,
-			'css'      => $css,
-			'metrics'  => $metrics,
-		) );
+		wp_die();
 	}
 
 	/**
@@ -830,6 +921,83 @@ class WOOW_Admin {
 			wp_send_json_error( array(
 				'message' => __( 'Import error: ', 'woow-admin' ) . $e->getMessage(),
 				'code'    => 'import_exception',
+			) );
+		}
+	}
+
+	/**
+	 * AJAX handler for resetting settings to defaults
+	 *
+	 * @return void
+	 */
+	public function ajax_reset_settings(): void {
+		try {
+			// Log received data for debugging
+			error_log( '[WOOW Admin] Reset request received' );
+			error_log( '[WOOW Admin] POST data: ' . print_r( $_POST, true ) );
+			
+			// Verify nonce
+			$nonce_check = check_ajax_referer( 'woow_admin_nonce', 'nonce', false );
+			error_log( '[WOOW Admin] Nonce check result: ' . ( $nonce_check ? 'PASS' : 'FAIL' ) );
+			
+			if ( ! $nonce_check ) {
+				wp_send_json_error( array(
+					'message' => __( 'Security check failed', 'woow-admin' ),
+					'code'    => 'invalid_nonce',
+				) );
+				return;
+			}
+
+			// Check permissions
+			if ( ! current_user_can( 'manage_options' ) ) {
+				wp_send_json_error( array(
+					'message' => __( 'Insufficient permissions', 'woow-admin' ),
+					'code'    => 'insufficient_permissions',
+				) );
+				return;
+			}
+
+			// Create simple backup before reset
+			$current_settings = $this->settings->get_all();
+			$backup_key = 'woow_backup_before_reset_' . time();
+			update_option( $backup_key, $current_settings, false );
+			error_log( '[WOOW Admin] Backup created: ' . $backup_key );
+
+			// Reset settings to defaults
+			$result = $this->settings->reset_to_defaults();
+			
+			if ( ! $result ) {
+				error_log( '[WOOW Admin] Failed to reset settings' );
+				wp_send_json_error( array(
+					'message' => __( 'Failed to reset settings', 'woow-admin' ),
+					'code'    => 'reset_failed',
+				) );
+				return;
+			}
+			
+			error_log( '[WOOW Admin] Settings reset successfully' );
+
+			// Clear cache - delete the cached CSS
+			delete_transient( 'woow_generated_css' );
+			// Also try to clear from cache object if it has a method
+			if ( method_exists( $this->cache, 'delete' ) ) {
+				$this->cache->delete( 'generated_css' );
+			} elseif ( method_exists( $this->cache, 'flush' ) ) {
+				$this->cache->flush();
+			}
+			error_log( '[WOOW Admin] Cache cleared' );
+
+			// Send success response
+			wp_send_json_success( array(
+				'message' => __( 'Settings reset to defaults successfully', 'woow-admin' ),
+			) );
+
+		} catch ( Exception $e ) {
+			error_log( '[WOOW Admin] Reset error: ' . $e->getMessage() );
+			
+			wp_send_json_error( array(
+				'message' => __( 'Reset error: ', 'woow-admin' ) . $e->getMessage(),
+				'code'    => 'reset_exception',
 			) );
 		}
 	}
