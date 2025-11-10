@@ -82,13 +82,13 @@ $admin_bar = $this->settings->get_section( 'admin_bar' );
                     <input 
                         type="color" 
                         name="admin_bar[background_color]" 
-                        value="<?php echo esc_attr( $admin_bar['background_color'] ); ?>"
+                        value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_bar['background_color'] ?? '#1e293b' ) ); ?>"
                         class="woow-color-input"
                         data-preview-target="admin-bar-background"
                     />
                     <input 
                         type="text" 
-                        value="<?php echo esc_attr( $admin_bar['background_color'] ); ?>"
+                        value="<?php echo esc_attr( $admin_bar['background_color'] ?? '#1e293b' ); ?>"
                         class="woow-color-text"
                         pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
                         placeholder="#1e293b"
@@ -111,12 +111,12 @@ $admin_bar = $this->settings->get_section( 'admin_bar' );
                     <input 
                         type="color" 
                         name="admin_bar[gradient_start]" 
-                        value="<?php echo esc_attr( $admin_bar['gradient_start'] ); ?>"
+                        value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_bar['gradient_start'] ?? '#1e293b' ) ); ?>"
                         class="woow-color-input"
                     />
                     <input 
                         type="text" 
-                        value="<?php echo esc_attr( $admin_bar['gradient_start'] ); ?>"
+                        value="<?php echo esc_attr( $admin_bar['gradient_start'] ?? '#1e293b' ); ?>"
                         class="woow-color-text"
                     />
                 </div>
@@ -130,12 +130,12 @@ $admin_bar = $this->settings->get_section( 'admin_bar' );
                     <input 
                         type="color" 
                         name="admin_bar[gradient_end]" 
-                        value="<?php echo esc_attr( $admin_bar['gradient_end'] ); ?>"
+                        value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_bar['gradient_end'] ?? '#0f172a' ) ); ?>"
                         class="woow-color-input"
                     />
                     <input 
                         type="text" 
-                        value="<?php echo esc_attr( $admin_bar['gradient_end'] ); ?>"
+                        value="<?php echo esc_attr( $admin_bar['gradient_end'] ?? '#0f172a' ); ?>"
                         class="woow-color-text"
                     />
                 </div>
@@ -150,12 +150,12 @@ $admin_bar = $this->settings->get_section( 'admin_bar' );
                     <input 
                         type="color" 
                         name="admin_bar[text_color]" 
-                        value="<?php echo esc_attr( $admin_bar['text_color'] ); ?>"
+                        value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_bar['text_color'] ?? '#ffffff' ) ); ?>"
                         class="woow-color-input"
                     />
                     <input 
                         type="text" 
-                        value="<?php echo esc_attr( $admin_bar['text_color'] ); ?>"
+                        value="<?php echo esc_attr( $admin_bar['text_color'] ?? '#ffffff' ); ?>"
                         class="woow-color-text"
                     />
                 </div>
@@ -171,12 +171,12 @@ $admin_bar = $this->settings->get_section( 'admin_bar' );
                         <input 
                             type="color" 
                             name="admin_bar[hover_bg_color]" 
-                            value="<?php echo esc_attr( $admin_bar['hover_bg_color'] ); ?>"
+                            value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_bar['hover_bg_color'] ?? '#ffffff' ) ); ?>"
                             class="woow-color-input"
                         />
                         <input 
                             type="text" 
-                            value="<?php echo esc_attr( $admin_bar['hover_bg_color'] ); ?>"
+                            value="<?php echo esc_attr( $admin_bar['hover_bg_color'] ?? 'rgba(255,255,255,0.1)' ); ?>"
                             class="woow-color-text"
                         />
                     </div>
@@ -190,12 +190,12 @@ $admin_bar = $this->settings->get_section( 'admin_bar' );
                         <input 
                             type="color" 
                             name="admin_bar[hover_text_color]" 
-                            value="<?php echo esc_attr( $admin_bar['hover_text_color'] ); ?>"
+                            value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_bar['hover_text_color'] ?? '#ffffff' ) ); ?>"
                             class="woow-color-input"
                         />
                         <input 
                             type="text" 
-                            value="<?php echo esc_attr( $admin_bar['hover_text_color'] ); ?>"
+                            value="<?php echo esc_attr( $admin_bar['hover_text_color'] ?? '#ffffff' ); ?>"
                             class="woow-color-text"
                         />
                     </div>

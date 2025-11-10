@@ -14,11 +14,13 @@
 /* Utilities */
 @import './utilities/glassmorphism.css';
 
-/* Components */
+/* Components - Figma Compliant */
+@import './components/header-figma.css';
+@import './components/sidebar-figma.css';
 @import './components/admin-page.css';
+@import './components/cards-figma.css';
+@import './components/buttons-figma.css';
 @import './components/tabs.css';
-@import './components/cards.css';
-@import './components/buttons.css';
 @import './components/forms.css';
 @import './components/palette-grid.css';
 @import './components/template-grid.css';

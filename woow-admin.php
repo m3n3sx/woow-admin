@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants
-define( 'WOOW_VERSION', '1.0.0' );
+define( 'WOOW_VERSION', '1.2.3' );
 define( 'WOOW_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WOOW_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'WOOW_ASSETS_URL', WOOW_PLUGIN_URL . 'assets/dist/' );
@@ -219,20 +219,56 @@ function woow_init(): void {
         dirname( plugin_basename( __FILE__ ) ) . '/languages'
     );
     
+    // Clear cache if version changed
+    $saved_version = get_option( 'woow_version', '0.0.0' );
+    if ( version_compare( $saved_version, WOOW_VERSION, '<' ) ) {
+        // Clear all WOOW caches
+        global $wpdb;
+        $wpdb->query(
+            "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_woow_%' OR option_name LIKE '_transient_timeout_woow_%'"
+        );
+        if ( function_exists( 'wp_cache_flush' ) ) {
+            wp_cache_flush();
+        }
+        update_option( 'woow_version', WOOW_VERSION );
+        
+        if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+            error_log( '[WOOW Admin] Cache cleared after version update: ' . $saved_version . ' -> ' . WOOW_VERSION );
+        }
+    }
+    
+    // Run migrations
+    if ( class_exists( 'WOOW_Migration' ) ) {
+        $migration = new WOOW_Migration();
+        $migration->run_migrations();
+    }
+    
     // Initialize plugin classes
     if ( class_exists( 'WOOW_Settings' ) && 
          class_exists( 'WOOW_CSS_Generator' ) && 
          class_exists( 'WOOW_Cache_Manager' ) &&
+         class_exists( 'WOOW_Backup_Manager' ) &&
+         class_exists( 'WOOW_Template_Manager' ) &&
+         class_exists( 'WOOW_Mobile_Optimizer' ) &&
          class_exists( 'WOOW_Admin' ) ) {
         
         // Create instances with dependency injection
-        $settings      = new WOOW_Settings();
-        $cache         = new WOOW_Cache_Manager();
-        $css_generator = new WOOW_CSS_Generator( $settings );
-        $admin         = new WOOW_Admin( $settings, $css_generator, $cache );
+        $settings          = new WOOW_Settings();
+        $cache             = new WOOW_Cache_Manager();
+        $css_generator     = new WOOW_CSS_Generator( $settings );
+        $backup_manager    = new WOOW_Backup_Manager( $settings );
+        $template_manager  = new WOOW_Template_Manager( $settings );
+        $mobile_optimizer  = new WOOW_Mobile_Optimizer();
+        $admin             = new WOOW_Admin( $settings, $css_generator, $cache, $backup_manager, $template_manager );
         
         // Register hooks
         $admin->add_hooks();
+        
+        // Initialize REST API
+        if ( class_exists( 'WOOW_REST_API' ) ) {
+            $rest_api = new WOOW_REST_API( $settings );
+            add_action( 'rest_api_init', array( $rest_api, 'register_routes' ) );
+        }
         
         // Log initialization in debug mode
         if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {

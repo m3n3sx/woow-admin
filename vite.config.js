@@ -25,13 +25,13 @@ export default defineConfig({
         style: resolve(__dirname, 'assets/src/css/main.css'),
       },
       output: {
-        // Output file naming
-        entryFileNames: 'js/[name].js',
-        chunkFileNames: 'js/[name]-[hash].js',
+        // Output file naming - flat structure for WordPress
+        entryFileNames: '[name].js',
+        chunkFileNames: '[name]-[hash].js',
         assetFileNames: (assetInfo) => {
-          // CSS files go to css/ directory
+          // CSS files - flat structure
           if (assetInfo.name.endsWith('.css')) {
-            return 'css/[name][extname]';
+            return '[name][extname]';
           }
           // Images go to images/ directory
           if (/\.(png|jpe?g|gif|svg|webp)$/.test(assetInfo.name)) {

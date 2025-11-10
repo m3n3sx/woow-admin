@@ -71,7 +71,7 @@ class WOOW_Settings {
                 'blur_strength' => '12px',
                 'opacity' => 0.9,
                 'shadow_style' => 'lg',
-                'position' => 'sticky',
+                'position' => 'fixed',
                 'top_offset' => '16px',
                 'custom_css' => '',
             ],
@@ -80,6 +80,7 @@ class WOOW_Settings {
                 'width_expanded' => '256px',
                 'width_collapsed' => '80px',
                 'background_color' => '#ffffff',
+                'position' => 'fixed',
                 'glassmorphism' => true,
                 'blur_strength' => '12px',
                 'opacity' => 0.9,
@@ -1214,6 +1215,17 @@ class WOOW_Settings {
         if ( $timestamp ) {
             wp_unschedule_event( $timestamp, 'woow_auto_palette_switch' );
         }
+    }
+
+    /**
+     * Update all settings
+     *
+     * @param array $settings New settings array
+     * @return bool Success status
+     */
+    public function update_all_settings( array $settings ): bool {
+        $this->settings = $settings;
+        return $this->save_settings();
     }
 
 }

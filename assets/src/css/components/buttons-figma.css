@@ -1,0 +1,343 @@
+/**
+ * Button Components - Figma Specification
+ * 
+ * @package WoowAdmin
+ * @since 1.0.0
+ */
+
+/* ===========================
+   BASE BUTTON
+   =========================== */
+.woow-button {
+  /* Dimensions */
+  height: 40px;
+  padding: 10px 16px;
+  
+  /* Typography */
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  
+  /* Layout */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  
+  /* Border and Radius */
+  border: none;
+  border-radius: 12px;
+  
+  /* Cursor */
+  cursor: pointer;
+  
+  /* Transition */
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Remove default styles */
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.woow-button .dashicons {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+}
+
+/* ===========================
+   PRIMARY BUTTON
+   =========================== */
+.woow-button-primary {
+  background: #6366f1;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.woow-button-primary:hover {
+  background: #5558e3;
+  box-shadow: 0 4px 6px rgba(99, 102, 241, 0.3);
+  transform: translateY(-1px);
+}
+
+.woow-button-primary:active {
+  transform: translateY(0);
+}
+
+.woow-button-primary:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+}
+
+/* ===========================
+   SECONDARY BUTTON
+   =========================== */
+.woow-button-secondary {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #6366f1;
+  border: 1px solid rgba(229, 231, 235, 0.5);
+}
+
+.woow-button-secondary:hover {
+  background: rgba(99, 102, 241, 0.1);
+  border-color: rgba(99, 102, 241, 0.2);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.woow-button-secondary:active {
+  transform: scale(0.98);
+}
+
+.woow-button-secondary:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+}
+
+/* ===========================
+   WHITE BUTTON (for dark backgrounds)
+   =========================== */
+.woow-button-white {
+  background: #ffffff;
+  color: #6366f1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.woow-button-white:hover {
+  background: rgba(238, 242, 255, 1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.woow-button-white:active {
+  transform: translateY(0);
+}
+
+/* ===========================
+   OUTLINE WHITE BUTTON
+   =========================== */
+.woow-button-outline-white {
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.woow-button-outline-white:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.woow-button-outline-white:active {
+  transform: scale(0.98);
+}
+
+/* ===========================
+   DESTRUCTIVE BUTTON
+   =========================== */
+.woow-button-destructive {
+  background: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.woow-button-destructive:hover {
+  background: #dc2626;
+  box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3);
+  transform: translateY(-1px);
+}
+
+.woow-button-destructive:active {
+  transform: translateY(0);
+}
+
+/* ===========================
+   GHOST BUTTON
+   =========================== */
+.woow-button-ghost {
+  background: transparent;
+  color: #6b7280;
+  border: none;
+}
+
+.woow-button-ghost:hover {
+  background: rgba(99, 102, 241, 0.1);
+  color: #6366f1;
+}
+
+.woow-button-ghost:active {
+  transform: scale(0.98);
+}
+
+/* ===========================
+   BUTTON SIZES
+   =========================== */
+.woow-button-sm {
+  height: 32px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.woow-button-lg {
+  height: 48px;
+  padding: 12px 20px;
+  font-size: 15px;
+}
+
+/* ===========================
+   BUTTON STATES
+   =========================== */
+.woow-button:disabled,
+.woow-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.woow-button.loading {
+  position: relative;
+  color: transparent;
+}
+
+.woow-button.loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 50%;
+  left: 50%;
+  margin-left: -8px;
+  margin-top: -8px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 600ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===========================
+   BUTTON GROUPS
+   =========================== */
+.woow-button-group {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.woow-button-group-attached {
+  display: inline-flex;
+  gap: 0;
+}
+
+.woow-button-group-attached .woow-button {
+  border-radius: 0;
+}
+
+.woow-button-group-attached .woow-button:first-child {
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+}
+
+.woow-button-group-attached .woow-button:last-child {
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+/* ===========================
+   ICON ONLY BUTTON
+   =========================== */
+.woow-button-icon {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  justify-content: center;
+}
+
+.woow-button-icon.woow-button-sm {
+  width: 32px;
+  height: 32px;
+}
+
+.woow-button-icon.woow-button-lg {
+  width: 48px;
+  height: 48px;
+}
+
+/* ===========================
+   RESPONSIVE
+   =========================== */
+@media (max-width: 768px) {
+  .woow-button {
+    height: 44px;
+    padding: 12px 16px;
+  }
+  
+  .woow-button-sm {
+    height: 36px;
+    padding: 10px 12px;
+  }
+  
+  .woow-button-icon {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .woow-button-icon.woow-button-sm {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* ===========================
+   DARK MODE
+   =========================== */
+.dark .woow-button-secondary {
+  background: rgba(30, 41, 59, 0.6);
+  color: #818cf8;
+  border-color: rgba(51, 65, 85, 0.5);
+}
+
+.dark .woow-button-secondary:hover {
+  background: rgba(129, 140, 248, 0.1);
+  border-color: rgba(129, 140, 248, 0.2);
+}
+
+.dark .woow-button-ghost {
+  color: #94a3b8;
+}
+
+.dark .woow-button-ghost:hover {
+  background: rgba(129, 140, 248, 0.1);
+  color: #818cf8;
+}
+
+.dark .woow-button-primary {
+  background: #818cf8;
+}
+
+.dark .woow-button-primary:hover {
+  background: #6366f1;
+}
+
+/* ===========================
+   ACCESSIBILITY
+   =========================== */
+@media (prefers-reduced-motion: reduce) {
+  .woow-button,
+  .woow-button:hover,
+  .woow-button:active {
+    transition: none;
+    transform: none;
+    animation: none;
+  }
+}
+
+/* Focus visible for keyboard navigation */
+.woow-button:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}

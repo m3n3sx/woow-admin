@@ -76,31 +76,31 @@ $menu = $this->settings->get_section( 'admin_menu' );
             <div class="woow-form-group">
                 <label class="woow-label"><?php esc_html_e( 'Background Color', 'woow-admin' ); ?></label>
                 <div class="woow-color-picker-group">
-                    <input type="color" name="admin_menu[background_color]" value="<?php echo esc_attr( $menu['background_color'] ); ?>" class="woow-color-input" />
-                    <input type="text" value="<?php echo esc_attr( $menu['background_color'] ); ?>" class="woow-color-text" />
+                    <input type="color" name="admin_menu[background_color]" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $menu['background_color'] ?? '#ffffff' ) ); ?>" class="woow-color-input" />
+                    <input type="text" value="<?php echo esc_attr( $menu['background_color'] ?? '#ffffff' ); ?>" class="woow-color-text" />
                     <button type="button" class="woow-color-reset button">↺</button>
                 </div>
             </div>
             <div class="woow-form-group">
                 <label class="woow-label"><?php esc_html_e( 'Hover Background', 'woow-admin' ); ?></label>
                 <div class="woow-color-picker-group">
-                    <input type="color" name="admin_menu[hover_bg_color]" value="<?php echo esc_attr( $menu['hover_bg_color'] ); ?>" class="woow-color-input" />
-                    <input type="text" value="<?php echo esc_attr( $menu['hover_bg_color'] ); ?>" class="woow-color-text" />
+                    <input type="color" name="admin_menu[hover_bg_color]" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $menu['hover_bg_color'] ?? '#6366f1' ) ); ?>" class="woow-color-input" />
+                    <input type="text" value="<?php echo esc_attr( $menu['hover_bg_color'] ?? 'rgba(99,102,241,0.05)' ); ?>" class="woow-color-text" />
                 </div>
             </div>
             <div class="woow-form-row">
                 <div class="woow-form-group">
                     <label class="woow-label"><?php esc_html_e( 'Active Gradient Start', 'woow-admin' ); ?></label>
                     <div class="woow-color-picker-group">
-                        <input type="color" name="admin_menu[active_gradient_start]" value="<?php echo esc_attr( $menu['active_gradient_start'] ); ?>" class="woow-color-input" />
-                        <input type="text" value="<?php echo esc_attr( $menu['active_gradient_start'] ); ?>" class="woow-color-text" />
+                        <input type="color" name="admin_menu[active_gradient_start]" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $menu['active_gradient_start'] ?? '#6366f1' ) ); ?>" class="woow-color-input" />
+                        <input type="text" value="<?php echo esc_attr( $menu['active_gradient_start'] ?? '#6366f1' ); ?>" class="woow-color-text" />
                     </div>
                 </div>
                 <div class="woow-form-group">
                     <label class="woow-label"><?php esc_html_e( 'Active Gradient End', 'woow-admin' ); ?></label>
                     <div class="woow-color-picker-group">
-                        <input type="color" name="admin_menu[active_gradient_end]" value="<?php echo esc_attr( $menu['active_gradient_end'] ); ?>" class="woow-color-input" />
-                        <input type="text" value="<?php echo esc_attr( $menu['active_gradient_end'] ); ?>" class="woow-color-text" />
+                        <input type="color" name="admin_menu[active_gradient_end]" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $menu['active_gradient_end'] ?? '#8b5cf6' ) ); ?>" class="woow-color-input" />
+                        <input type="text" value="<?php echo esc_attr( $menu['active_gradient_end'] ?? '#8b5cf6' ); ?>" class="woow-color-text" />
                     </div>
                 </div>
             </div>

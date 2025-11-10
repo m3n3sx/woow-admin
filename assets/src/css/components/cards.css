@@ -1,327 +1,240 @@
 /**
- * Card Component Styles
- * 
- * Card containers with glassmorphism effect.
- * Used throughout the admin interface for grouping content.
- * 
- * @package WoowAdmin
- * @since 1.0.0
+ * WOOW! Admin - Card Components
+ * Compact, ergonomic cards with proper spacing
  */
 
-/* Base Card */
+/* ===========================
+   BASE CARD STYLES
+   =========================== */
 .woow-card {
+  /* Glassmorphism */
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  background: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: var(--woow-radius-3xl);
-  box-shadow: var(--woow-shadow-lg);
-  padding: var(--woow-spacing-lg);
-  margin-bottom: var(--woow-spacing-lg);
-  transition: all var(--woow-transition-normal);
+  
+  /* Shape */
+  border-radius: 24px;
+  
+  /* Spacing - ZMNIEJSZONE! */
+  padding: 24px;
+  margin-bottom: 24px;
+  
+  /* Shadow */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  
+  /* Transition */
+  transition: all 200ms;
 }
 
 .woow-card:last-child {
   margin-bottom: 0;
 }
 
-/* Card with Hover Effect */
-.woow-card-hover {
-  cursor: pointer;
+.woow-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
-.woow-card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--woow-shadow-xl);
-}
-
-/* Card Header */
+/* ===========================
+   CARD HEADER
+   =========================== */
 .woow-card-header {
-  padding-bottom: var(--woow-spacing-md);
-  margin-bottom: var(--woow-spacing-md);
-  border-bottom: 1px solid var(--woow-border);
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+  
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
 }
 
 .woow-card-header h3 {
-  font-size: var(--woow-font-size-h3);
-  font-weight: var(--woow-font-weight-semibold);
-  color: var(--woow-foreground);
+  font-size: 18px;
+  font-weight: 600;
+  color: #0f172a;
   margin: 0;
-  line-height: 1.4;
-  letter-spacing: -0.01em;
+  
   display: flex;
   align-items: center;
-  gap: var(--woow-spacing-sm);
+  gap: 12px;
 }
 
-.woow-card-header-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--woow-spacing-xs);
+.woow-card-header .woow-badge {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(99, 102, 241, 0.1);
+  color: #6366f1;
+  font-weight: 600;
 }
 
-/* Card Body */
+/* ===========================
+   CARD BODY
+   =========================== */
 .woow-card-body {
+  /* KLUCZOWE: Usuń zbyt duże paddingi */
   padding: 0;
 }
 
-.woow-card-body > *:last-child {
+/* ===========================
+   CARD FOOTER
+   =========================== */
+.woow-card-footer {
+  padding-top: 16px;
+  margin-top: 20px;
+  border-top: 1px solid rgba(226, 232, 240, 0.6);
+  
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* ===========================
+   FORM GROUPS IN CARDS
+   =========================== */
+.woow-form-group {
+  /* ZMNIEJSZONE z 24px do 16px */
+  margin-bottom: 16px;
+}
+
+.woow-form-group:last-child {
   margin-bottom: 0;
 }
 
-/* Card Footer */
-.woow-card-footer {
-  padding-top: var(--woow-spacing-md);
-  margin-top: var(--woow-spacing-md);
-  border-top: 1px solid var(--woow-border);
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--woow-spacing-sm);
+.woow-form-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
-/* Card Variants */
+.woow-form-row:last-child {
+  margin-bottom: 0;
+}
 
-/* Compact Card */
+/* ===========================
+   COMPACT CARDS (dla sidebara)
+   =========================== */
 .woow-card-compact {
-  padding: var(--woow-spacing-md);
-  border-radius: var(--woow-radius-xl);
+  padding: 16px;
+  margin-bottom: 16px;
+  border-radius: 16px;
 }
 
 .woow-card-compact .woow-card-header {
-  padding-bottom: var(--woow-spacing-sm);
-  margin-bottom: var(--woow-spacing-sm);
+  padding-bottom: 12px;
+  margin-bottom: 12px;
 }
 
 .woow-card-compact .woow-card-header h3 {
-  font-size: var(--woow-font-size-body);
+  font-size: 16px;
 }
 
-/* Highlighted Card */
-.woow-card-highlight {
-  background: linear-gradient(
-    to bottom right,
-    rgba(99, 102, 241, 0.1),
-    rgba(139, 92, 246, 0.1),
-    rgba(236, 72, 153, 0.1)
-  );
-  border-color: rgba(99, 102, 241, 0.3);
+/* ===========================
+   SECTION CARDS (dla większych sekcji)
+   =========================== */
+.woow-section-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 24px;
+  padding: 32px;
+  margin-bottom: 32px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
-/* Success Card */
-.woow-card-success {
-  background: rgba(16, 185, 129, 0.05);
-  border-color: rgba(16, 185, 129, 0.3);
-}
-
-/* Warning Card */
-.woow-card-warning {
-  background: rgba(245, 158, 11, 0.05);
-  border-color: rgba(245, 158, 11, 0.3);
-}
-
-/* Error Card */
-.woow-card-error {
-  background: rgba(239, 68, 68, 0.05);
-  border-color: rgba(239, 68, 68, 0.3);
-}
-
-/* Info Card */
-.woow-card-info {
-  background: rgba(14, 165, 233, 0.05);
-  border-color: rgba(14, 165, 233, 0.3);
-}
-
-/* Card Grid */
-.woow-card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: var(--woow-spacing-lg);
-  margin-bottom: var(--woow-spacing-lg);
-}
-
-/* Card with Icon */
-.woow-card-icon {
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--woow-radius-lg);
-  background: linear-gradient(
-    to bottom right,
-    var(--woow-primary),
-    var(--woow-secondary)
-  );
-  color: #ffffff;
+.woow-section-card h2 {
   font-size: 24px;
-  flex-shrink: 0;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 8px;
 }
 
-/* Card Title with Icon */
-.woow-card-title-with-icon {
-  display: flex;
-  align-items: center;
-  gap: var(--woow-spacing-md);
+.woow-section-card .woow-section-description {
+  font-size: 15px;
+  color: #64748b;
+  margin-bottom: 24px;
+  line-height: 1.6;
 }
 
-/* Card Stat */
-.woow-card-stat {
-  display: flex;
-  flex-direction: column;
-  gap: var(--woow-spacing-xs);
+/* ===========================
+   GRID OF CARDS
+   =========================== */
+.woow-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-bottom: 24px;
 }
 
-.woow-card-stat-label {
-  font-size: var(--woow-font-size-small);
-  font-weight: var(--woow-font-weight-medium);
-  color: var(--woow-muted-foreground);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.woow-cards-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
 }
 
-.woow-card-stat-value {
-  font-size: 32px;
-  font-weight: var(--woow-font-weight-bold);
-  color: var(--woow-foreground);
-  line-height: 1;
-}
-
-.woow-card-stat-change {
-  font-size: var(--woow-font-size-small);
-  font-weight: var(--woow-font-weight-medium);
-  display: flex;
-  align-items: center;
-  gap: var(--woow-spacing-xs);
-}
-
-.woow-card-stat-change.positive {
-  color: #10b981;
-}
-
-.woow-card-stat-change.negative {
-  color: #ef4444;
-}
-
-/* Card List */
-.woow-card-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--woow-spacing-sm);
-}
-
-.woow-card-list-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--woow-spacing-sm);
-  border-radius: var(--woow-radius-md);
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(8px);
+/* ===========================
+   SECTION HEADER (dla tabów)
+   =========================== */
+.woow-section-header {
+  margin-bottom: 24px;
+  padding: 24px;
+  
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.4);
-  transition: all var(--woow-transition-normal);
+  border-radius: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
-.woow-card-list-item:hover {
-  background: rgba(255, 255, 255, 0.8);
-  box-shadow: var(--woow-shadow-sm);
+.woow-section-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 8px 0;
 }
 
-/* Responsive */
-@media (max-width: 1023px) {
-  .woow-card-grid {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+.woow-section-description {
+  font-size: 15px;
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ===========================
+   RESPONSIVE
+   =========================== */
+@media (max-width: 1024px) {
+  .woow-cards-grid-3 {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .woow-card {
-    padding: var(--woow-spacing-md);
-    border-radius: var(--woow-radius-xl);
+    padding: 20px;
+    border-radius: 20px;
+    margin-bottom: 20px;
   }
-
-  .woow-card-grid {
+  
+  .woow-section-card {
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  
+  .woow-cards-grid,
+  .woow-cards-grid-3 {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .woow-form-row {
     grid-template-columns: 1fr;
   }
-
-  .woow-card-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--woow-spacing-sm);
+  
+  .woow-section-header {
+    padding: 20px;
+    margin-bottom: 20px;
   }
-
-  .woow-card-header-actions {
-    width: 100%;
-    justify-content: flex-end;
-  }
-
-  .woow-card-footer {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .woow-card-footer > * {
-    width: 100%;
-  }
-}
-
-/* Reduced Motion */
-@media (prefers-reduced-motion: reduce) {
-  .woow-card,
-  .woow-card-hover,
-  .woow-card-list-item {
-    transition: none;
-  }
-
-  .woow-card-hover:hover {
-    transform: none;
-  }
-}
-
-/* Dark Mode */
-@media (prefers-color-scheme: dark) {
-  .woow-card {
-    background: rgba(30, 41, 59, 0.9);
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .woow-card-header,
-  .woow-card-footer {
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .woow-card-list-item {
-    background: rgba(30, 41, 59, 0.6);
-    border-color: rgba(255, 255, 255, 0.08);
-  }
-
-  .woow-card-list-item:hover {
-    background: rgba(30, 41, 59, 0.8);
-  }
-
-  .woow-card-highlight {
-    background: linear-gradient(
-      to bottom right,
-      rgba(99, 102, 241, 0.15),
-      rgba(139, 92, 246, 0.15),
-      rgba(236, 72, 153, 0.15)
-    );
-  }
-}
-
-/* Print Styles */
-@media print {
-  .woow-card {
-    break-inside: avoid;
-    box-shadow: none;
-    border: 1px solid #e2e8f0;
-  }
-
-  .woow-card-hover:hover {
-    transform: none;
-    box-shadow: none;
+  
+  .woow-section-header h2 {
+    font-size: 20px;
   }
 }

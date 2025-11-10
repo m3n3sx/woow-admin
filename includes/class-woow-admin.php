@@ -40,6 +40,20 @@ class WOOW_Admin {
 	private WOOW_Cache_Manager $cache;
 
 	/**
+	 * Backup manager instance
+	 *
+	 * @var WOOW_Backup_Manager
+	 */
+	private WOOW_Backup_Manager $backup_manager;
+
+	/**
+	 * Template manager instance
+	 *
+	 * @var WOOW_Template_Manager
+	 */
+	private WOOW_Template_Manager $template_manager;
+
+	/**
 	 * Rate limit: requests per minute
 	 *
 	 * @var int
@@ -49,18 +63,24 @@ class WOOW_Admin {
 	/**
 	 * Constructor - Inject dependencies
 	 *
-	 * @param WOOW_Settings      $settings      Settings manager.
-	 * @param WOOW_CSS_Generator $css_generator CSS generator.
-	 * @param WOOW_Cache_Manager $cache         Cache manager.
+	 * @param WOOW_Settings          $settings          Settings manager.
+	 * @param WOOW_CSS_Generator     $css_generator     CSS generator.
+	 * @param WOOW_Cache_Manager     $cache             Cache manager.
+	 * @param WOOW_Backup_Manager    $backup_manager    Backup manager.
+	 * @param WOOW_Template_Manager  $template_manager  Template manager.
 	 */
 	public function __construct(
 		WOOW_Settings $settings,
 		WOOW_CSS_Generator $css_generator,
-		WOOW_Cache_Manager $cache
+		WOOW_Cache_Manager $cache,
+		WOOW_Backup_Manager $backup_manager,
+		WOOW_Template_Manager $template_manager
 	) {
-		$this->settings      = $settings;
-		$this->css_generator = $css_generator;
-		$this->cache         = $cache;
+		$this->settings          = $settings;
+		$this->css_generator     = $css_generator;
+		$this->cache             = $cache;
+		$this->backup_manager    = $backup_manager;
+		$this->template_manager  = $template_manager;
 	}
 
 	/**
@@ -79,6 +99,35 @@ class WOOW_Admin {
 
 		set_transient( $key, $count + 1, 60 );
 		return true;
+	}
+
+	/**
+	 * Convert RGBA color to HEX for input type="color"
+	 *
+	 * @param string $color Color value (hex or rgba).
+	 * @return string Hex color value.
+	 */
+	public static function rgba_to_hex( string $color ): string {
+		// Handle empty values
+		if ( empty( $color ) ) {
+			return '#000000';
+		}
+
+		// If already hex, return as is
+		if ( strpos( $color, '#' ) === 0 ) {
+			return $color;
+		}
+
+		// If rgba, extract RGB values
+		if ( preg_match( '/rgba?\((\d+),\s*(\d+),\s*(\d+)/', $color, $matches ) ) {
+			$r = str_pad( dechex( (int) $matches[1] ), 2, '0', STR_PAD_LEFT );
+			$g = str_pad( dechex( (int) $matches[2] ), 2, '0', STR_PAD_LEFT );
+			$b = str_pad( dechex( (int) $matches[3] ), 2, '0', STR_PAD_LEFT );
+			return '#' . $r . $g . $b;
+		}
+
+		// Default fallback
+		return '#000000';
 	}
 
 	/**
@@ -133,12 +182,113 @@ class WOOW_Admin {
 			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'woow-admin' ) );
 		}
 
+		// Include the admin page template
+		$template_file = WOOW_PLUGIN_DIR . 'includes/templates/admin-page.php';
+		if ( file_exists( $template_file ) ) {
+			include $template_file;
+		} else {
+			echo '<div class="wrap"><h1>WOOW! Admin</h1><p>Template file not found.</p></div>';
+		}
+	}
+
+	/**
+	 * Enqueue admin assets (CSS and JavaScript)
+	 *
+	 * @param string $hook Current admin page hook.
+	 * @return void
+	 */
+	public function enqueue_admin_assets( string $hook ): void {
+		// Only load on our admin page
+		if ( 'toplevel_page_woow-admin' !== $hook ) {
+			return;
+		}
+
+		// Enqueue main CSS
+		wp_enqueue_style(
+			'woow-admin-styles',
+			WOOW_ASSETS_URL . 'style.css',
+			array(),
+			WOOW_VERSION,
+			'all'
+		);
+
+		// Enqueue main JavaScript
+		wp_enqueue_script(
+			'woow-admin-scripts',
+			WOOW_ASSETS_URL . 'main.js',
+			array(),
+			WOOW_VERSION,
+			true
+		);
+
+		// Localize script with data
+		wp_localize_script(
+			'woow-admin-scripts',
+			'woowAdminData',
+			array(
+				'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
+				'nonce'      => wp_create_nonce( 'woow_admin_nonce' ),
+				'settings'   => $this->settings->get_all(),
+				'palettes'   => $this->settings->get_available_palettes(),
+				'templates'  => $this->settings->get_available_templates(),
+				'i18n'       => array(
+					'saving'          => __( 'Saving...', 'woow-admin' ),
+					'saved'           => __( 'Saved!', 'woow-admin' ),
+					'error'           => __( 'Error saving settings', 'woow-admin' ),
+					'confirmReset'    => __( 'Are you sure you want to reset all settings?', 'woow-admin' ),
+					'paletteApplied'  => __( 'Palette applied successfully!', 'woow-admin' ),
+					'templateApplied' => __( 'Template applied successfully!', 'woow-admin' ),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Inject generated CSS into admin head
+	 *
+	 * This applies the customizations to the entire WordPress admin,
+	 * not just the WOOW! Admin settings page.
+	 *
+	 * @return void
+	 */
+	public function inject_generated_css(): void {
+		// Check if customizations are enabled
+		$settings = $this->settings->get_all();
+		if ( empty( $settings['general']['enabled'] ) ) {
+			return;
+		}
+
+		// Try to get CSS from cache
+		$css = $this->cache->get( 'generated_css' );
+
+		// If not in cache, generate it
+		if ( false === $css ) {
+			$css = $this->css_generator->generate();
+			$this->cache->set( 'generated_css', $css, 86400 ); // Cache for 24 hours
+		}
+
+		// Output CSS
+		if ( ! empty( $css ) ) {
+			echo "\n<!-- WOOW! Admin Custom Styles -->\n";
+			echo '<style id="woow-admin-custom-css" type="text/css">' . "\n";
+			echo wp_strip_all_tags( $css ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo "\n</style>\n";
+			echo "<!-- /WOOW! Admin Custom Styles -->\n\n";
+		}
+	}
+
+	/**
+	 * Legacy render method (keeping for compatibility)
+	 *
+	 * @return void
+	 */
+	private function render_admin_page_legacy(): void {
 		// Get current settings
 		$settings = $this->settings->get_all();
 		$palettes = $this->settings->get_available_palettes();
 		$templates = $this->settings->get_available_templates();
 
-		// Render template
+		// Render simple template
 		?>
 		<div class="wrap woow-admin-wrap">
 			<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
@@ -280,85 +430,7 @@ class WOOW_Admin {
 		<?php
 	}
 
-	/**
-	 * Enqueue admin assets
-	 *
-	 * @param string $hook Current admin page hook.
-	 * @return void
-	 */
-	public function enqueue_admin_assets( string $hook ): void {
-		// Only load on WOOW! Admin page
-		if ( 'toplevel_page_woow-admin' !== $hook ) {
-			return;
-		}
 
-		// Enqueue styles (if built)
-		$css_file = WOOW_PLUGIN_DIR . 'assets/dist/css/style.css';
-		if ( file_exists( $css_file ) ) {
-			wp_enqueue_style(
-				'woow-admin',
-				WOOW_ASSETS_URL . 'css/style.css',
-				array(),
-				WOOW_VERSION
-			);
-		}
-
-		// Enqueue scripts (if built)
-		$js_file = WOOW_PLUGIN_DIR . 'assets/dist/js/main.js';
-		if ( file_exists( $js_file ) ) {
-			wp_enqueue_script(
-				'woow-admin',
-				WOOW_ASSETS_URL . 'js/main.js',
-				array(),
-				WOOW_VERSION,
-				true
-			);
-
-			// Localize script
-			wp_localize_script(
-				'woow-admin',
-				'woowAdmin',
-				array(
-					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-					'nonce'   => wp_create_nonce( 'woow_nonce' ),
-					'i18n'    => array(
-						'confirmReset' => __( 'Are you sure you want to reset to defaults?', 'woow-admin' ),
-						'saved'        => __( 'Settings saved successfully!', 'woow-admin' ),
-						'error'        => __( 'An error occurred. Please try again.', 'woow-admin' ),
-					),
-				)
-			);
-		}
-	}
-
-	/**
-	 * Inject generated CSS into admin head
-	 *
-	 * @return void
-	 */
-	public function inject_generated_css(): void {
-		// Check if plugin is enabled
-		if ( ! $this->settings->get_option( 'general.enabled', true ) ) {
-			return;
-		}
-
-		// Try to get from cache first
-		$cache_key = 'css_' . md5( serialize( $this->settings->get_all() ) );
-		$css       = $this->cache->get( $cache_key );
-
-		if ( false === $css ) {
-			// Generate CSS
-			$css = $this->css_generator->generate();
-
-			// Cache it
-			$this->cache->set( $cache_key, $css, 86400 ); // 24 hours
-		}
-
-		// Output CSS
-		if ( ! empty( $css ) ) {
-			echo '<style id="woow-generated-css">' . $css . '</style>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		}
-	}
 
 	/**
 	 * AJAX handler: Save settings
@@ -367,7 +439,7 @@ class WOOW_Admin {
 	 */
 	public function ajax_save_settings(): void {
 		// Verify nonce
-		check_ajax_referer( 'woow_nonce', 'nonce' );
+		check_ajax_referer( 'woow_admin_nonce', 'nonce' );
 
 		// Check capabilities
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -414,8 +486,11 @@ class WOOW_Admin {
 		}
 
 		// Clear CSS cache
-		$cache_key = 'css_' . md5( serialize( $this->settings->get_all() ) );
-		$this->cache->delete( $cache_key );
+		$this->cache->flush();
+
+		// Generate new CSS
+		$css = $this->css_generator->generate();
+		$metrics = $this->css_generator->get_metrics();
 
 		// Get updated settings
 		$updated_settings = $this->settings->get_all();
@@ -423,6 +498,8 @@ class WOOW_Admin {
 		wp_send_json_success( array(
 			'message'  => __( 'Settings saved successfully', 'woow-admin' ),
 			'settings' => $updated_settings,
+			'css'      => $css,
+			'metrics'  => $metrics,
 		) );
 	}
 
@@ -433,7 +510,7 @@ class WOOW_Admin {
 	 */
 	public function ajax_apply_palette(): void {
 		// Verify nonce
-		check_ajax_referer( 'woow_nonce', 'nonce' );
+		check_ajax_referer( 'woow_admin_nonce', 'nonce' );
 
 		// Check capabilities
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -496,7 +573,7 @@ class WOOW_Admin {
 	 */
 	public function ajax_apply_template(): void {
 		// Verify nonce
-		check_ajax_referer( 'woow_nonce', 'nonce' );
+		check_ajax_referer( 'woow_admin_nonce', 'nonce' );
 
 		// Check capabilities
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -559,7 +636,7 @@ class WOOW_Admin {
 	 */
 	public function ajax_preview_css(): void {
 		// Verify nonce
-		check_ajax_referer( 'woow_nonce', 'nonce' );
+		check_ajax_referer( 'woow_admin_nonce', 'nonce' );
 
 		// Check capabilities
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -624,7 +701,7 @@ class WOOW_Admin {
 	 */
 	public function ajax_export_settings(): void {
 		// Verify nonce
-		check_ajax_referer( 'woow_nonce', 'nonce' );
+		check_ajax_referer( 'woow_admin_nonce', 'nonce' );
 
 		// Check capabilities
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -671,7 +748,7 @@ class WOOW_Admin {
 	 */
 	public function ajax_import_settings(): void {
 		// Verify nonce
-		check_ajax_referer( 'woow_nonce', 'nonce' );
+		check_ajax_referer( 'woow_admin_nonce', 'nonce' );
 
 		// Check capabilities
 		if ( ! current_user_can( 'manage_options' ) ) {

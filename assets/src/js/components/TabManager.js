@@ -26,14 +26,23 @@ export class TabManager {
      * Initialize tab manager
      */
     init() {
-        this.tabsContainer = document.querySelector('.woow-tabs');
+        // Look for sidebar navigation (Figma design)
+        this.tabsContainer = document.querySelector('.woow-sidebar-nav');
 
         if (!this.tabsContainer) {
-            console.warn('[TabManager] Tabs container not found');
+            // Fallback to old tabs container
+            this.tabsContainer = document.querySelector('.woow-tabs');
+        }
+
+        if (!this.tabsContainer) {
+            console.warn('[TabManager] Navigation container not found');
             return;
         }
 
-        this.tabButtons = Array.from(this.tabsContainer.querySelectorAll('.woow-tab-button'));
+        // Get navigation items (sidebar) or tab buttons (old design)
+        this.tabButtons = Array.from(
+            this.tabsContainer.querySelectorAll('.woow-nav-item, .woow-tab-button')
+        );
         this.tabPanes = Array.from(document.querySelectorAll('.woow-tab-pane'));
 
         // Get initial active tab from URL hash or default
@@ -87,14 +96,14 @@ export class TabManager {
         this.activeTab = tabId;
         this.woow.state.activeTab = tabId;
 
-        // Update tab buttons
+        // Update navigation items/tab buttons
         this.tabButtons.forEach(button => {
             if (button.dataset.tab === tabId) {
-                button.classList.add('woow-tab-active');
+                button.classList.add('active', 'woow-tab-active');
                 button.setAttribute('aria-selected', 'true');
                 button.setAttribute('tabindex', '0');
             } else {
-                button.classList.remove('woow-tab-active');
+                button.classList.remove('active', 'woow-tab-active');
                 button.setAttribute('aria-selected', 'false');
                 button.setAttribute('tabindex', '-1');
             }
@@ -103,10 +112,10 @@ export class TabManager {
         // Update tab panes
         this.tabPanes.forEach(pane => {
             if (pane.id === `tab-${tabId}`) {
-                pane.classList.add('woow-tab-pane-active');
+                pane.classList.add('active', 'woow-tab-pane-active');
                 pane.setAttribute('aria-hidden', 'false');
             } else {
-                pane.classList.remove('woow-tab-pane-active');
+                pane.classList.remove('active', 'woow-tab-pane-active');
                 pane.setAttribute('aria-hidden', 'true');
             }
         });

@@ -14,6 +14,7 @@ import { TemplateGallery } from './components/TemplateGallery.js';
 import { ImportExport } from './components/ImportExport.js';
 import { TabManager } from './components/TabManager.js';
 import { KeyboardShortcuts } from './components/KeyboardShortcuts.js';
+import { HeaderController } from './components/HeaderController.js';
 
 /**
  * Main WoowAdmin Controller Class
@@ -28,7 +29,8 @@ class WoowAdmin {
             settings: window.woowAdminData?.settings || {},
             activeTab: 'general',
             previewMode: 'desktop',
-            unsavedChanges: false
+            unsavedChanges: false,
+            realtimeEnabled: true // Real-time preview enabled by default
         };
 
         // Component instances
@@ -64,6 +66,7 @@ class WoowAdmin {
     initComponents() {
         try {
             // Initialize components
+            this.components.headerController = new HeaderController(this);
             this.components.colorPicker = new ColorPicker(this);
             this.components.livePreview = new LivePreview(this);
             this.components.paletteSelector = new PaletteSelector(this);
@@ -87,26 +90,57 @@ class WoowAdmin {
      */
     bindEvents() {
         // Save button
-        const saveButton = document.querySelector('.woow-save-button');
+        const saveButton = document.querySelector('#woow-save-btn');
+        console.log('[WOOW Admin] Save button found:', saveButton);
         if (saveButton) {
             saveButton.addEventListener('click', (e) => {
                 e.preventDefault();
+                console.log('[WOOW Admin] Save button clicked!');
                 this.saveSettings();
             });
+            console.log('[WOOW Admin] Save button event listener attached');
+        } else {
+            console.error('[WOOW Admin] Save button NOT found!');
+        }
+
+        // Real-time toggle
+        const realtimeToggle = document.querySelector('#woow-realtime-toggle');
+        if (realtimeToggle) {
+            realtimeToggle.addEventListener('change', (e) => {
+                this.state.realtimeEnabled = e.target.checked;
+                console.log('[WOOW Admin] Real-time mode:', this.state.realtimeEnabled ? 'ON' : 'OFF');
+                
+                // If enabled, trigger immediate preview
+                if (this.state.realtimeEnabled) {
+                    this.updateLivePreview();
+                }
+            });
+            
+            // Set initial state
+            this.state.realtimeEnabled = realtimeToggle.checked;
         }
 
         // Track form changes
-        const form = document.querySelector('.woow-admin-form');
+        const form = document.querySelector('#woow-settings-form');
         if (form) {
             form.addEventListener('change', () => {
                 this.state.unsavedChanges = true;
                 this.updateSaveButtonState();
+                
+                // Trigger live preview if real-time is enabled
+                if (this.state.realtimeEnabled) {
+                    this.debouncedPreview();
+                }
             });
 
             form.addEventListener('input', () => {
                 this.state.unsavedChanges = true;
                 this.updateSaveButtonState();
-                this.debouncedPreview();
+                
+                // Trigger live preview if real-time is enabled
+                if (this.state.realtimeEnabled) {
+                    this.debouncedPreview();
+                }
             });
         }
 
@@ -124,7 +158,7 @@ class WoowAdmin {
      * Update save button state based on unsaved changes
      */
     updateSaveButtonState() {
-        const saveButton = document.querySelector('.woow-save-button');
+        const saveButton = document.querySelector('#woow-save-btn');
         if (saveButton) {
             if (this.state.unsavedChanges) {
                 saveButton.classList.add('woow-button-primary');
@@ -145,7 +179,7 @@ class WoowAdmin {
      */
     collectFormData() {
         const formData = {};
-        const form = document.querySelector('.woow-admin-form');
+        const form = document.querySelector('#woow-settings-form');
 
         if (!form) {
             return formData;
@@ -246,9 +280,14 @@ class WoowAdmin {
             const result = await response.json();
 
             if (result.success) {
-                // Update preview
+                // Update preview iframe
                 if (this.components.livePreview) {
                     this.components.livePreview.update(result.data.css);
+                }
+
+                // If real-time mode is enabled, also update current page
+                if (this.state.realtimeEnabled) {
+                    this.injectLiveCSS(result.data.css);
                 }
 
                 // Update metrics if available
@@ -261,6 +300,28 @@ class WoowAdmin {
         } catch (error) {
             console.error('[WOOW Admin] Preview error:', error);
         }
+    }
+
+    /**
+     * Inject CSS directly into current page for live preview
+     *
+     * @param {string} css - CSS to inject
+     */
+    injectLiveCSS(css) {
+        // Get or create live preview style element
+        let styleEl = document.getElementById('woow-live-preview-css');
+        
+        if (!styleEl) {
+            styleEl = document.createElement('style');
+            styleEl.id = 'woow-live-preview-css';
+            styleEl.type = 'text/css';
+            document.head.appendChild(styleEl);
+        }
+
+        // Update CSS content
+        styleEl.textContent = css;
+
+        console.log('[WOOW Admin] Live CSS injected to current page');
     }
 
     /**
@@ -302,8 +363,13 @@ class WoowAdmin {
      */
     async saveSettings() {
         try {
+            // Notify header controller
+            if (this.components.headerController) {
+                this.components.headerController.onSaveStart();
+            }
+
             // Show loading state
-            const saveButton = document.querySelector('.woow-save-button');
+            const saveButton = document.querySelector('#woow-save-btn');
             if (saveButton) {
                 saveButton.disabled = true;
                 saveButton.textContent = this.i18n.saving || 'Saving...';
@@ -331,6 +397,11 @@ class WoowAdmin {
                 this.state.settings = result.data.settings || formData;
                 this.state.unsavedChanges = false;
 
+                // Notify header controller of success
+                if (this.components.headerController) {
+                    this.components.headerController.onSaveSuccess();
+                }
+
                 // Update UI
                 this.updateSaveButtonState();
                 this.showNotification(
@@ -350,6 +421,11 @@ class WoowAdmin {
 
                 return true;
             } else {
+                // Notify header controller of error
+                if (this.components.headerController) {
+                    this.components.headerController.onSaveError();
+                }
+
                 // Handle error
                 const errorMessage = result.data?.message || this.i18n.saveFailed || 'Failed to save settings';
                 this.showNotification(errorMessage, 'error');
@@ -364,6 +440,11 @@ class WoowAdmin {
                 return false;
             }
         } catch (error) {
+            // Notify header controller of error
+            if (this.components.headerController) {
+                this.components.headerController.onSaveError();
+            }
+
             console.error('[WOOW Admin] Save error:', error);
             this.showNotification(
                 this.i18n.networkError || 'Network error. Please try again.',
@@ -372,7 +453,7 @@ class WoowAdmin {
             return false;
         } finally {
             // Restore button state
-            const saveButton = document.querySelector('.woow-save-button');
+            const saveButton = document.querySelector('#woow-save-btn');
             if (saveButton) {
                 saveButton.disabled = false;
                 this.updateSaveButtonState();

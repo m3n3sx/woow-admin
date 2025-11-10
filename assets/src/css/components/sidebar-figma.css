@@ -1,0 +1,279 @@
+/**
+ * Sidebar Navigation - Figma Specification
+ * 
+ * Implements the exact sidebar design from Figma:
+ * - Width: 256px (w-64)
+ * - Glassmorphism: bg-white/80 backdrop-blur-sm
+ * - Border: border-r border-gray-200/50
+ * - Logo section with gradient icon
+ * - Navigation items with active gradient state
+ * 
+ * @package WoowAdmin
+ * @since 1.0.0
+ */
+
+/* Sidebar Container */
+.woow-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: #ffffff;
+  border-right: 1px solid #e5e7eb;
+  /* display: flex; */
+  flex-direction: column;
+  
+  /* Sticky positioning - stays visible while scrolling */
+  position: fixed;
+  top: 0;
+  align-self: flex-start;
+  max-height: calc(100vh - 32px); /* Account for WP admin bar */
+  overflow: hidden;
+}
+
+/* Logo Section (h-16 = 64px) */
+.woow-sidebar-logo {
+  height: 64px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid rgba(243, 244, 246, 0.5);
+}
+
+/* Logo Icon Container */
+.woow-logo-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 16px;
+  background: linear-gradient(to bottom right, #6366f1, #8b5cf6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.woow-logo-icon .dashicons {
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+  color: #ffffff;
+}
+
+/* Logo Text */
+.woow-logo-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.woow-logo-text h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.woow-logo-text p {
+  font-size: 10px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Navigation Section */
+.woow-sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px;
+}
+
+/* Custom Scrollbar */
+.woow-sidebar-nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.woow-sidebar-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.woow-sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(203, 213, 225, 0.5);
+  border-radius: 3px;
+}
+
+.woow-sidebar-nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(203, 213, 225, 0.8);
+}
+
+/* Navigation Items */
+.woow-nav-item {
+  width: 100%;
+  /* display: flex; */
+  align-items: center;
+  /* gap: 12px; */
+  /* padding: 12px 16px; */
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  margin-bottom: 4px;
+  text-align: left;
+}
+
+/* Navigation Item Icon */
+.woow-nav-item .dashicons {
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+/* Navigation Item Label */
+.woow-nav-label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Navigation Item Badge */
+.woow-nav-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: rgba(99, 102, 241, 0.1);
+  color: #6366f1;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* Hover State */
+.woow-nav-item:hover {
+  background: rgba(249, 250, 251, 1);
+  color: #6366f1;
+}
+
+.woow-nav-item:hover .dashicons {
+  color: #6366f1;
+}
+
+/* Active State - Gradient Background */
+.woow-nav-item.active {
+  background: linear-gradient(to bottom right, #6366f1, #8b5cf6);
+  color: #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3),
+              0 2px 4px -2px rgba(99, 102, 241, 0.3);
+}
+
+.woow-nav-item.active .dashicons {
+  color: #ffffff;
+}
+
+.woow-nav-item.active .woow-nav-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Focus State */
+.woow-nav-item:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.woow-nav-item.active:focus {
+  box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3),
+              0 2px 4px -2px rgba(99, 102, 241, 0.3),
+              0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+/* Responsive Behavior */
+@media (max-width: 1024px) {
+  .woow-sidebar {
+    position: relative;
+    top: 0;
+    width: 100%;
+    max-height: none;
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .woow-sidebar-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 12px 16px;
+  }
+  
+  .woow-nav-item {
+    flex-shrink: 0;
+    width: auto;
+    padding: 8px 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .woow-sidebar-logo {
+    padding: 0 16px;
+  }
+  
+  .woow-nav-item {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  
+  .woow-nav-label {
+    display: none;
+  }
+  
+  .woow-nav-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    font-size: 9px;
+    height: 16px;
+    padding: 0 6px;
+  }
+  
+  .woow-nav-item {
+    position: relative;
+  }
+}
+
+/* Animation for active state transition */
+@keyframes woow-nav-activate {
+  0% {
+    transform: scale(0.98);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.woow-nav-item.active {
+  animation: woow-nav-activate 200ms ease-out;
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .woow-nav-item,
+  .woow-sidebar {
+    transition: none;
+    animation: none;
+  }
+}

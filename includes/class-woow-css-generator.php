@@ -177,25 +177,23 @@ class WOOW_CSS_Generator {
     private function add_admin_bar_styles(): void {
         $bar = $this->settings->get_section( 'admin_bar' );
 
-        $this->css .= "/* Admin Bar Styling */\n";
+        $this->css .= "/* Admin Bar Styling - Rounded with margins */\n";
         $this->css .= "#wpadminbar {\n";
-        $this->css .= "    height: {$bar['height']} !important;\n";
-        $this->css .= "    width: calc(100% - 32px) !important;\n";
-        $this->css .= "    position: {$bar['position']} !important;\n";
-        
-        if ( $bar['position'] === 'sticky' ) {
-            $this->css .= "    top: {$bar['top_offset']} !important;\n";
-        } else {
-            $this->css .= "    top: 0 !important;\n";
-        }
-        
+        $this->css .= "    /* Position and spacing */\n";
+        $this->css .= "    position: fixed !important;\n";
+        $this->css .= "    top: 16px !important;\n";
         $this->css .= "    left: 16px !important;\n";
-        $this->css .= "    margin: 16px !important;\n";
-        $this->css .= "    border-radius: {$bar['border_radius']} !important;\n";
-        $this->css .= "    z-index: 99999 !important;\n";
-        $this->css .= "    box-shadow: {$this->get_shadow_value($bar['shadow_style'])} !important;\n";
-        $transition_speed = $bar['transition_speed'] ?? '200ms';
-        $this->css .= "    transition: all {$transition_speed} var(--woow-easing) !important;\n";
+        $this->css .= "    right: 16px !important;\n";
+        $this->css .= "    width: auto !important;\n";
+        $this->css .= "    height: 28px !important;\n";
+        $this->css .= "    margin: 0 !important;\n";
+        $this->css .= "    \n";
+        $this->css .= "    /* Visual styling */\n";
+        $this->css .= "    border-radius: 1.5rem !important;\n";
+        $this->css .= "    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;\n";
+        $this->css .= "    padding: 0.75rem 1.5rem !important;\n";
+        $this->css .= "    align-items: center !important;\n";
+        $this->css .= "    flex-wrap: nowrap !important;\n";
         
         // Background based on type
         if ( $bar['background_type'] === 'gradient' ) {
@@ -211,15 +209,35 @@ class WOOW_CSS_Generator {
         
         $this->css .= "}\n\n";
         
+        // Adjust body padding to account for floating admin bar
+        $this->css .= "body.admin-bar {\n";
+        $this->css .= "    padding-top: 80px !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= "#wpcontent,\n";
+        $this->css .= "#wpbody {\n";
+        $this->css .= "    padding-top: 0 !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Prevent horizontal overflow
+        $this->css .= "html,\n";
+        $this->css .= "body {\n";
+        $this->css .= "    overflow-x: hidden !important;\n";
+        $this->css .= "    max-width: 100vw !important;\n";
+        $this->css .= "}\n\n";
+        
         // Admin bar items
         $this->css .= "#wpadminbar .ab-item {\n";
         $this->css .= "    color: {$bar['text_color']} !important;\n";
         $this->css .= "    font-size: {$bar['font_size']} !important;\n";
         $this->css .= "    font-weight: {$bar['font_weight']} !important;\n";
-        $this->css .= "    height: {$bar['height']} !important;\n";
-        $this->css .= "    line-height: {$bar['height']} !important;\n";
         $this->css .= "    padding: 0 16px !important;\n";
         $this->css .= "    transition: background 200ms var(--woow-easing);\n";
+        $this->css .= "}\n\n";
+        
+        // Admin bar label
+        $this->css .= "#wpadminbar .ab-label {\n";
+        $this->css .= "    display: flex !important;\n";
         $this->css .= "}\n\n";
         
         // Hover states
@@ -275,153 +293,75 @@ class WOOW_CSS_Generator {
     private function add_admin_menu_styles(): void {
         $menu = $this->settings->get_section( 'admin_menu' );
 
-        $this->css .= "/* Admin Menu Styling */\n";
-        $this->css .= "#adminmenuwrap, #adminmenu, #adminmenuback {\n";
-        $this->css .= "    width: {$menu['width_expanded']} !important;\n";
-        $this->css .= "    position: sticky !important;\n";
-        $this->css .= "    top: 96px !important;\n";
-        $this->css .= "    left: 16px !important;\n";
-        $this->css .= "    height: calc(100vh - 128px) !important;\n";
-        $this->css .= "    margin: 96px 0 16px 16px !important;\n";
-        $this->css .= "    border-radius: {$menu['border_radius']} !important;\n";
-        $this->css .= "    box-shadow: {$this->get_shadow_value($menu['shadow_style'])} !important;\n";
-        $this->css .= "    overflow-y: auto !important;\n";
-        $this->css .= "    overflow-x: hidden !important;\n";
+        $this->css .= "/* Admin Menu Styling - Equal spacing layout */\n";
         
-        if ( $menu['glassmorphism'] ) {
-            $this->css .= $this->get_glassmorphism_css( $menu['blur_strength'], $menu['opacity'] );
-            $this->css .= "    background: rgba(255, 255, 255, {$menu['opacity']}) !important;\n";
-        } else {
-            $this->css .= "    background: {$menu['background_color']} !important;\n";
-        }
-        
-        $this->css .= "    border: 1px solid rgba(255, 255, 255, 0.4) !important;\n";
-        $this->css .= "}\n\n";
-        
+        // Hide adminmenuback to prevent double menu
         $this->css .= "#adminmenuback {\n";
-        $this->css .= "    background: transparent !important;\n";
-        $this->css .= "}\n\n";
-        
-        $this->css .= "#adminmenu {\n";
-        $this->css .= "    padding: 12px !important;\n";
-        $this->css .= "    background: transparent !important;\n";
-        $this->css .= "}\n\n";
-        
-        // Menu items
-        $this->css .= "#adminmenu li.menu-top {\n";
-        $this->css .= "    margin: 4px 0 !important;\n";
-        $this->css .= "}\n\n";
-        
-        $this->css .= "#adminmenu li.menu-top > a {\n";
-        $this->css .= "    padding: 10px 12px !important;\n";
-        $this->css .= "    border-radius: 12px !important;\n";
-        $this->css .= "    transition: all 200ms var(--woow-easing) !important;\n";
-        $this->css .= "    color: #0f172a !important;\n";
-        $this->css .= "    font-size: 14px !important;\n";
-        $this->css .= "    font-weight: 500 !important;\n";
-        $this->css .= "    display: flex !important;\n";
-        $this->css .= "    align-items: center !important;\n";
-        $this->css .= "    gap: 12px !important;\n";
-        $this->css .= "    height: {$menu['menu_item_height']} !important;\n";
-        $this->css .= "}\n\n";
-        
-        // Hover state
-        $this->css .= "#adminmenu li.menu-top:hover > a {\n";
-        $this->css .= "    background: {$menu['hover_bg_color']} !important;\n";
-        $this->css .= "    color: #6366f1 !important;\n";
-        $this->css .= "}\n\n";
-        
-        // Active state with gradient
-        $this->css .= "#adminmenu li.wp-has-current-submenu > a,\n";
-        $this->css .= "#adminmenu li.current > a,\n";
-        $this->css .= "#adminmenu li.wp-menu-open > a {\n";
-        $this->css .= "    background: linear-gradient(to bottom right, {$menu['active_gradient_start']}, {$menu['active_gradient_end']}) !important;\n";
-        $this->css .= "    color: #ffffff !important;\n";
-        $this->css .= "    font-weight: 600 !important;\n";
-        $this->css .= "    box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3) !important;\n";
-        $this->css .= "}\n\n";
-        
-        // Menu icons
-        $this->css .= "#adminmenu .wp-menu-image dashicons-before:before {\n";
-        $this->css .= "    font-size: 20px !important;\n";
-        $this->css .= "    width: 20px !important;\n";
-        $this->css .= "    height: 20px !important;\n";
-        $this->css .= "    color: #64748b;\n";
-        $this->css .= "    transition: color 200ms;\n";
-        $this->css .= "}\n\n";
-        
-        $this->css .= "#adminmenu li.menu-top:hover .wp-menu-image dashicons-before:before {\n";
-        $this->css .= "    color: #6366f1 !important;\n";
-        $this->css .= "}\n\n";
-        
-        $this->css .= "#adminmenu li.wp-has-current-submenu .wp-menu-image dashicons-before:before,\n";
-        $this->css .= "#adminmenu li.current .wp-menu-image dashicons-before:before {\n";
-        $this->css .= "    color: #ffffff !important;\n";
-        $this->css .= "}\n\n";
-        
-        // Badges
-        $this->css .= "#adminmenu .awaiting-mod,\n";
-        $this->css .= "#adminmenu .update-plugins {\n";
-        $this->css .= "    background: rgba(99, 102, 241, 0.1) !important;\n";
-        $this->css .= "    color: #6366f1 !important;\n";
-        $this->css .= "    border: 1px solid rgba(99, 102, 241, 0.2) !important;\n";
-        $this->css .= "    border-radius: 6px !important;\n";
-        $this->css .= "    font-size: 11px !important;\n";
-        $this->css .= "    font-weight: 600 !important;\n";
-        $this->css .= "    padding: 2px 8px !important;\n";
-        $this->css .= "    margin-left: 8px !important;\n";
-        $this->css .= "}\n\n";
-        
-        $this->css .= "#adminmenu li.current .awaiting-mod,\n";
-        $this->css .= "#adminmenu li.current .update-plugins {\n";
-        $this->css .= "    background: rgba(255, 255, 255, 0.2) !important;\n";
-        $this->css .= "    color: #ffffff !important;\n";
-        $this->css .= "    border-color: rgba(255, 255, 255, 0.3) !important;\n";
-        $this->css .= "}\n\n";
-        
-        // Submenu
-        $this->css .= "#adminmenu .wp-submenu {\n";
-        $this->css .= "    background: rgba(255, 255, 255, 0.95) !important;\n";
-        $this->css .= "    backdrop-filter: blur(8px) !important;\n";
-        $this->css .= "    border-radius: 12px !important;\n";
-        $this->css .= "    margin: 4px 8px 8px 8px !important;\n";
-        $this->css .= "    padding: 8px !important;\n";
-        $this->css .= "    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05) !important;\n";
-        $this->css .= "}\n\n";
-        
-        $this->css .= "#adminmenu .wp-submenu li a {\n";
-        $this->css .= "    padding: 8px 12px 8px 36px !important;\n";
-        $this->css .= "    border-radius: 8px !important;\n";
-        $this->css .= "    color: #64748b !important;\n";
-        $this->css .= "    font-size: 13px !important;\n";
-        $this->css .= "    transition: all 200ms;\n";
-        $this->css .= "}\n\n";
-        
-        $this->css .= "#adminmenu .wp-submenu li a:hover {\n";
-        $this->css .= "    background: rgba(99, 102, 241, 0.05) !important;\n";
-        $this->css .= "    color: #6366f1 !important;\n";
-        $this->css .= "}\n\n";
-        
-        $this->css .= "#adminmenu .wp-submenu li.current a {\n";
-        $this->css .= "    color: #6366f1 !important;\n";
-        $this->css .= "    font-weight: 600 !important;\n";
-        $this->css .= "}\n\n";
-        
-        // Collapsed state
-        $this->css .= ".folded #adminmenuwrap,\n";
-        $this->css .= ".folded #adminmenu {\n";
-        $this->css .= "    width: {$menu['width_collapsed']} !important;\n";
-        $this->css .= "}\n\n";
-        
-        $this->css .= ".folded #adminmenu .wp-menu-name {\n";
         $this->css .= "    display: none !important;\n";
         $this->css .= "}\n\n";
         
-        $this->css .= ".folded #adminmenu .wp-menu-image {\n";
-        $this->css .= "    margin: 0 auto !important;\n";
+        // Style adminmenuwrap with rounded corners and shadow - 16px from left
+        $this->css .= "#adminmenuwrap {\n";
+        $this->css .= "    position: fixed !important;\n";
+        $this->css .= "    left: 16px !important;\n";
+        $this->css .= "    width: 160px !important;\n";
+        $this->css .= "    background: #1d2327 !important;\n";
+        $this->css .= "    border-radius: 1.5rem !important;\n";
+        $this->css .= "    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;\n";
+        $this->css .= "    backdrop-filter: blur(12px) !important;\n";
         $this->css .= "}\n\n";
         
-        // Custom CSS
+        $this->css .= "#adminmenu {\n";
+        $this->css .= "    width: 160px !important;\n";
+        $this->css .= "    padding: 0.5rem !important;\n";
+        $this->css .= "    margin: 0 !important;\n";
+        $this->css .= "    border-radius: 1.5rem !important;\n";
+        $this->css .= "    height: 85vh !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Round corners for active menu items
+        $this->css .= "#adminmenu .wp-has-current-submenu .wp-submenu .wp-submenu-head,\n";
+        $this->css .= "#adminmenu li.current a.menu-top,\n";
+        $this->css .= "#adminmenu li.wp-has-current-submenu a.wp-has-current-submenu {\n";
+        $this->css .= "    border-radius: 1rem !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Adjust content area to account for fixed menu
+        $this->css .= "#wpcontent {\n";
+        $this->css .= "    margin-left: 192px !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= "#wpbody {\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= "#wpbody-content {\n";
+        $this->css .= "    width: 96% !important;\n";
+        $this->css .= "    margin-right: 16px !important;\n";
+        $this->css .= "    padding: 24px !important;\n";
+        $this->css .= "    border-radius: 1.5rem !important;\n";
+        $this->css .= "    background: #ffffff !important;\n";
+        $this->css .= "    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Adjust wrap-content spacing
+        $this->css .= ".wrap {\n";
+        $this->css .= "    margin: 0 !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Collapsed menu state
+        $this->css .= ".folded #adminmenuwrap {\n";
+        $this->css .= "    width: 60px !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".folded #adminmenu {\n";
+        $this->css .= "    width: 60px !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".folded #wpcontent {\n";
+        $this->css .= "    margin-left: 92px !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Only add custom CSS if provided by user
         if ( ! empty( $menu['custom_css'] ) ) {
             $this->css .= "/* Admin Menu Custom CSS */\n";
             $this->css .= $this->sanitize_css( $menu['custom_css'] ) . "\n\n";

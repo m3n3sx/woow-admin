@@ -67,15 +67,15 @@ $buttons = $this->settings->get_section( 'buttons' );
                 <div class="woow-form-group">
                     <label class="woow-label"><?php esc_html_e( 'Background', 'woow-admin' ); ?></label>
                     <div class="woow-color-picker-group">
-                        <input type="color" name="buttons[primary_bg]" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $buttons['primary_bg'] ?? '#6366f1' ) ); ?>" class="woow-color-input" />
-                        <input type="text" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $buttons['primary_bg'] ?? '#6366f1' ) ); ?>" class="woow-color-text" />
+                        <input type="color" name="buttons[primary_bg]" value="<?php echo esc_attr( $buttons['primary_bg'] ); ?>" class="woow-color-input" />
+                        <input type="text" value="<?php echo esc_attr( $buttons['primary_bg'] ); ?>" class="woow-color-text" />
                     </div>
                 </div>
                 <div class="woow-form-group">
                     <label class="woow-label"><?php esc_html_e( 'Text', 'woow-admin' ); ?></label>
                     <div class="woow-color-picker-group">
-                        <input type="color" name="buttons[primary_text]" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $buttons['primary_text'] ?? '#ffffff' ) ); ?>" class="woow-color-input" />
-                        <input type="text" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $buttons['primary_text'] ?? '#ffffff' ) ); ?>" class="woow-color-text" />
+                        <input type="color" name="buttons[primary_text]" value="<?php echo esc_attr( $buttons['primary_text'] ); ?>" class="woow-color-input" />
+                        <input type="text" value="<?php echo esc_attr( $buttons['primary_text'] ); ?>" class="woow-color-text" />
                     </div>
                 </div>
             </div>
@@ -91,15 +91,15 @@ $buttons = $this->settings->get_section( 'buttons' );
                 <div class="woow-form-group">
                     <label class="woow-label"><?php esc_html_e( 'Border', 'woow-admin' ); ?></label>
                     <div class="woow-color-picker-group">
-                        <input type="color" name="buttons[secondary_border]" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $buttons['secondary_border'] ?? '#e2e8f0' ) ); ?>" class="woow-color-input" />
-                        <input type="text" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $buttons['secondary_border'] ?? '#e2e8f0' ) ); ?>" class="woow-color-text" />
+                        <input type="color" name="buttons[secondary_border]" value="<?php echo esc_attr( $buttons['secondary_border'] ); ?>" class="woow-color-input" />
+                        <input type="text" value="<?php echo esc_attr( $buttons['secondary_border'] ); ?>" class="woow-color-text" />
                     </div>
                 </div>
                 <div class="woow-form-group">
                     <label class="woow-label"><?php esc_html_e( 'Text', 'woow-admin' ); ?></label>
                     <div class="woow-color-picker-group">
-                        <input type="color" name="buttons[secondary_text]" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $buttons['secondary_text'] ?? '#6366f1' ) ); ?>" class="woow-color-input" />
-                        <input type="text" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $buttons['secondary_text'] ?? '#6366f1' ) ); ?>" class="woow-color-text" />
+                        <input type="color" name="buttons[secondary_text]" value="<?php echo esc_attr( $buttons['secondary_text'] ); ?>" class="woow-color-input" />
+                        <input type="text" value="<?php echo esc_attr( $buttons['secondary_text'] ); ?>" class="woow-color-text" />
                     </div>
                 </div>
             </div>
@@ -115,15 +115,15 @@ $buttons = $this->settings->get_section( 'buttons' );
                 <div class="woow-form-group">
                     <label class="woow-label"><?php esc_html_e( 'Background', 'woow-admin' ); ?></label>
                     <div class="woow-color-picker-group">
-                        <input type="color" name="buttons[destructive_bg]" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $buttons['destructive_bg'] ?? '#ef4444' ) ); ?>" class="woow-color-input" />
-                        <input type="text" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $buttons['destructive_bg'] ?? '#ef4444' ) ); ?>" class="woow-color-text" />
+                        <input type="color" name="buttons[destructive_bg]" value="<?php echo esc_attr( $buttons['destructive_bg'] ); ?>" class="woow-color-input" />
+                        <input type="text" value="<?php echo esc_attr( $buttons['destructive_bg'] ); ?>" class="woow-color-text" />
                     </div>
                 </div>
                 <div class="woow-form-group">
                     <label class="woow-label"><?php esc_html_e( 'Text', 'woow-admin' ); ?></label>
                     <div class="woow-color-picker-group">
-                        <input type="color" name="buttons[destructive_text]" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $buttons['destructive_text'] ?? '#ffffff' ) ); ?>" class="woow-color-input" />
-                        <input type="text" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $buttons['destructive_text'] ?? '#ffffff' ) ); ?>" class="woow-color-text" />
+                        <input type="color" name="buttons[destructive_text]" value="<?php echo esc_attr( $buttons['destructive_text'] ); ?>" class="woow-color-input" />
+                        <input type="text" value="<?php echo esc_attr( $buttons['destructive_text'] ); ?>" class="woow-color-text" />
                     </div>
                 </div>
             </div>

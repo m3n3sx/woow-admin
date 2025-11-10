@@ -72,15 +72,15 @@ $backgrounds = $this->settings->get_section( 'backgrounds' );
                     <div class="woow-form-group">
                         <label class="woow-label"><?php esc_html_e( 'Start Color', 'woow-admin' ); ?></label>
                         <div class="woow-color-picker-group">
-                            <input type="color" name="backgrounds[gradient_start]" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $backgrounds['gradient_start'] ?? '#f8fafc' ) ); ?>" class="woow-color-input" />
-                            <input type="text" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $backgrounds['gradient_start'] ?? '#f8fafc' ) ); ?>" class="woow-color-text" />
+                            <input type="color" name="backgrounds[gradient_start]" value="<?php echo esc_attr( $backgrounds['gradient_start'] ); ?>" class="woow-color-input" />
+                            <input type="text" value="<?php echo esc_attr( $backgrounds['gradient_start'] ); ?>" class="woow-color-text" />
                         </div>
                     </div>
                     <div class="woow-form-group">
                         <label class="woow-label"><?php esc_html_e( 'End Color', 'woow-admin' ); ?></label>
                         <div class="woow-color-picker-group">
-                            <input type="color" name="backgrounds[gradient_end]" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $backgrounds['gradient_end'] ?? '#eef2ff' ) ); ?>" class="woow-color-input" />
-                            <input type="text" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $backgrounds['gradient_end'] ?? '#eef2ff' ) ); ?>" class="woow-color-text" />
+                            <input type="color" name="backgrounds[gradient_end]" value="<?php echo esc_attr( $backgrounds['gradient_end'] ); ?>" class="woow-color-input" />
+                            <input type="text" value="<?php echo esc_attr( $backgrounds['gradient_end'] ); ?>" class="woow-color-text" />
                         </div>
                     </div>
                 </div>
