@@ -10,7 +10,24 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-$widgets = $this->settings->get_section( 'dashboard_widgets' );
+// Define default values for dashboard widgets
+$defaults = array(
+    'enabled'              => true,
+    'border_radius'        => '24px',
+    'padding'              => '24px',
+    'background_color'     => 'rgba(255,255,255,0.9)',
+    'border_color'         => 'rgba(0,0,0,0.05)',
+    'shadow_style'         => 'md',
+    'hover_effects'        => true,
+    'glassmorphism'        => true,
+    'blur_strength'        => '8px',
+    'header_font_size'     => '20px',
+    'header_font_weight'   => '600',
+    'custom_css'           => '',
+);
+
+// Merge with saved settings
+$widgets = array_merge( $defaults, $this->settings->get_section( 'dashboard_widgets' ) ?? array() );
 ?>
 
 <div class="woow-tab-pane" id="tab-widgets">
@@ -56,6 +73,60 @@ $widgets = $this->settings->get_section( 'dashboard_widgets' );
                     </div>
                     <p class="woow-field-description"><?php esc_html_e( 'Default: 24px. Range: 12-48px', 'woow-admin' ); ?></p>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="woow-card">
+        <div class="woow-card-header">
+            <h3><?php esc_html_e( 'Colors', 'woow-admin' ); ?></h3>
+        </div>
+        <div class="woow-card-body">
+            <div class="woow-form-group">
+                <label class="woow-label"><?php esc_html_e( 'Background Color', 'woow-admin' ); ?></label>
+                <div class="woow-color-picker-group">
+                    <input 
+                        type="color" 
+                        name="dashboard_widgets[background_color]" 
+                        value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $widgets['background_color'] ?? '', '#ffffff' ) ); ?>"
+                        data-default="rgba(255,255,255,0.9)"
+                        class="woow-color-input"
+                    />
+                    <input 
+                        type="text" 
+                        value="<?php echo esc_attr( $widgets['background_color'] ); ?>"
+                        class="woow-color-text"
+                    />
+                    <button type="button" class="woow-color-reset button" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
+                        ↺
+                    </button>
+                </div>
+                <p class="woow-field-description">
+                    <?php esc_html_e( 'Default: rgba(255,255,255,0.9) (White with transparency)', 'woow-admin' ); ?>
+                </p>
+            </div>
+            <div class="woow-form-group">
+                <label class="woow-label"><?php esc_html_e( 'Border Color', 'woow-admin' ); ?></label>
+                <div class="woow-color-picker-group">
+                    <input 
+                        type="color" 
+                        name="dashboard_widgets[border_color]" 
+                        value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $widgets['border_color'] ?? '', '#000000' ) ); ?>"
+                        data-default="rgba(0,0,0,0.05)"
+                        class="woow-color-input"
+                    />
+                    <input 
+                        type="text" 
+                        value="<?php echo esc_attr( $widgets['border_color'] ); ?>"
+                        class="woow-color-text"
+                    />
+                    <button type="button" class="woow-color-reset button" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
+                        ↺
+                    </button>
+                </div>
+                <p class="woow-field-description">
+                    <?php esc_html_e( 'Default: rgba(0,0,0,0.05) (Subtle border)', 'woow-admin' ); ?>
+                </p>
             </div>
         </div>
     </div>

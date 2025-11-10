@@ -10,7 +10,30 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-$typography = $this->settings->get_section( 'typography' );
+// Define default values for typography
+$defaults = array(
+    'enabled'          => true,
+    'h1_size'          => '32px',
+    'h1_weight'        => '700',
+    'h1_line_height'   => 1.3,
+    'h1_color'         => '#0f172a',
+    'h2_size'          => '24px',
+    'h2_weight'        => '700',
+    'h2_line_height'   => 1.3,
+    'h2_color'         => '#0f172a',
+    'h3_size'          => '20px',
+    'h3_weight'        => '600',
+    'h3_line_height'   => 1.4,
+    'h3_color'         => '#0f172a',
+    'body_size'        => '14px',
+    'body_line_height' => 1.6,
+    'body_color'       => '#475569',
+    'link_color'       => '#6366f1',
+    'custom_css'       => '',
+);
+
+// Merge with saved settings
+$typography = array_merge( $defaults, $this->settings->get_section( 'typography' ) ?? array() );
 ?>
 
 <div class="woow-tab-pane" id="tab-typography">
@@ -57,11 +80,45 @@ $typography = $this->settings->get_section( 'typography' );
                     </select>
                 </div>
             </div>
-            <div class="woow-form-group">
-                <label class="woow-label"><?php esc_html_e( 'Line Height', 'woow-admin' ); ?></label>
-                <div class="woow-slider-group">
-                    <input type="range" name="typography[h1_line_height]" value="<?php echo esc_attr( floatval( $typography['h1_line_height'] ) * 10 ); ?>" min="12" max="20" step="1" class="woow-slider" data-unit="" />
-                    <span class="woow-slider-value"><?php echo esc_html( $typography['h1_line_height'] ); ?></span>
+            <div class="woow-form-row">
+                <div class="woow-form-group">
+                    <label class="woow-label"><?php esc_html_e( 'Line Height', 'woow-admin' ); ?></label>
+                    <input 
+                        type="number" 
+                        name="typography[h1_line_height]" 
+                        value="<?php echo esc_attr( floatval( $typography['h1_line_height'] ) ); ?>"
+                        min="1.0" 
+                        max="3.0" 
+                        step="0.1"
+                        class="woow-input"
+                        data-type="unitless"
+                    />
+                    <p class="woow-field-description">
+                        <?php esc_html_e( 'Default: 1.3 (unitless)', 'woow-admin' ); ?>
+                    </p>
+                </div>
+                <div class="woow-form-group">
+                    <label class="woow-label"><?php esc_html_e( 'Text Color', 'woow-admin' ); ?></label>
+                    <div class="woow-color-picker-group">
+                        <input 
+                            type="color" 
+                            name="typography[h1_color]" 
+                            value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $typography['h1_color'] ?? '', '#0f172a' ) ); ?>"
+                            data-default="#0f172a"
+                            class="woow-color-input"
+                        />
+                        <input 
+                            type="text" 
+                            value="<?php echo esc_attr( $typography['h1_color'] ); ?>"
+                            class="woow-color-text"
+                        />
+                        <button type="button" class="woow-color-reset button" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
+                            ↺
+                        </button>
+                    </div>
+                    <p class="woow-field-description">
+                        <?php esc_html_e( 'Default: #0f172a (Slate 900)', 'woow-admin' ); ?>
+                    </p>
                 </div>
             </div>
         </div>
@@ -90,6 +147,47 @@ $typography = $this->settings->get_section( 'typography' );
                     </select>
                 </div>
             </div>
+            <div class="woow-form-row">
+                <div class="woow-form-group">
+                    <label class="woow-label"><?php esc_html_e( 'Line Height', 'woow-admin' ); ?></label>
+                    <input 
+                        type="number" 
+                        name="typography[h2_line_height]" 
+                        value="<?php echo esc_attr( floatval( $typography['h2_line_height'] ) ); ?>"
+                        min="1.0" 
+                        max="3.0" 
+                        step="0.1"
+                        class="woow-input"
+                        data-type="unitless"
+                    />
+                    <p class="woow-field-description">
+                        <?php esc_html_e( 'Default: 1.3 (unitless)', 'woow-admin' ); ?>
+                    </p>
+                </div>
+                <div class="woow-form-group">
+                    <label class="woow-label"><?php esc_html_e( 'Text Color', 'woow-admin' ); ?></label>
+                    <div class="woow-color-picker-group">
+                        <input 
+                            type="color" 
+                            name="typography[h2_color]" 
+                            value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $typography['h2_color'] ?? '', '#0f172a' ) ); ?>"
+                            data-default="#0f172a"
+                            class="woow-color-input"
+                        />
+                        <input 
+                            type="text" 
+                            value="<?php echo esc_attr( $typography['h2_color'] ); ?>"
+                            class="woow-color-text"
+                        />
+                        <button type="button" class="woow-color-reset button" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
+                            ↺
+                        </button>
+                    </div>
+                    <p class="woow-field-description">
+                        <?php esc_html_e( 'Default: #0f172a (Slate 900)', 'woow-admin' ); ?>
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -116,6 +214,47 @@ $typography = $this->settings->get_section( 'typography' );
                     </select>
                 </div>
             </div>
+            <div class="woow-form-row">
+                <div class="woow-form-group">
+                    <label class="woow-label"><?php esc_html_e( 'Line Height', 'woow-admin' ); ?></label>
+                    <input 
+                        type="number" 
+                        name="typography[h3_line_height]" 
+                        value="<?php echo esc_attr( floatval( $typography['h3_line_height'] ) ); ?>"
+                        min="1.0" 
+                        max="3.0" 
+                        step="0.1"
+                        class="woow-input"
+                        data-type="unitless"
+                    />
+                    <p class="woow-field-description">
+                        <?php esc_html_e( 'Default: 1.4 (unitless)', 'woow-admin' ); ?>
+                    </p>
+                </div>
+                <div class="woow-form-group">
+                    <label class="woow-label"><?php esc_html_e( 'Text Color', 'woow-admin' ); ?></label>
+                    <div class="woow-color-picker-group">
+                        <input 
+                            type="color" 
+                            name="typography[h3_color]" 
+                            value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $typography['h3_color'] ?? '', '#0f172a' ) ); ?>"
+                            data-default="#0f172a"
+                            class="woow-color-input"
+                        />
+                        <input 
+                            type="text" 
+                            value="<?php echo esc_attr( $typography['h3_color'] ); ?>"
+                            class="woow-color-text"
+                        />
+                        <button type="button" class="woow-color-reset button" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
+                            ↺
+                        </button>
+                    </div>
+                    <p class="woow-field-description">
+                        <?php esc_html_e( 'Default: #0f172a (Slate 900)', 'woow-admin' ); ?>
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -134,10 +273,67 @@ $typography = $this->settings->get_section( 'typography' );
                 </div>
                 <div class="woow-form-group">
                     <label class="woow-label"><?php esc_html_e( 'Line Height', 'woow-admin' ); ?></label>
-                    <div class="woow-slider-group">
-                        <input type="range" name="typography[body_line_height]" value="<?php echo esc_attr( floatval( $typography['body_line_height'] ) * 10 ); ?>" min="12" max="20" step="1" class="woow-slider" data-unit="" />
-                        <span class="woow-slider-value"><?php echo esc_html( $typography['body_line_height'] ); ?></span>
+                    <input 
+                        type="number" 
+                        name="typography[body_line_height]" 
+                        value="<?php echo esc_attr( floatval( $typography['body_line_height'] ) ); ?>"
+                        min="1.0" 
+                        max="3.0" 
+                        step="0.1"
+                        class="woow-input"
+                        data-type="unitless"
+                    />
+                    <p class="woow-field-description">
+                        <?php esc_html_e( 'Default: 1.6 (unitless)', 'woow-admin' ); ?>
+                    </p>
+                </div>
+            </div>
+            <div class="woow-form-row">
+                <div class="woow-form-group">
+                    <label class="woow-label"><?php esc_html_e( 'Body Text Color', 'woow-admin' ); ?></label>
+                    <div class="woow-color-picker-group">
+                        <input 
+                            type="color" 
+                            name="typography[body_color]" 
+                            value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $typography['body_color'] ?? '', '#475569' ) ); ?>"
+                            data-default="#475569"
+                            class="woow-color-input"
+                        />
+                        <input 
+                            type="text" 
+                            value="<?php echo esc_attr( $typography['body_color'] ); ?>"
+                            class="woow-color-text"
+                        />
+                        <button type="button" class="woow-color-reset button" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
+                            ↺
+                        </button>
                     </div>
+                    <p class="woow-field-description">
+                        <?php esc_html_e( 'Default: #475569 (Slate 600)', 'woow-admin' ); ?>
+                    </p>
+                </div>
+                <div class="woow-form-group">
+                    <label class="woow-label"><?php esc_html_e( 'Link Color', 'woow-admin' ); ?></label>
+                    <div class="woow-color-picker-group">
+                        <input 
+                            type="color" 
+                            name="typography[link_color]" 
+                            value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $typography['link_color'] ?? '', '#6366f1' ) ); ?>"
+                            data-default="#6366f1"
+                            class="woow-color-input"
+                        />
+                        <input 
+                            type="text" 
+                            value="<?php echo esc_attr( $typography['link_color'] ); ?>"
+                            class="woow-color-text"
+                        />
+                        <button type="button" class="woow-color-reset button" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
+                            ↺
+                        </button>
+                    </div>
+                    <p class="woow-field-description">
+                        <?php esc_html_e( 'Default: #6366f1 (Indigo 500)', 'woow-admin' ); ?>
+                    </p>
                 </div>
             </div>
         </div>

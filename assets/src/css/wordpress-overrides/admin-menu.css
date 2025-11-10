@@ -1,4 +1,23 @@
 /**
  * Admin Menu Overrides
- * WYŁĄCZONE - używamy tylko CSS z PHP generatora
+ * Hide WordPress admin menu on WOOW! Admin page
  */
+
+/* Hide WordPress admin menu on WOOW Admin page */
+.toplevel_page_woow-admin #adminmenuwrap,
+.toplevel_page_woow-admin #adminmenu,
+.toplevel_page_woow-admin #adminmenuback {
+    display: none !important;
+}
+
+/* Adjust content area when WordPress menu is hidden */
+.toplevel_page_woow-admin #wpcontent,
+.toplevel_page_woow-admin #wpbody {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+}
+
+/* Adjust footer */
+.toplevel_page_woow-admin #wpfooter {
+    margin-left: 0 !important;
+}

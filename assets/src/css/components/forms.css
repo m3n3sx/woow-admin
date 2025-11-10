@@ -481,23 +481,24 @@ input[type="color"].woow-color-input {
 /* Error State */
 .woow-input.error,
 .woow-textarea.error,
-.woow-select.error {
-  border-color: var(--woow-destructive);
+.woow-select.error,
+.woow-field-error {
+  border-color: var(--woow-destructive) !important;
 }
 
 .woow-input.error:focus,
 .woow-textarea.error:focus,
-.woow-select.error:focus {
-  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
+.woow-select.error:focus,
+.woow-field-error:focus {
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2) !important;
 }
 
 .woow-error-message {
-  display: flex;
-  align-items: center;
-  gap: var(--woow-spacing-xs);
+  display: block;
   margin-top: var(--woow-spacing-xs);
   font-size: var(--woow-font-size-small);
   color: var(--woow-destructive);
+  font-weight: var(--woow-font-weight-medium);
 }
 
 /* Success State */

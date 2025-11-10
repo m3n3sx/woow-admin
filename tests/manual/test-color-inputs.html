@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Input Test - WOOW Admin</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .test-result {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .test-result.pass {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .test-result.fail {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .color-input-test {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        .color-input-test input[type="color"] {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .color-input-test .info {
+            flex: 1;
+        }
+        .color-input-test .status {
+            font-weight: bold;
+        }
+        .color-input-test .status.pass {
+            color: #28a745;
+        }
+        .color-input-test .status.fail {
+            color: #dc3545;
+        }
+        button {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        button:hover {
+            background: #5558e3;
+        }
+        #console-output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .console-line {
+            margin: 5px 0;
+        }
+        .console-error {
+            color: #f48771;
+        }
+        .console-success {
+            color: #89d185;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎨 WOOW Admin - Color Input Test Suite</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Admin Bar Tab Color Inputs</h2>
+        <div id="admin-bar-tests"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Admin Menu Tab Color Inputs</h2>
+        <div id="admin-menu-tests"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Buttons Tab Color Inputs</h2>
+        <div id="buttons-tests"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: Console Error Check</h2>
+        <p>Checking for "does not conform to #rrggbb" errors...</p>
+        <div id="console-output"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Summary</h2>
+        <div id="test-summary"></div>
+        <button onclick="runAllTests()">Run All Tests</button>
+    </div>
+
+    <script>
+        // Mock color input data based on the PHP templates
+        const testData = {
+            adminBar: [
+                { name: 'background_color', default: '#1e293b', label: 'Background Color' },
+                { name: 'gradient_start', default: '#1e293b', label: 'Gradient Start' },
+                { name: 'gradient_end', default: '#0f172a', label: 'Gradient End' },
+                { name: 'text_color', default: '#ffffff', label: 'Text Color' },
+                { name: 'hover_bg_color', default: '#ffffff', label: 'Hover Background' },
+                { name: 'hover_text_color', default: '#ffffff', label: 'Hover Text' }
+            ],
+            adminMenu: [
+                { name: 'background_color', default: '#ffffff', label: 'Background Color' },
+                { name: 'text_color', default: '#0f172a', label: 'Text Color' },
+                { name: 'hover_bg_color', default: '#6366f1', label: 'Hover Background' },
+                { name: 'active_gradient_start', default: '#6366f1', label: 'Active Gradient Start' },
+                { name: 'active_gradient_end', default: '#8b5cf6', label: 'Active Gradient End' }
+            ],
+            buttons: [
+                { name: 'primary_bg', default: '#6366f1', label: 'Primary Background' },
+                { name: 'primary_text', default: '#ffffff', label: 'Primary Text' },
+                { name: 'secondary_border', default: '#e2e8f0', label: 'Secondary Border' },
+                { name: 'secondary_text', default: '#6366f1', label: 'Secondary Text' },
+                { name: 'destructive_bg', default: '#ef4444', label: 'Destructive Background' },
+                { name: 'destructive_text', default: '#ffffff', label: 'Destructive Text' }
+            ]
+        };
+
+        let testResults = {
+            passed: 0,
+            failed: 0,
+            errors: []
+        };
+
+        // Capture console errors
+        const originalConsoleError = console.error;
+        const consoleErrors = [];
+        console.error = function(...args) {
+            consoleErrors.push(args.join(' '));
+            originalConsoleError.apply(console, args);
+        };
+
+        function validateHexColor(color) {
+            const hexPattern = /^#[0-9A-Fa-f]{6}$/;
+            return hexPattern.test(color);
+        }
+
+        function createColorInput(name, defaultValue) {
+            const input = document.createElement('input');
+            input.type = 'color';
+            input.name = name;
+            input.value = defaultValue;
+            input.setAttribute('data-default', defaultValue);
+            return input;
+        }
+
+        function testColorInput(input, label, containerId) {
+            const container = document.getElementById(containerId);
+            const testDiv = document.createElement('div');
+            testDiv.className = 'color-input-test';
+
+            const value = input.value;
+            const defaultValue = input.getAttribute('data-default');
+            const isValid = validateHexColor(value);
+            const hasValue = value && value !== '';
+            const hasDefault = defaultValue && defaultValue !== '';
+
+            let status = 'pass';
+            let message = '';
+
+            if (!hasValue) {
+                status = 'fail';
+                message = '❌ Input has no value';
+                testResults.failed++;
+                testResults.errors.push(`${label}: No value`);
+            } else if (!isValid) {
+                status = 'fail';
+                message = `❌ Invalid hex color: ${value}`;
+                testResults.failed++;
+                testResults.errors.push(`${label}: Invalid hex color ${value}`);
+            } else if (!hasDefault) {
+                status = 'fail';
+                message = '❌ Missing data-default attribute';
+                testResults.failed++;
+                testResults.errors.push(`${label}: Missing data-default`);
+            } else {
+                status = 'pass';
+                message = `✅ Valid color: ${value}`;
+                testResults.passed++;
+            }
+
+            testDiv.innerHTML = `
+                ${input.outerHTML}
+                <div class="info">
+                    <strong>${label}</strong><br>
+                    <small>Value: ${value || '(empty)'}</small><br>
+                    <small>Default: ${defaultValue || '(none)'}</small>
+                </div>
+                <div class="status ${status}">${message}</div>
+            `;
+
+            container.appendChild(testDiv);
+        }
+
+        function runAllTests() {
+            // Reset results
+            testResults = { passed: 0, failed: 0, errors: [] };
+            consoleErrors.length = 0;
+
+            // Clear previous results
+            document.getElementById('admin-bar-tests').innerHTML = '';
+            document.getElementById('admin-menu-tests').innerHTML = '';
+            document.getElementById('buttons-tests').innerHTML = '';
+
+            // Test Admin Bar
+            testData.adminBar.forEach(item => {
+                const input = createColorInput(`admin_bar[${item.name}]`, item.default);
+                testColorInput(input, item.label, 'admin-bar-tests');
+            });
+
+            // Test Admin Menu
+            testData.adminMenu.forEach(item => {
+                const input = createColorInput(`admin_menu[${item.name}]`, item.default);
+                testColorInput(input, item.label, 'admin-menu-tests');
+            });
+
+            // Test Buttons
+            testData.buttons.forEach(item => {
+                const input = createColorInput(`buttons[${item.name}]`, item.default);
+                testColorInput(input, item.label, 'buttons-tests');
+            });
+
+            // Check console errors
+            const consoleOutput = document.getElementById('console-output');
+            consoleOutput.innerHTML = '';
+
+            if (consoleErrors.length === 0) {
+                consoleOutput.innerHTML = '<div class="console-line console-success">✅ No console errors detected</div>';
+                testResults.passed++;
+            } else {
+                consoleErrors.forEach(error => {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'console-line console-error';
+                    errorDiv.textContent = `❌ ${error}`;
+                    consoleOutput.appendChild(errorDiv);
+                });
+                testResults.failed++;
+                testResults.errors.push('Console errors detected');
+            }
+
+            // Display summary
+            const summary = document.getElementById('test-summary');
+            const totalTests = testResults.passed + testResults.failed;
+            const passRate = totalTests > 0 ? ((testResults.passed / totalTests) * 100).toFixed(1) : 0;
+
+            let summaryHTML = `
+                <div class="test-result ${testResults.failed === 0 ? 'pass' : 'fail'}">
+                    <h3>Test Results</h3>
+                    <p><strong>Total Tests:</strong> ${totalTests}</p>
+                    <p><strong>Passed:</strong> ${testResults.passed} ✅</p>
+                    <p><strong>Failed:</strong> ${testResults.failed} ❌</p>
+                    <p><strong>Pass Rate:</strong> ${passRate}%</p>
+            `;
+
+            if (testResults.errors.length > 0) {
+                summaryHTML += '<h4>Errors:</h4><ul>';
+                testResults.errors.forEach(error => {
+                    summaryHTML += `<li>${error}</li>`;
+                });
+                summaryHTML += '</ul>';
+            }
+
+            summaryHTML += '</div>';
+            summary.innerHTML = summaryHTML;
+        }
+
+        // Run tests on page load
+        window.addEventListener('DOMContentLoaded', runAllTests);
+    </script>
+</body>
+</html>

@@ -10,7 +10,24 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-$backgrounds = $this->settings->get_section( 'backgrounds' );
+// Define default values for backgrounds
+$defaults = array(
+    'enabled'         => false,
+    'type'            => 'gradient',
+    'solid_color'     => '#f8fafc',
+    'gradient_type'   => 'linear',
+    'gradient_start'  => '#f8fafc',
+    'gradient_end'    => '#eef2ff',
+    'gradient_angle'  => '135',
+    'image_url'       => '',
+    'image_position'  => 'center',
+    'image_size'      => 'cover',
+    'image_repeat'    => 'no-repeat',
+    'custom_css'      => '',
+);
+
+// Merge with saved settings
+$backgrounds = array_merge( $defaults, $this->settings->get_section( 'backgrounds' ) ?? array() );
 ?>
 
 <div class="woow-tab-pane" id="tab-backgrounds">
@@ -53,9 +70,25 @@ $backgrounds = $this->settings->get_section( 'backgrounds' );
             <div class="woow-form-group woow-conditional" data-show-when="#bg-type-select=solid">
                 <label class="woow-label"><?php esc_html_e( 'Background Color', 'woow-admin' ); ?></label>
                 <div class="woow-color-picker-group">
-                    <input type="color" name="backgrounds[solid_color]" value="<?php echo esc_attr( $backgrounds['solid_color'] ); ?>" class="woow-color-input" />
-                    <input type="text" value="<?php echo esc_attr( $backgrounds['solid_color'] ); ?>" class="woow-color-text" />
+                    <input 
+                        type="color" 
+                        name="backgrounds[solid_color]" 
+                        value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $backgrounds['solid_color'] ?? '', '#f8fafc' ) ); ?>"
+                        data-default="#f8fafc"
+                        class="woow-color-input"
+                    />
+                    <input 
+                        type="text" 
+                        value="<?php echo esc_attr( $backgrounds['solid_color'] ); ?>"
+                        class="woow-color-text"
+                    />
+                    <button type="button" class="woow-color-reset button" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
+                        ↺
+                    </button>
                 </div>
+                <p class="woow-field-description">
+                    <?php esc_html_e( 'Default: #f8fafc (Slate 50)', 'woow-admin' ); ?>
+                </p>
             </div>
 
             <!-- Gradient -->
@@ -72,16 +105,48 @@ $backgrounds = $this->settings->get_section( 'backgrounds' );
                     <div class="woow-form-group">
                         <label class="woow-label"><?php esc_html_e( 'Start Color', 'woow-admin' ); ?></label>
                         <div class="woow-color-picker-group">
-                            <input type="color" name="backgrounds[gradient_start]" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $backgrounds['gradient_start'] ?? '#f8fafc' ) ); ?>" class="woow-color-input" />
-                            <input type="text" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $backgrounds['gradient_start'] ?? '#f8fafc' ) ); ?>" class="woow-color-text" />
+                            <input 
+                                type="color" 
+                                name="backgrounds[gradient_start]" 
+                                value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $backgrounds['gradient_start'] ?? '', '#f8fafc' ) ); ?>"
+                                data-default="#f8fafc"
+                                class="woow-color-input"
+                            />
+                            <input 
+                                type="text" 
+                                value="<?php echo esc_attr( $backgrounds['gradient_start'] ); ?>"
+                                class="woow-color-text"
+                            />
+                            <button type="button" class="woow-color-reset button" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
+                                ↺
+                            </button>
                         </div>
+                        <p class="woow-field-description">
+                            <?php esc_html_e( 'Default: #f8fafc (Slate 50)', 'woow-admin' ); ?>
+                        </p>
                     </div>
                     <div class="woow-form-group">
                         <label class="woow-label"><?php esc_html_e( 'End Color', 'woow-admin' ); ?></label>
                         <div class="woow-color-picker-group">
-                            <input type="color" name="backgrounds[gradient_end]" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $backgrounds['gradient_end'] ?? '#eef2ff' ) ); ?>" class="woow-color-input" />
-                            <input type="text" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $backgrounds['gradient_end'] ?? '#eef2ff' ) ); ?>" class="woow-color-text" />
+                            <input 
+                                type="color" 
+                                name="backgrounds[gradient_end]" 
+                                value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $backgrounds['gradient_end'] ?? '', '#eef2ff' ) ); ?>"
+                                data-default="#eef2ff"
+                                class="woow-color-input"
+                            />
+                            <input 
+                                type="text" 
+                                value="<?php echo esc_attr( $backgrounds['gradient_end'] ); ?>"
+                                class="woow-color-text"
+                            />
+                            <button type="button" class="woow-color-reset button" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
+                                ↺
+                            </button>
                         </div>
+                        <p class="woow-field-description">
+                            <?php esc_html_e( 'Default: #eef2ff (Indigo 50)', 'woow-admin' ); ?>
+                        </p>
                     </div>
                 </div>
                 <div class="woow-form-group">
@@ -114,6 +179,8 @@ $backgrounds = $this->settings->get_section( 'backgrounds' );
                             <option value="center" <?php selected( $backgrounds['image_position'], 'center' ); ?>><?php esc_html_e( 'Center', 'woow-admin' ); ?></option>
                             <option value="top" <?php selected( $backgrounds['image_position'], 'top' ); ?>><?php esc_html_e( 'Top', 'woow-admin' ); ?></option>
                             <option value="bottom" <?php selected( $backgrounds['image_position'], 'bottom' ); ?>><?php esc_html_e( 'Bottom', 'woow-admin' ); ?></option>
+                            <option value="left" <?php selected( $backgrounds['image_position'], 'left' ); ?>><?php esc_html_e( 'Left', 'woow-admin' ); ?></option>
+                            <option value="right" <?php selected( $backgrounds['image_position'], 'right' ); ?>><?php esc_html_e( 'Right', 'woow-admin' ); ?></option>
                         </select>
                     </div>
                     <div class="woow-form-group">
@@ -124,6 +191,15 @@ $backgrounds = $this->settings->get_section( 'backgrounds' );
                             <option value="auto" <?php selected( $backgrounds['image_size'], 'auto' ); ?>><?php esc_html_e( 'Auto', 'woow-admin' ); ?></option>
                         </select>
                     </div>
+                </div>
+                <div class="woow-form-group">
+                    <label class="woow-label"><?php esc_html_e( 'Repeat', 'woow-admin' ); ?></label>
+                    <select name="backgrounds[image_repeat]" class="woow-select">
+                        <option value="no-repeat" <?php selected( $backgrounds['image_repeat'], 'no-repeat' ); ?>><?php esc_html_e( 'No Repeat', 'woow-admin' ); ?></option>
+                        <option value="repeat" <?php selected( $backgrounds['image_repeat'], 'repeat' ); ?>><?php esc_html_e( 'Repeat', 'woow-admin' ); ?></option>
+                        <option value="repeat-x" <?php selected( $backgrounds['image_repeat'], 'repeat-x' ); ?>><?php esc_html_e( 'Repeat X', 'woow-admin' ); ?></option>
+                        <option value="repeat-y" <?php selected( $backgrounds['image_repeat'], 'repeat-y' ); ?>><?php esc_html_e( 'Repeat Y', 'woow-admin' ); ?></option>
+                    </select>
                 </div>
             </div>
         </div>

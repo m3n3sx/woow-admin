@@ -18,7 +18,7 @@
     z-index: 10;
     background: #ffffff;
     border-bottom: 1px solid #e5e7eb;
-    margin: -20px -20px 20px -20px; /* Extend to edges of .wrap */
+    margin: 0 0 20px 0; /* Don't extend beyond WordPress .wrap container */
 }
 
 /* Row 1: Title Bar */

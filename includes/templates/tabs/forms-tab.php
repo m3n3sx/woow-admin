@@ -10,7 +10,23 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-$forms = $this->settings->get_section( 'form_controls' );
+// Define default values for form controls
+$defaults = array(
+    'enabled'           => true,
+    'input_height'      => '40px',
+    'border_radius'     => '12px',
+    'background_color'  => '#ffffff',
+    'border_color'      => '#e2e8f0',
+    'text_color'        => '#0f172a',
+    'focus_ring_color'  => '#6366f1',
+    'glassmorphism'     => false,
+    'blur_strength'     => '8px',
+    'checkbox_size'     => '20px',
+    'custom_css'        => '',
+);
+
+// Merge with saved settings
+$forms = array_merge( $defaults, $this->settings->get_section( 'form_controls' ) ?? array() );
 ?>
 
 <div class="woow-tab-pane" id="tab-forms">
@@ -67,32 +83,96 @@ $forms = $this->settings->get_section( 'form_controls' );
                 <div class="woow-form-group">
                     <label class="woow-label"><?php esc_html_e( 'Background', 'woow-admin' ); ?></label>
                     <div class="woow-color-picker-group">
-                        <input type="color" name="form_controls[background_color]" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $forms['background_color'] ?? '#ffffff' ) ); ?>" class="woow-color-input" />
-                        <input type="text" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $forms['background_color'] ?? '#ffffff' ) ); ?>" class="woow-color-text" />
+                        <input 
+                            type="color" 
+                            name="form_controls[background_color]" 
+                            value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $forms['background_color'] ?? '', '#ffffff' ) ); ?>"
+                            data-default="#ffffff"
+                            class="woow-color-input"
+                        />
+                        <input 
+                            type="text" 
+                            value="<?php echo esc_attr( $forms['background_color'] ); ?>"
+                            class="woow-color-text"
+                        />
+                        <button type="button" class="woow-color-reset button" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
+                            ↺
+                        </button>
                     </div>
+                    <p class="woow-field-description">
+                        <?php esc_html_e( 'Default: #ffffff (White)', 'woow-admin' ); ?>
+                    </p>
                 </div>
                 <div class="woow-form-group">
                     <label class="woow-label"><?php esc_html_e( 'Border', 'woow-admin' ); ?></label>
                     <div class="woow-color-picker-group">
-                        <input type="color" name="form_controls[border_color]" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $forms['border_color'] ?? '#e2e8f0' ) ); ?>" class="woow-color-input" />
-                        <input type="text" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $forms['border_color'] ?? '#e2e8f0' ) ); ?>" class="woow-color-text" />
+                        <input 
+                            type="color" 
+                            name="form_controls[border_color]" 
+                            value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $forms['border_color'] ?? '', '#e2e8f0' ) ); ?>"
+                            data-default="#e2e8f0"
+                            class="woow-color-input"
+                        />
+                        <input 
+                            type="text" 
+                            value="<?php echo esc_attr( $forms['border_color'] ); ?>"
+                            class="woow-color-text"
+                        />
+                        <button type="button" class="woow-color-reset button" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
+                            ↺
+                        </button>
                     </div>
+                    <p class="woow-field-description">
+                        <?php esc_html_e( 'Default: #e2e8f0 (Gray 200)', 'woow-admin' ); ?>
+                    </p>
                 </div>
             </div>
             <div class="woow-form-row">
                 <div class="woow-form-group">
                     <label class="woow-label"><?php esc_html_e( 'Text', 'woow-admin' ); ?></label>
                     <div class="woow-color-picker-group">
-                        <input type="color" name="form_controls[text_color]" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $forms['text_color'] ?? '#0f172a' ) ); ?>" class="woow-color-input" />
-                        <input type="text" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $forms['text_color'] ?? '#0f172a' ) ); ?>" class="woow-color-text" />
+                        <input 
+                            type="color" 
+                            name="form_controls[text_color]" 
+                            value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $forms['text_color'] ?? '', '#0f172a' ) ); ?>"
+                            data-default="#0f172a"
+                            class="woow-color-input"
+                        />
+                        <input 
+                            type="text" 
+                            value="<?php echo esc_attr( $forms['text_color'] ); ?>"
+                            class="woow-color-text"
+                        />
+                        <button type="button" class="woow-color-reset button" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
+                            ↺
+                        </button>
                     </div>
+                    <p class="woow-field-description">
+                        <?php esc_html_e( 'Default: #0f172a (Slate 900)', 'woow-admin' ); ?>
+                    </p>
                 </div>
                 <div class="woow-form-group">
                     <label class="woow-label"><?php esc_html_e( 'Focus Ring', 'woow-admin' ); ?></label>
                     <div class="woow-color-picker-group">
-                        <input type="color" name="form_controls[focus_ring_color]" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $forms['focus_ring_color'] ?? '#6366f1' ) ); ?>" class="woow-color-input" />
-                        <input type="text" value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $forms['focus_ring_color'] ?? '#6366f1' ) ); ?>" class="woow-color-text" />
+                        <input 
+                            type="color" 
+                            name="form_controls[focus_ring_color]" 
+                            value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $forms['focus_ring_color'] ?? '', '#6366f1' ) ); ?>"
+                            data-default="#6366f1"
+                            class="woow-color-input"
+                        />
+                        <input 
+                            type="text" 
+                            value="<?php echo esc_attr( $forms['focus_ring_color'] ); ?>"
+                            class="woow-color-text"
+                        />
+                        <button type="button" class="woow-color-reset button" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
+                            ↺
+                        </button>
                     </div>
+                    <p class="woow-field-description">
+                        <?php esc_html_e( 'Default: #6366f1 (Indigo 500)', 'woow-admin' ); ?>
+                    </p>
                 </div>
             </div>
         </div>

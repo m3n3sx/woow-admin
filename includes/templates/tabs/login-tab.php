@@ -10,7 +10,24 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-$login = $this->settings->get_section( 'login_page' );
+// Define default values for login page
+$defaults = array(
+    'enabled'                => false,
+    'logo_url'               => '',
+    'background_type'        => 'gradient',
+    'background_color'       => '#f8fafc',
+    'gradient_start'         => '#6366f1',
+    'gradient_end'           => '#8b5cf6',
+    'background_image'       => '',
+    'form_glassmorphism'     => true,
+    'blur_strength'          => '12px',
+    'inherit_button_styles'  => true,
+    'inherit_input_styles'   => true,
+    'custom_css'             => '',
+);
+
+// Merge with saved settings
+$login = array_merge( $defaults, $this->settings->get_section( 'login_page' ) ?? array() );
 ?>
 
 <div class="woow-tab-pane" id="tab-login">
@@ -72,9 +89,25 @@ $login = $this->settings->get_section( 'login_page' );
             <div class="woow-form-group woow-conditional" data-show-when="#login-bg-type=color">
                 <label class="woow-label"><?php esc_html_e( 'Background Color', 'woow-admin' ); ?></label>
                 <div class="woow-color-picker-group">
-                    <input type="color" name="login_page[background_color]" value="<?php echo esc_attr( $login['background_color'] ); ?>" class="woow-color-input" />
-                    <input type="text" value="<?php echo esc_attr( $login['background_color'] ); ?>" class="woow-color-text" />
+                    <input 
+                        type="color" 
+                        name="login_page[background_color]" 
+                        value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $login['background_color'] ?? '', '#f8fafc' ) ); ?>"
+                        data-default="#f8fafc"
+                        class="woow-color-input"
+                    />
+                    <input 
+                        type="text" 
+                        value="<?php echo esc_attr( $login['background_color'] ); ?>"
+                        class="woow-color-text"
+                    />
+                    <button type="button" class="woow-color-reset button" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
+                        ↺
+                    </button>
                 </div>
+                <p class="woow-field-description">
+                    <?php esc_html_e( 'Default: #f8fafc (Slate 50)', 'woow-admin' ); ?>
+                </p>
             </div>
 
             <div class="woow-conditional" data-show-when="#login-bg-type=gradient">
@@ -82,16 +115,48 @@ $login = $this->settings->get_section( 'login_page' );
                     <div class="woow-form-group">
                         <label class="woow-label"><?php esc_html_e( 'Start Color', 'woow-admin' ); ?></label>
                         <div class="woow-color-picker-group">
-                            <input type="color" name="login_page[gradient_start]" value="<?php echo esc_attr( $login['gradient_start'] ); ?>" class="woow-color-input" />
-                            <input type="text" value="<?php echo esc_attr( $login['gradient_start'] ); ?>" class="woow-color-text" />
+                            <input 
+                                type="color" 
+                                name="login_page[gradient_start]" 
+                                value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $login['gradient_start'] ?? '', '#6366f1' ) ); ?>"
+                                data-default="#6366f1"
+                                class="woow-color-input"
+                            />
+                            <input 
+                                type="text" 
+                                value="<?php echo esc_attr( $login['gradient_start'] ); ?>"
+                                class="woow-color-text"
+                            />
+                            <button type="button" class="woow-color-reset button" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
+                                ↺
+                            </button>
                         </div>
+                        <p class="woow-field-description">
+                            <?php esc_html_e( 'Default: #6366f1 (Indigo 500)', 'woow-admin' ); ?>
+                        </p>
                     </div>
                     <div class="woow-form-group">
                         <label class="woow-label"><?php esc_html_e( 'End Color', 'woow-admin' ); ?></label>
                         <div class="woow-color-picker-group">
-                            <input type="color" name="login_page[gradient_end]" value="<?php echo esc_attr( $login['gradient_end'] ); ?>" class="woow-color-input" />
-                            <input type="text" value="<?php echo esc_attr( $login['gradient_end'] ); ?>" class="woow-color-text" />
+                            <input 
+                                type="color" 
+                                name="login_page[gradient_end]" 
+                                value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $login['gradient_end'] ?? '', '#8b5cf6' ) ); ?>"
+                                data-default="#8b5cf6"
+                                class="woow-color-input"
+                            />
+                            <input 
+                                type="text" 
+                                value="<?php echo esc_attr( $login['gradient_end'] ); ?>"
+                                class="woow-color-text"
+                            />
+                            <button type="button" class="woow-color-reset button" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
+                                ↺
+                            </button>
                         </div>
+                        <p class="woow-field-description">
+                            <?php esc_html_e( 'Default: #8b5cf6 (Purple 500)', 'woow-admin' ); ?>
+                        </p>
                     </div>
                 </div>
             </div>

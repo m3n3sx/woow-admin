@@ -96,4 +96,11 @@ export default defineConfig({
   optimizeDeps: {
     include: [],
   },
+  
+  // Test configuration
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: [],
+  },
 });

@@ -1,7 +1,7 @@
 /**
  * LivePreview Component
  *
- * Manages the live preview iframe and CSS injection.
+ * Manages the live preview using mock elements.
  *
  * @package WoowAdmin
  * @since 1.0.0
@@ -15,9 +15,8 @@ export class LivePreview {
      */
     constructor(woowAdmin) {
         this.woow = woowAdmin;
-        this.iframe = null;
-        this.previewPanel = null;
-        this.mode = 'desktop'; // desktop, tablet, mobile
+        this.enabled = false;
+        this.previewElements = {};
         this.init();
     }
 
@@ -25,43 +24,29 @@ export class LivePreview {
      * Initialize live preview
      */
     init() {
-        this.previewPanel = document.querySelector('.woow-preview-panel');
-        this.iframe = document.querySelector('#woow-preview-frame');
+        // Query mock preview elements
+        this.previewElements = {
+            adminBar: document.getElementById('woow-preview-adminbar'),
+            adminMenu: document.getElementById('woow-preview-menu'),
+            widget: document.getElementById('woow-preview-widget')
+        };
 
-        if (!this.previewPanel || !this.iframe) {
-            console.warn('[LivePreview] Preview elements not found');
+        // Check if preview elements exist
+        if (!this.previewElements.adminBar) {
+            console.warn('[LivePreview] Preview elements not found - preview disabled');
+            this.enabled = false;
             return;
         }
 
+        this.enabled = true;
+        console.log('[LivePreview] Initialized successfully');
         this.bindEvents();
-        this.initializeIframe();
     }
 
     /**
      * Bind event listeners
      */
     bindEvents() {
-        // Preview mode buttons
-        const modeButtons = document.querySelectorAll('.woow-preview-mode');
-        modeButtons.forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.preventDefault();
-                const mode = button.dataset.mode;
-                if (mode) {
-                    this.setMode(mode);
-                }
-            });
-        });
-
-        // Toggle preview button
-        const toggleButton = document.querySelector('.woow-preview-toggle');
-        if (toggleButton) {
-            toggleButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.toggle();
-            });
-        }
-
         // Refresh preview button
         const refreshButton = document.querySelector('.woow-preview-refresh');
         if (refreshButton) {
@@ -73,188 +58,149 @@ export class LivePreview {
     }
 
     /**
-     * Initialize iframe content
+     * Update preview with settings object
+     *
+     * @param {Object} settings - Settings object with all configuration
      */
-    initializeIframe() {
-        if (!this.iframe) return;
-
-        // Wait for iframe to load
-        this.iframe.addEventListener('load', () => {
-            console.log('[LivePreview] Iframe loaded');
-            this.injectBaseStyles();
-        });
-
-        // Set iframe source to WordPress admin dashboard
-        if (!this.iframe.src) {
-            this.iframe.src = window.woowAdminData?.previewUrl || '/wp-admin/';
+    async updatePreview(settings) {
+        if (!this.enabled) {
+            console.log('[LivePreview] Preview disabled - skipping update');
+            return;
         }
-    }
 
-    /**
-     * Inject base styles into iframe
-     */
-    injectBaseStyles() {
         try {
-            const iframeDoc = this.iframe.contentDocument || this.iframe.contentWindow.document;
-
-            if (!iframeDoc) {
-                console.warn('[LivePreview] Cannot access iframe document');
-                return;
+            // Admin Bar Preview
+            if (settings.admin_bar && this.previewElements.adminBar) {
+                this.updateAdminBarPreview(settings.admin_bar);
             }
 
-            // Check if style element already exists
-            let styleEl = iframeDoc.getElementById('woow-preview-styles');
-
-            if (!styleEl) {
-                styleEl = iframeDoc.createElement('style');
-                styleEl.id = 'woow-preview-styles';
-                iframeDoc.head.appendChild(styleEl);
+            // Admin Menu Preview
+            if (settings.admin_menu && this.previewElements.adminMenu) {
+                this.updateAdminMenuPreview(settings.admin_menu);
             }
 
-            console.log('[LivePreview] Base styles injected');
+            // Widget Preview
+            if (settings.dashboard_widgets && this.previewElements.widget) {
+                this.updateWidgetPreview(settings.dashboard_widgets);
+            }
+
+            console.log('[LivePreview] Preview updated successfully');
         } catch (error) {
-            console.error('[LivePreview] Error injecting base styles:', error);
+            console.error('[LivePreview] Update failed:', error);
+            // Don't throw - allow save to continue
         }
     }
 
     /**
-     * Update preview with new CSS
+     * Update admin bar preview
+     *
+     * @param {Object} settings - Admin bar settings
+     */
+    updateAdminBarPreview(settings) {
+        const el = this.previewElements.adminBar;
+        if (!el) return;
+
+        if (settings.background_color) {
+            el.style.background = settings.background_color;
+        }
+        if (settings.text_color) {
+            el.style.color = settings.text_color;
+        }
+        if (settings.height) {
+            el.style.height = settings.height;
+        }
+        if (settings.border_radius) {
+            el.style.borderRadius = settings.border_radius;
+        }
+        if (settings.glassmorphism && settings.blur_strength) {
+            el.style.backdropFilter = `blur(${settings.blur_strength})`;
+            el.style.opacity = settings.opacity || 0.9;
+        }
+    }
+
+    /**
+     * Update admin menu preview
+     *
+     * @param {Object} settings - Admin menu settings
+     */
+    updateAdminMenuPreview(settings) {
+        const el = this.previewElements.adminMenu;
+        if (!el) return;
+
+        if (settings.background_color) {
+            el.style.background = settings.background_color;
+        }
+        if (settings.text_color) {
+            el.style.color = settings.text_color;
+        }
+
+        // Active item gradient
+        const activeItem = el.querySelector('.woow-preview-menu-item.active');
+        if (activeItem && settings.active_bg_start && settings.active_bg_end) {
+            activeItem.style.background = `linear-gradient(to bottom right, ${settings.active_bg_start}, ${settings.active_bg_end})`;
+        }
+    }
+
+    /**
+     * Update widget preview
+     *
+     * @param {Object} settings - Dashboard widget settings
+     */
+    updateWidgetPreview(settings) {
+        const el = this.previewElements.widget;
+        if (!el) return;
+
+        if (settings.background_color) {
+            el.style.background = settings.background_color;
+        }
+        if (settings.border_radius) {
+            el.style.borderRadius = settings.border_radius;
+        }
+        if (settings.glassmorphism && settings.blur_strength) {
+            el.style.backdropFilter = `blur(${settings.blur_strength})`;
+        }
+    }
+
+    /**
+     * Legacy update method for CSS injection (kept for backward compatibility)
      *
      * @param {string} css - CSS string to inject
      */
     update(css) {
-        if (!this.iframe) return;
-
-        try {
-            const iframeDoc = this.iframe.contentDocument || this.iframe.contentWindow.document;
-
-            if (!iframeDoc) {
-                console.warn('[LivePreview] Cannot access iframe document');
-                return;
-            }
-
-            // Get or create style element
-            let styleEl = iframeDoc.getElementById('woow-preview-styles');
-
-            if (!styleEl) {
-                styleEl = iframeDoc.createElement('style');
-                styleEl.id = 'woow-preview-styles';
-                iframeDoc.head.appendChild(styleEl);
-            }
-
-            // Update CSS content
-            styleEl.textContent = css;
-
-            console.log('[LivePreview] CSS updated');
-        } catch (error) {
-            console.error('[LivePreview] Error updating CSS:', error);
-        }
+        // This method is kept for backward compatibility with main.js
+        // The actual preview now uses updatePreview() with settings object
+        console.log('[LivePreview] CSS injection received (legacy mode)');
     }
 
     /**
-     * Set preview mode (desktop, tablet, mobile)
-     *
-     * @param {string} mode - Preview mode
-     */
-    setMode(mode) {
-        if (!this.iframe || !this.previewPanel) return;
-
-        this.mode = mode;
-
-        // Update active button
-        const modeButtons = document.querySelectorAll('.woow-preview-mode');
-        modeButtons.forEach(button => {
-            if (button.dataset.mode === mode) {
-                button.classList.add('active');
-            } else {
-                button.classList.remove('active');
-            }
-        });
-
-        // Update iframe dimensions
-        this.iframe.classList.remove('woow-preview-desktop', 'woow-preview-tablet', 'woow-preview-mobile');
-        this.iframe.classList.add(`woow-preview-${mode}`);
-
-        // Apply mode-specific styles
-        switch (mode) {
-            case 'mobile':
-                this.iframe.style.width = '375px';
-                this.iframe.style.height = '667px';
-                break;
-            case 'tablet':
-                this.iframe.style.width = '768px';
-                this.iframe.style.height = '1024px';
-                break;
-            case 'desktop':
-            default:
-                this.iframe.style.width = '100%';
-                this.iframe.style.height = '100%';
-                break;
-        }
-
-        console.log('[LivePreview] Mode set to:', mode);
-    }
-
-    /**
-     * Toggle preview panel visibility
-     */
-    toggle() {
-        if (!this.previewPanel) return;
-
-        const isVisible = !this.previewPanel.classList.contains('woow-preview-hidden');
-
-        if (isVisible) {
-            this.previewPanel.classList.add('woow-preview-hidden');
-            console.log('[LivePreview] Preview hidden');
-        } else {
-            this.previewPanel.classList.remove('woow-preview-hidden');
-            console.log('[LivePreview] Preview shown');
-        }
-
-        // Update toggle button text
-        const toggleButton = document.querySelector('.woow-preview-toggle');
-        if (toggleButton) {
-            toggleButton.textContent = isVisible
-                ? (this.woow.i18n.showPreview || 'Show Preview')
-                : (this.woow.i18n.hidePreview || 'Hide Preview');
-        }
-    }
-
-    /**
-     * Refresh preview iframe
+     * Refresh preview by re-applying current settings
      */
     refresh() {
-        if (!this.iframe) return;
+        if (!this.enabled) return;
 
         console.log('[LivePreview] Refreshing preview');
 
-        // Reload iframe
-        this.iframe.src = this.iframe.src;
+        // Trigger a preview update from main controller
+        if (this.woow && typeof this.woow.updateLivePreview === 'function') {
+            this.woow.updateLivePreview();
+        }
 
         // Show notification
-        this.woow.showNotification(
-            this.woow.i18n.previewRefreshed || 'Preview refreshed',
-            'info'
-        );
+        if (this.woow && typeof this.woow.showNotification === 'function') {
+            this.woow.showNotification(
+                this.woow.i18n?.previewRefreshed || 'Preview refreshed',
+                'info'
+            );
+        }
     }
 
     /**
-     * Check if preview is visible
+     * Check if preview is enabled
      *
-     * @returns {boolean} True if visible
+     * @returns {boolean} True if enabled
      */
-    isVisible() {
-        if (!this.previewPanel) return false;
-        return !this.previewPanel.classList.contains('woow-preview-hidden');
-    }
-
-    /**
-     * Get current preview mode
-     *
-     * @returns {string} Current mode
-     */
-    getMode() {
-        return this.mode;
+    isEnabled() {
+        return this.enabled;
     }
 }
 

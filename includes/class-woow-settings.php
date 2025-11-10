@@ -213,11 +213,11 @@ class WOOW_Settings {
     }
 
     /**
-     * Save settings to database
+     * Save current settings to database (private helper)
      *
      * @return bool Success status
      */
-    private function save_settings(): bool {
+    private function persist_settings(): bool {
         return update_option( self::OPTION_NAME, $this->settings );
     }
 
@@ -275,7 +275,7 @@ class WOOW_Settings {
         $this->settings[ $section ] = array_merge( $this->settings[ $section ], $data );
 
         // Save to database
-        return $this->save_settings();
+        return $this->persist_settings();
     }
 
     /**
@@ -869,7 +869,7 @@ class WOOW_Settings {
             delete_transient( 'woow_generated_css' );
         }
 
-        return $this->save_settings();
+        return $this->persist_settings();
     }
 
     /**
@@ -903,7 +903,7 @@ class WOOW_Settings {
             delete_transient( 'woow_generated_css' );
         }
 
-        return $this->save_settings();
+        return $this->persist_settings();
     }
 
     /**
@@ -1140,7 +1140,7 @@ class WOOW_Settings {
         $this->settings = array_replace_recursive( $this->settings, $settings );
 
         // Save settings
-        if ( $this->save_settings() ) {
+        if ( $this->persist_settings() ) {
             // Clear CSS cache
             if ( function_exists( 'delete_transient' ) ) {
                 delete_transient( 'woow_generated_css' );
@@ -1225,7 +1225,21 @@ class WOOW_Settings {
      */
     public function update_all_settings( array $settings ): bool {
         $this->settings = $settings;
-        return $this->save_settings();
+        return $this->persist_settings();
+    }
+
+    /**
+     * Save settings (public method for AJAX handler)
+     *
+     * @param array $settings Settings to save
+     * @return bool Success status
+     */
+    public function save_settings( array $settings ): bool {
+        // Merge with existing settings to preserve structure
+        $this->settings = array_replace_recursive( $this->settings, $settings );
+        
+        // Save to database
+        return update_option( self::OPTION_NAME, $this->settings );
     }
 
 }

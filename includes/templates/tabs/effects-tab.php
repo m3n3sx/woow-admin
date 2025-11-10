@@ -10,7 +10,18 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-$effects = $this->settings->get_section( 'effects' );
+// Define default values for effects
+$defaults = array(
+    'enabled'             => true,
+    'shadow_preset'       => 'md',
+    'animation_duration'  => '200ms',
+    'easing_function'     => 'cubic-bezier(0.4, 0, 0.2, 1)',
+    'glassmorphism_blur'  => '12px',
+    'custom_css'          => '',
+);
+
+// Merge with saved settings
+$effects = array_merge( $defaults, $this->settings->get_section( 'effects' ) ?? array() );
 ?>
 
 <div class="woow-tab-pane" id="tab-effects">

@@ -104,18 +104,27 @@ class WOOW_Admin {
 	/**
 	 * Convert RGBA color to HEX for input type="color"
 	 *
-	 * @param string $color Color value (hex or rgba).
+	 * @param string|null $color Color value (hex or rgba).
+	 * @param string $default Optional default hex color to use if conversion fails.
 	 * @return string Hex color value.
 	 */
-	public static function rgba_to_hex( string $color ): string {
-		// Handle empty values
-		if ( empty( $color ) ) {
-			return '#000000';
+	public static function rgba_to_hex( $color, string $default = '#000000' ): string {
+		// Handle null, empty, or whitespace-only values - use provided default
+		if ( $color === null || $color === '' || ( is_string( $color ) && trim( $color ) === '' ) ) {
+			return $default;
 		}
 
-		// If already hex, return as is
+		// Ensure we have a string
+		$color = (string) $color;
+
+		// If already hex, validate and return
 		if ( strpos( $color, '#' ) === 0 ) {
-			return $color;
+			// Validate hex format
+			if ( preg_match( '/^#[0-9A-Fa-f]{6}$/', $color ) ) {
+				return $color;
+			}
+			// Invalid hex, return default
+			return $default;
 		}
 
 		// If rgba, extract RGB values
@@ -126,8 +135,8 @@ class WOOW_Admin {
 			return '#' . $r . $g . $b;
 		}
 
-		// Default fallback
-		return '#000000';
+		// Default fallback - use provided default
+		return $default;
 	}
 
 	/**

@@ -267,6 +267,55 @@ $current_template = $settings['general']['current_template'] ?? 'default';
                 </form>
             </div>
         </main>
+
+        <!-- Live Preview Container -->
+        <div class="woow-preview-container">
+            <!-- Preview Header -->
+            <div class="woow-preview-header">
+                <h3><?php esc_html_e( 'Live Preview', 'woow-admin' ); ?></h3>
+                <button type="button" class="woow-preview-refresh" title="<?php esc_attr_e( 'Refresh Preview', 'woow-admin' ); ?>">
+                    <span class="dashicons dashicons-update"></span>
+                </button>
+            </div>
+            
+            <!-- Preview Body -->
+            <div class="woow-preview-body">
+                <!-- Mock Admin Bar -->
+                <div id="woow-preview-adminbar" class="woow-preview-element woow-preview-adminbar">
+                    <div class="woow-preview-logo">
+                        <span class="dashicons dashicons-wordpress"></span>
+                    </div>
+                    <span class="woow-preview-text"><?php esc_html_e( 'WordPress', 'woow-admin' ); ?></span>
+                    <div class="woow-preview-menu">
+                        <span class="dashicons dashicons-admin-generic"></span>
+                    </div>
+                </div>
+                
+                <!-- Mock Admin Menu -->
+                <div id="woow-preview-menu" class="woow-preview-element woow-preview-menu">
+                    <div class="woow-preview-menu-item active">
+                        <span class="dashicons dashicons-dashboard"></span>
+                        <span><?php esc_html_e( 'Dashboard', 'woow-admin' ); ?></span>
+                    </div>
+                    <div class="woow-preview-menu-item">
+                        <span class="dashicons dashicons-admin-post"></span>
+                        <span><?php esc_html_e( 'Posts', 'woow-admin' ); ?></span>
+                    </div>
+                    <div class="woow-preview-menu-item">
+                        <span class="dashicons dashicons-admin-page"></span>
+                        <span><?php esc_html_e( 'Pages', 'woow-admin' ); ?></span>
+                    </div>
+                </div>
+                
+                <!-- Mock Dashboard Widget -->
+                <div id="woow-preview-widget" class="woow-preview-element woow-preview-widget">
+                    <h3><?php esc_html_e( 'Dashboard Widget', 'woow-admin' ); ?></h3>
+                    <p><?php esc_html_e( 'This is a preview of dashboard widget styling.', 'woow-admin' ); ?></p>
+                    <button type="button" class="button button-primary"><?php esc_html_e( 'Primary Button', 'woow-admin' ); ?></button>
+                    <button type="button" class="button"><?php esc_html_e( 'Secondary Button', 'woow-admin' ); ?></button>
+                </div>
+            </div>
+        </div>
     </div> <!-- .woow-layout-container -->
 
     <!-- Footer with Performance Stats -->

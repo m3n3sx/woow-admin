@@ -25,6 +25,7 @@
 @import './components/palette-grid.css';
 @import './components/template-grid.css';
 @import './components/toast.css';
+@import './components/preview.css';
 
 /* WordPress Overrides */
 @import './wordpress-overrides/admin-bar.css';
@@ -282,6 +283,26 @@ html {
 
 .woow-tooltip:hover::after {
   opacity: 1;
+}
+
+/* Field Error Styles */
+.woow-field-error {
+  border-color: var(--woow-destructive) !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+.woow-field-error:focus {
+  border-color: var(--woow-destructive) !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+}
+
+.woow-error-message {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: var(--woow-font-weight-medium);
+  color: var(--woow-destructive);
+  line-height: 1.4;
 }
 
 /* Print Styles */

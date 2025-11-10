@@ -15,6 +15,7 @@ import { ImportExport } from './components/ImportExport.js';
 import { TabManager } from './components/TabManager.js';
 import { KeyboardShortcuts } from './components/KeyboardShortcuts.js';
 import { HeaderController } from './components/HeaderController.js';
+import { Validator } from './utils/Validator.js';
 
 /**
  * Main WoowAdmin Controller Class
@@ -35,6 +36,9 @@ class WoowAdmin {
 
         // Component instances
         this.components = {};
+
+        // Validator instance
+        this.validator = new Validator();
 
         // Debounce timer
         this.debounceTimer = null;
@@ -74,6 +78,9 @@ class WoowAdmin {
             this.components.importExport = new ImportExport(this);
             this.components.tabManager = new TabManager(this);
             this.components.keyboardShortcuts = new KeyboardShortcuts(this);
+
+            // Check for unsaved data and offer to restore
+            this.checkUnsavedData();
 
             // Bind global events
             this.bindEvents();
@@ -203,19 +210,54 @@ class WoowAdmin {
                 formData[section] = {};
             }
 
-            // Get value based on input type
+            // Get value based on input type with proper type conversion
+            let value;
+
+            // Task 3.2: Checkbox handling
             if (input.type === 'checkbox') {
-                formData[section][key] = input.checked;
-            } else if (input.type === 'radio') {
+                value = input.checked; // Boolean
+            } 
+            // Radio button handling
+            else if (input.type === 'radio') {
                 if (input.checked) {
-                    formData[section][key] = input.value;
+                    value = input.value;
+                } else {
+                    return; // Skip unchecked radio buttons
                 }
-            } else if (input.type === 'range') {
-                const unit = input.dataset.unit || '';
-                formData[section][key] = input.value + unit;
-            } else {
-                formData[section][key] = input.value;
+            } 
+            // Task 3.3: Range slider handling with type conversion
+            else if (input.type === 'range') {
+                const dataType = input.dataset.type;
+                
+                if (dataType === 'opacity') {
+                    // Convert 0-100 range to 0-1 float
+                    value = parseFloat(input.value) / 100;
+                } else {
+                    // Append unit to value
+                    const unit = input.dataset.unit || '';
+                    value = input.value + unit;
+                }
+            } 
+            // Task 3.4: Number input handling with type conversion
+            else if (input.type === 'number') {
+                const dataType = input.dataset.type;
+                
+                if (dataType === 'unitless') {
+                    // Line-height: unitless float
+                    value = parseFloat(input.value);
+                } else {
+                    // Size with unit
+                    const unit = input.dataset.unit || 'px';
+                    value = input.value + unit;
+                }
+            } 
+            // Task 3.5: Select and text input handling (use as-is)
+            else {
+                value = input.value;
             }
+
+            // Task 3.6: Store in nested object structure
+            formData[section][key] = value;
         });
 
         return formData;
@@ -226,28 +268,107 @@ class WoowAdmin {
      *
      * @param {string} message - Notification message
      * @param {string} type - Notification type (success, error, warning, info)
+     * @param {Object} options - Additional options (duration, dismissible, action)
      */
-    showNotification(message, type = 'info') {
+    showNotification(message, type = 'info', options = {}) {
+        const {
+            duration = 3000,
+            dismissible = true,
+            action = null
+        } = options;
+
         // Remove existing notifications
         const existing = document.querySelectorAll('.woow-toast');
         existing.forEach(toast => toast.remove());
 
+        // Icon mapping
+        const icons = {
+            success: `<svg class="woow-toast-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16.6667 5L7.50004 14.1667L3.33337 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>`,
+            error: `<svg class="woow-toast-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>`,
+            warning: `<svg class="woow-toast-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 6V10M10 14H10.01M18 10C18 14.4183 14.4183 18 10 18C5.58172 18 2 14.4183 2 10C2 5.58172 5.58172 2 10 2C14.4183 2 18 5.58172 18 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>`,
+            info: `<svg class="woow-toast-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 9V13M10 6H10.01M18 10C18 14.4183 14.4183 18 10 18C5.58172 18 2 14.4183 2 10C2 5.58172 5.58172 2 10 2C14.4183 2 18 5.58172 18 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>`
+        };
+
         // Create toast element
         const toast = document.createElement('div');
         toast.className = `woow-toast woow-toast-${type}`;
-        toast.textContent = message;
+
+        // Build toast content
+        let content = `
+            <div class="woow-toast-content">
+                ${icons[type] || icons.info}
+                <span class="woow-toast-message">${message}</span>
+            </div>
+        `;
+
+        // Add action button if provided
+        if (action) {
+            content += `
+                <button class="woow-toast-action" data-action="${action.id}">
+                    ${action.label}
+                </button>
+            `;
+        }
+
+        // Add dismiss button if dismissible
+        if (dismissible) {
+            content += `
+                <button class="woow-toast-dismiss" aria-label="Dismiss">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            `;
+        }
+
+        toast.innerHTML = content;
 
         // Add to DOM
         document.body.appendChild(toast);
 
+        // Bind dismiss button
+        if (dismissible) {
+            const dismissBtn = toast.querySelector('.woow-toast-dismiss');
+            if (dismissBtn) {
+                dismissBtn.addEventListener('click', () => {
+                    toast.classList.remove('woow-toast-show');
+                    setTimeout(() => toast.remove(), 300);
+                });
+            }
+        }
+
+        // Bind action button
+        if (action) {
+            const actionBtn = toast.querySelector('.woow-toast-action');
+            if (actionBtn) {
+                actionBtn.addEventListener('click', () => {
+                    if (typeof action.callback === 'function') {
+                        action.callback();
+                    }
+                    toast.classList.remove('woow-toast-show');
+                    setTimeout(() => toast.remove(), 300);
+                });
+            }
+        }
+
         // Trigger animation
         setTimeout(() => toast.classList.add('woow-toast-show'), 10);
 
-        // Auto-dismiss after 3 seconds
-        setTimeout(() => {
-            toast.classList.remove('woow-toast-show');
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
+        // Auto-dismiss after duration (if not 0)
+        if (duration > 0) {
+            setTimeout(() => {
+                toast.classList.remove('woow-toast-show');
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
     }
 
     /**
@@ -267,6 +388,12 @@ class WoowAdmin {
         try {
             const formData = this.collectFormData();
 
+            // Update preview with settings object directly
+            if (this.components.livePreview && this.components.livePreview.isEnabled()) {
+                await this.components.livePreview.updatePreview(formData);
+            }
+
+            // Also generate CSS for backward compatibility and real-time mode
             const data = new FormData();
             data.append('action', 'woow_preview_css');
             data.append('nonce', this.nonce);
@@ -280,12 +407,7 @@ class WoowAdmin {
             const result = await response.json();
 
             if (result.success) {
-                // Update preview iframe
-                if (this.components.livePreview) {
-                    this.components.livePreview.update(result.data.css);
-                }
-
-                // If real-time mode is enabled, also update current page
+                // If real-time mode is enabled, update current page
                 if (this.state.realtimeEnabled) {
                     this.injectLiveCSS(result.data.css);
                 }
@@ -299,6 +421,7 @@ class WoowAdmin {
             }
         } catch (error) {
             console.error('[WOOW Admin] Preview error:', error);
+            // Don't throw - allow operation to continue
         }
     }
 
@@ -378,17 +501,136 @@ class WoowAdmin {
             // Collect form data
             const formData = this.collectFormData();
 
+            // Save form data to localStorage before attempting save
+            this.saveFormDataToStorage(formData);
+
+            // Validate form data
+            const validationResult = this.validator.validateAll(formData);
+
+            // If validation fails, show errors and attempt partial save
+            if (!validationResult.valid) {
+                console.warn('[WOOW Admin] Validation errors found:', validationResult.errors);
+                
+                // Show validation errors to user
+                validationResult.errors.forEach(error => {
+                    console.error(`[WOOW Admin] ${error.field}: ${error.message} (value: ${error.value})`);
+                    this.showFieldError(error.field, error.message);
+                });
+
+                // Extract valid fields for partial save
+                const validFormData = this.extractValidFields(formData, validationResult.validFields);
+                
+                // If we have valid fields, attempt partial save
+                if (Object.keys(validFormData).length > 0) {
+                    const validFieldCount = validationResult.validFields.length;
+                    const errorCount = validationResult.errors.length;
+                    
+                    console.log(`[WOOW Admin] Attempting partial save: ${validFieldCount} valid fields, ${errorCount} errors`);
+                    
+                    // Prepare AJAX request with valid fields only
+                    const partialData = new FormData();
+                    partialData.append('action', 'woow_save_settings');
+                    partialData.append('nonce', this.nonce);
+                    partialData.append('settings', JSON.stringify(validFormData));
+
+                    // Send request with retry logic
+                    let partialResponse;
+                    try {
+                        partialResponse = await this.retryFetch(
+                            () => fetch(this.ajaxUrl, {
+                                method: 'POST',
+                                body: partialData
+                            }),
+                            1, // Retry once
+                            1000 // Wait 1 second before retry
+                        );
+                    } catch (networkError) {
+                        console.error('[WOOW Admin] Network error during partial save:', networkError);
+                        
+                        this.showNotification(
+                            'Network error during partial save. Please try again.',
+                            'error'
+                        );
+                        
+                        // Notify header controller of error
+                        if (this.components.headerController) {
+                            this.components.headerController.onSaveError();
+                        }
+                        
+                        return false;
+                    }
+
+                    const result = await partialResponse.json();
+
+                    if (result.success) {
+                        // Update state with saved settings
+                        this.state.settings = { ...this.state.settings, ...validFormData };
+                        
+                        // Show partial success notification
+                        this.showNotification(
+                            `Saved ${validFieldCount} fields. ${errorCount} field(s) have errors - please fix them.`,
+                            'warning'
+                        );
+
+                        // Update preview with new CSS
+                        if (result.data.css && this.components.livePreview) {
+                            this.components.livePreview.update(result.data.css);
+                        }
+
+                        // Keep error messages visible
+                        // Don't clear field errors - user needs to fix them
+                        
+                        return false; // Still return false because validation failed
+                    }
+                }
+
+                // Show notification about validation errors
+                this.showNotification(
+                    `Found ${validationResult.errors.length} validation error(s). Please check the highlighted fields.`,
+                    'error'
+                );
+
+                // Notify header controller of error
+                if (this.components.headerController) {
+                    this.components.headerController.onSaveError();
+                }
+
+                return false;
+            }
+
             // Prepare AJAX request
             const data = new FormData();
             data.append('action', 'woow_save_settings');
             data.append('nonce', this.nonce);
             data.append('settings', JSON.stringify(formData));
 
-            // Send request
-            const response = await fetch(this.ajaxUrl, {
-                method: 'POST',
-                body: data
-            });
+            // Send request with retry logic
+            let response;
+            try {
+                response = await this.retryFetch(
+                    () => fetch(this.ajaxUrl, {
+                        method: 'POST',
+                        body: data
+                    }),
+                    1, // Retry once
+                    1000 // Wait 1 second before retry
+                );
+            } catch (networkError) {
+                console.error('[WOOW Admin] Network error after retry:', networkError);
+                
+                // Notify header controller of error
+                if (this.components.headerController) {
+                    this.components.headerController.onSaveError();
+                }
+                
+                // Show network error with retry button
+                this.showNotification(
+                    'Network error. Check your connection and try again.',
+                    'error'
+                );
+                
+                return false;
+            }
 
             const result = await response.json();
 
@@ -396,6 +638,12 @@ class WoowAdmin {
                 // Update state
                 this.state.settings = result.data.settings || formData;
                 this.state.unsavedChanges = false;
+
+                // Clear any field errors
+                this.clearFieldErrors();
+
+                // Clear saved form data from localStorage
+                this.clearSavedFormData();
 
                 // Notify header controller of success
                 if (this.components.headerController) {
@@ -458,6 +706,215 @@ class WoowAdmin {
                 saveButton.disabled = false;
                 this.updateSaveButtonState();
             }
+        }
+    }
+
+    /**
+     * Show field-specific error
+     *
+     * @param {string} field - Field key (e.g., 'admin_bar.opacity')
+     * @param {string} message - Error message
+     */
+    showFieldError(field, message) {
+        // Convert field key to input name format
+        // 'admin_bar.opacity' -> 'admin_bar[opacity]'
+        const parts = field.split('.');
+        let inputName = field;
+        
+        if (parts.length === 2) {
+            inputName = `${parts[0]}[${parts[1]}]`;
+        }
+
+        // Find the input element
+        const input = document.querySelector(`[name="${inputName}"]`);
+        
+        if (!input) {
+            console.warn(`[WOOW Admin] Could not find input for field: ${field}`);
+            return;
+        }
+
+        // Add error class
+        input.classList.add('woow-field-error');
+
+        // Find or create error message element
+        let errorEl = input.parentElement.querySelector('.woow-error-message');
+        
+        if (!errorEl) {
+            errorEl = document.createElement('span');
+            errorEl.className = 'woow-error-message';
+            input.parentElement.appendChild(errorEl);
+        }
+
+        errorEl.textContent = message;
+    }
+
+    /**
+     * Clear all field errors
+     */
+    clearFieldErrors() {
+        // Remove error classes
+        const errorInputs = document.querySelectorAll('.woow-field-error');
+        errorInputs.forEach(input => {
+            input.classList.remove('woow-field-error');
+        });
+
+        // Remove error messages
+        const errorMessages = document.querySelectorAll('.woow-error-message');
+        errorMessages.forEach(msg => {
+            msg.remove();
+        });
+    }
+
+    /**
+     * Extract valid fields from form data based on validation result
+     *
+     * @param {Object} formData - Complete form data
+     * @param {Array} validFields - Array of valid field keys (e.g., ['admin_bar.opacity', 'admin_bar.height'])
+     * @returns {Object} Form data with only valid fields
+     */
+    extractValidFields(formData, validFields) {
+        const validData = {};
+        
+        // Convert validFields array to a Set for faster lookup
+        const validFieldsSet = new Set(validFields);
+        
+        // Iterate through form data sections
+        for (const section in formData) {
+            if (!formData.hasOwnProperty(section)) continue;
+            
+            const sectionData = formData[section];
+            if (typeof sectionData !== 'object') continue;
+            
+            // Check each field in the section
+            for (const key in sectionData) {
+                if (!sectionData.hasOwnProperty(key)) continue;
+                
+                const fieldKey = `${section}.${key}`;
+                
+                // If this field is valid, include it
+                if (validFieldsSet.has(fieldKey)) {
+                    if (!validData[section]) {
+                        validData[section] = {};
+                    }
+                    validData[section][key] = sectionData[key];
+                }
+            }
+        }
+        
+        return validData;
+    }
+
+    /**
+     * Retry fetch request with exponential backoff
+     *
+     * @param {Function} fetchFn - Function that returns a fetch promise
+     * @param {number} maxRetries - Maximum number of retries (default: 1)
+     * @param {number} delay - Initial delay in milliseconds (default: 1000)
+     * @returns {Promise} Fetch response
+     */
+    async retryFetch(fetchFn, maxRetries = 1, delay = 1000) {
+        let lastError;
+        
+        for (let attempt = 0; attempt <= maxRetries; attempt++) {
+            try {
+                console.log(`[WOOW Admin] Fetch attempt ${attempt + 1}/${maxRetries + 1}`);
+                const response = await fetchFn();
+                return response;
+            } catch (error) {
+                lastError = error;
+                console.error(`[WOOW Admin] Fetch attempt ${attempt + 1} failed:`, error);
+                
+                // If this was the last attempt, throw the error
+                if (attempt === maxRetries) {
+                    throw error;
+                }
+                
+                // Wait before retrying
+                console.log(`[WOOW Admin] Retrying in ${delay}ms...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+        
+        throw lastError;
+    }
+
+    /**
+     * Save form data to localStorage
+     *
+     * @param {Object} formData - Form data to save
+     */
+    saveFormDataToStorage(formData) {
+        try {
+            const dataToSave = {
+                timestamp: Date.now(),
+                data: formData
+            };
+            localStorage.setItem('woow_unsaved_settings', JSON.stringify(dataToSave));
+            console.log('[WOOW Admin] Form data saved to localStorage');
+        } catch (error) {
+            console.error('[WOOW Admin] Failed to save form data to localStorage:', error);
+        }
+    }
+
+    /**
+     * Clear saved form data from localStorage
+     */
+    clearSavedFormData() {
+        try {
+            localStorage.removeItem('woow_unsaved_settings');
+            console.log('[WOOW Admin] Cleared saved form data from localStorage');
+        } catch (error) {
+            console.error('[WOOW Admin] Failed to clear saved form data:', error);
+        }
+    }
+
+    /**
+     * Check for unsaved data and offer to restore
+     */
+    checkUnsavedData() {
+        try {
+            const savedData = localStorage.getItem('woow_unsaved_settings');
+            
+            if (!savedData) {
+                return;
+            }
+
+            const parsed = JSON.parse(savedData);
+            const timestamp = parsed.timestamp;
+            const data = parsed.data;
+
+            // Check if data is less than 24 hours old
+            const ageInHours = (Date.now() - timestamp) / (1000 * 60 * 60);
+            
+            if (ageInHours > 24) {
+                // Data is too old, clear it
+                this.clearSavedFormData();
+                return;
+            }
+
+            // Ask user if they want to restore
+            const restore = confirm(
+                'You have unsaved changes from a previous session. Would you like to restore them?'
+            );
+
+            if (restore) {
+                // Restore form data
+                this.updateFormFields(data);
+                this.state.unsavedChanges = true;
+                this.updateSaveButtonState();
+                
+                this.showNotification(
+                    'Previous session data restored. Review and save when ready.',
+                    'info'
+                );
+            } else {
+                // User declined, clear the saved data
+                this.clearSavedFormData();
+            }
+        } catch (error) {
+            console.error('[WOOW Admin] Failed to check unsaved data:', error);
+            // Clear corrupted data
+            this.clearSavedFormData();
         }
     }
 
