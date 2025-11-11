@@ -36,7 +36,14 @@ function woow_get_default_settings() {
             'height' => '48',
             'width' => '100',
             'width_unit' => '%',
-            'border_radius' => '24',
+            
+            // Border Radius
+            'border_radius_mode' => 'all', // all or individual
+            'border_radius_all' => '24', // When mode is 'all'
+            'border_radius_top_left' => '24',
+            'border_radius_top_right' => '24',
+            'border_radius_bottom_right' => '24',
+            'border_radius_bottom_left' => '24',
             
             // Glassmorphism
             'glassmorphism' => true,

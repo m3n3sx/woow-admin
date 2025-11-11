@@ -181,8 +181,21 @@ class WOOW_CSS_Generator {
         $height = $bar['height'] ?? '48px';
         $width = $bar['width'] ?? '100';
         $width_unit = $bar['width_unit'] ?? '%';
-        $border_radius = $bar['border_radius'] ?? '24px';
         $top_offset = $bar['top_offset'] ?? '16px';
+        
+        // Border Radius - handle mode (all or individual)
+        $border_radius_mode = $bar['border_radius_mode'] ?? 'all';
+        if ( $border_radius_mode === 'all' ) {
+            $border_radius_all = $bar['border_radius_all'] ?? '24';
+            $border_radius = $border_radius_all . 'px';
+        } else {
+            // Individual corners
+            $border_radius_top_left = $bar['border_radius_top_left'] ?? '24';
+            $border_radius_top_right = $bar['border_radius_top_right'] ?? '24';
+            $border_radius_bottom_right = $bar['border_radius_bottom_right'] ?? '24';
+            $border_radius_bottom_left = $bar['border_radius_bottom_left'] ?? '24';
+            $border_radius = "{$border_radius_top_left}px {$border_radius_top_right}px {$border_radius_bottom_right}px {$border_radius_bottom_left}px";
+        }
         
         // Get position and shadow settings
         $position = $bar['position'] ?? 'fixed';
@@ -277,6 +290,7 @@ class WOOW_CSS_Generator {
         $background_type = $bar['background_type'] ?? 'solid';
         $opacity = $bar['opacity'] ?? 0.9;
         $blur_strength = $bar['blur_strength'] ?? '12px';
+        $glassmorphism_enabled = $bar['glassmorphism'] ?? true;
         
         // Apply background based on selected type
         if ( $background_type === 'glass' ) {
@@ -424,7 +438,16 @@ class WOOW_CSS_Generator {
             $submenu_bg = $glassmorphism_enabled ? $this->hex_to_rgba( $bar['background_color'], $opacity ) : $bar['background_color'];
             $submenu_text = $bar['text_color'];
             $submenu_hover = $bar['hover_bg_color'];
-            $submenu_radius = $bar['border_radius'] ?? '12';
+            
+            // Get border radius from admin bar (handle mode)
+            $border_radius_mode = $bar['border_radius_mode'] ?? 'all';
+            if ( $border_radius_mode === 'all' ) {
+                $submenu_radius = $bar['border_radius_all'] ?? '24';
+            } else {
+                // Use top-left corner for submenu when individual mode
+                $submenu_radius = $bar['border_radius_top_left'] ?? '24';
+            }
+            
             $submenu_font_size = $bar['font_size'] ?? '14px';
         } else {
             // Custom submenu styles

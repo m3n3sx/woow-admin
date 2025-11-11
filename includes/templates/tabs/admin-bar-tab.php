@@ -24,7 +24,12 @@ $defaults = array(
     'height'            => '48px',
     'width'             => '100',
     'width_unit'        => '%',
-    'border_radius'     => '24px',
+    'border_radius_mode' => 'all',
+    'border_radius_all' => '24',
+    'border_radius_top_left' => '24',
+    'border_radius_top_right' => '24',
+    'border_radius_bottom_right' => '24',
+    'border_radius_bottom_left' => '24',
     'font_size'         => '14px',
     'font_weight'       => '600',
     'glassmorphism'     => true,
@@ -543,27 +548,149 @@ $admin_bar = array_merge( $defaults, $this->settings->get_section( 'admin_bar' )
                     </p>
                 </div>
 
-                <!-- Border Radius -->
+                <!-- Border Radius Mode -->
                 <div class="woow-form-group">
                     <label class="woow-label">
-                        <?php esc_html_e( 'Border Radius', 'woow-admin' ); ?>
+                        <?php esc_html_e( 'Border Radius Mode', 'woow-admin' ); ?>
+                    </label>
+                    <div class="woow-radio-group">
+                        <label class="woow-radio-label">
+                            <input 
+                                type="radio" 
+                                name="admin_bar[border_radius_mode]" 
+                                value="all" 
+                                <?php checked( $admin_bar['border_radius_mode'] ?? 'all', 'all' ); ?>
+                                class="woow-radio woow-condition-trigger"
+                                data-target="border_radius_mode"
+                            />
+                            <span><?php esc_html_e( 'All Corners', 'woow-admin' ); ?></span>
+                        </label>
+                        <label class="woow-radio-label">
+                            <input 
+                                type="radio" 
+                                name="admin_bar[border_radius_mode]" 
+                                value="individual" 
+                                <?php checked( $admin_bar['border_radius_mode'] ?? 'all', 'individual' ); ?>
+                                class="woow-radio woow-condition-trigger"
+                                data-target="border_radius_mode"
+                            />
+                            <span><?php esc_html_e( 'Individual Corners', 'woow-admin' ); ?></span>
+                        </label>
+                    </div>
+                    <p class="woow-field-description">
+                        <?php esc_html_e( 'Choose whether to apply the same radius to all corners or customize each corner individually.', 'woow-admin' ); ?>
+                    </p>
+                </div>
+
+                <!-- Border Radius All (shown when mode = all) -->
+                <div class="woow-form-group woow-conditional-field" data-condition="border_radius_mode" data-value="all">
+                    <label class="woow-label">
+                        <?php esc_html_e( 'Border Radius (All Corners)', 'woow-admin' ); ?>
                     </label>
                     <div class="woow-slider-group">
                         <input 
                             type="range" 
-                            name="admin_bar[border_radius]" 
-                            value="<?php echo esc_attr( intval( $admin_bar['border_radius'] ) ); ?>"
+                            name="admin_bar[border_radius_all]" 
+                            value="<?php echo esc_attr( intval( $admin_bar['border_radius_all'] ?? 24 ) ); ?>"
                             min="0" 
-                            max="32" 
+                            max="50" 
                             step="2"
                             class="woow-slider"
+                            data-type="unitless"
                             data-unit="px"
                         />
-                        <span class="woow-slider-value"><?php echo esc_html( $admin_bar['border_radius'] ); ?></span>
+                        <span class="woow-slider-value"><?php echo esc_html( $admin_bar['border_radius_all'] ?? '24' ); ?>px</span>
                     </div>
                     <p class="woow-field-description">
-                        <?php esc_html_e( 'Default: 24px (rounded-3xl)', 'woow-admin' ); ?>
+                        <?php esc_html_e( 'Default: 24px. Applies to all four corners.', 'woow-admin' ); ?>
                     </p>
+                </div>
+
+                <!-- Individual Border Radius (shown when mode = individual) -->
+                <div class="woow-conditional-field" data-condition="border_radius_mode" data-value="individual">
+                    <!-- Top Left -->
+                    <div class="woow-form-group">
+                        <label class="woow-label">
+                            <?php esc_html_e( 'Top Left Corner', 'woow-admin' ); ?>
+                        </label>
+                        <div class="woow-slider-group">
+                            <input 
+                                type="range" 
+                                name="admin_bar[border_radius_top_left]" 
+                                value="<?php echo esc_attr( intval( $admin_bar['border_radius_top_left'] ?? 24 ) ); ?>"
+                                min="0" 
+                                max="50" 
+                                step="2"
+                                class="woow-slider"
+                                data-type="unitless"
+                                data-unit="px"
+                            />
+                            <span class="woow-slider-value"><?php echo esc_html( $admin_bar['border_radius_top_left'] ?? '24' ); ?>px</span>
+                        </div>
+                    </div>
+
+                    <!-- Top Right -->
+                    <div class="woow-form-group">
+                        <label class="woow-label">
+                            <?php esc_html_e( 'Top Right Corner', 'woow-admin' ); ?>
+                        </label>
+                        <div class="woow-slider-group">
+                            <input 
+                                type="range" 
+                                name="admin_bar[border_radius_top_right]" 
+                                value="<?php echo esc_attr( intval( $admin_bar['border_radius_top_right'] ?? 24 ) ); ?>"
+                                min="0" 
+                                max="50" 
+                                step="2"
+                                class="woow-slider"
+                                data-type="unitless"
+                                data-unit="px"
+                            />
+                            <span class="woow-slider-value"><?php echo esc_html( $admin_bar['border_radius_top_right'] ?? '24' ); ?>px</span>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Right -->
+                    <div class="woow-form-group">
+                        <label class="woow-label">
+                            <?php esc_html_e( 'Bottom Right Corner', 'woow-admin' ); ?>
+                        </label>
+                        <div class="woow-slider-group">
+                            <input 
+                                type="range" 
+                                name="admin_bar[border_radius_bottom_right]" 
+                                value="<?php echo esc_attr( intval( $admin_bar['border_radius_bottom_right'] ?? 24 ) ); ?>"
+                                min="0" 
+                                max="50" 
+                                step="2"
+                                class="woow-slider"
+                                data-type="unitless"
+                                data-unit="px"
+                            />
+                            <span class="woow-slider-value"><?php echo esc_html( $admin_bar['border_radius_bottom_right'] ?? '24' ); ?>px</span>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Left -->
+                    <div class="woow-form-group">
+                        <label class="woow-label">
+                            <?php esc_html_e( 'Bottom Left Corner', 'woow-admin' ); ?>
+                        </label>
+                        <div class="woow-slider-group">
+                            <input 
+                                type="range" 
+                                name="admin_bar[border_radius_bottom_left]" 
+                                value="<?php echo esc_attr( intval( $admin_bar['border_radius_bottom_left'] ?? 24 ) ); ?>"
+                                min="0" 
+                                max="50" 
+                                step="2"
+                                class="woow-slider"
+                                data-type="unitless"
+                                data-unit="px"
+                            />
+                            <span class="woow-slider-value"><?php echo esc_html( $admin_bar['border_radius_bottom_left'] ?? '24' ); ?>px</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -80,14 +80,28 @@ const FIELD_TYPE_MAP = {
     // Mode selectors
     'spacing_mode': FIELD_TYPES.KEYWORD,
     'margin_mode': FIELD_TYPES.KEYWORD,
+    'border_radius_mode': FIELD_TYPES.KEYWORD,
     'admin_bar.spacing_mode': FIELD_TYPES.KEYWORD,
     'admin_bar.margin_mode': FIELD_TYPES.KEYWORD,
+    'admin_bar.border_radius_mode': FIELD_TYPES.KEYWORD,
     
     // Submenu fields (unitless, unit added in CSS)
     'submenu_border_radius': FIELD_TYPES.PERCENTAGE,
     'submenu_font_size': FIELD_TYPES.PERCENTAGE,
     'admin_bar.submenu_border_radius': FIELD_TYPES.PERCENTAGE,
     'admin_bar.submenu_font_size': FIELD_TYPES.PERCENTAGE,
+    
+    // Border radius fields (unitless, unit added in CSS)
+    'border_radius_all': FIELD_TYPES.PERCENTAGE,
+    'border_radius_top_left': FIELD_TYPES.PERCENTAGE,
+    'border_radius_top_right': FIELD_TYPES.PERCENTAGE,
+    'border_radius_bottom_right': FIELD_TYPES.PERCENTAGE,
+    'border_radius_bottom_left': FIELD_TYPES.PERCENTAGE,
+    'admin_bar.border_radius_all': FIELD_TYPES.PERCENTAGE,
+    'admin_bar.border_radius_top_left': FIELD_TYPES.PERCENTAGE,
+    'admin_bar.border_radius_top_right': FIELD_TYPES.PERCENTAGE,
+    'admin_bar.border_radius_bottom_right': FIELD_TYPES.PERCENTAGE,
+    'admin_bar.border_radius_bottom_left': FIELD_TYPES.PERCENTAGE,
     
     // Size fields (need unit)
     'height': FIELD_TYPES.SIZE,
@@ -129,6 +143,7 @@ const VALID_KEYWORDS = {
     'width_unit': ['%', 'px'],
     'spacing_mode': ['all', 'individual'],
     'margin_mode': ['all', 'individual'],
+    'border_radius_mode': ['all', 'individual'],
 };
 
 /**

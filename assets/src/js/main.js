@@ -236,8 +236,8 @@ class WoowAdmin {
      * Shows/hides fields based on data-show-when attribute
      */
     setupConditionalFields() {
-        // Find all conditional fields
-        const conditionalFields = document.querySelectorAll('.woow-conditional');
+        // Find all conditional fields (both old and new class names)
+        const conditionalFields = document.querySelectorAll('.woow-conditional, .woow-conditional-field');
         
         if (!conditionalFields.length) return;
         
@@ -245,11 +245,19 @@ class WoowAdmin {
         const conditions = new Map();
         
         conditionalFields.forEach(field => {
-            const condition = field.dataset.showWhen;
-            if (!condition) return;
+            // Support both data-show-when and data-condition/data-value formats
+            let fieldName, expectedValue;
             
-            // Parse condition: "background_type=gradient"
-            const [fieldName, expectedValue] = condition.split('=');
+            if (field.dataset.showWhen) {
+                // Old format: data-show-when="background_type=gradient"
+                const condition = field.dataset.showWhen;
+                [fieldName, expectedValue] = condition.split('=');
+            } else if (field.dataset.condition && field.dataset.value) {
+                // New format: data-condition="background_type" data-value="gradient"
+                fieldName = field.dataset.condition;
+                expectedValue = field.dataset.value;
+            }
+            
             if (!fieldName || !expectedValue) return;
             
             // Find controller field (select, radio, checkbox)
@@ -349,15 +357,28 @@ class WoowAdmin {
             const name = input.name;
             if (!name) return;
 
+            // ✅ FIX: Skip hidden/invisible inputs (conditional fields)
+            // This prevents duplicate field names from overwriting visible values
+            if (input.type !== 'hidden') {
+                const isVisible = input.offsetParent !== null;
+                const parentHidden = input.closest('[style*="display: none"]') || 
+                                   input.closest('.woow-conditional:not(.woow-conditional-visible)');
+                
+                if (!isVisible || parentHidden) {
+                    console.log(`[collectFormData] Skipping non-visible input: ${name} (value: ${input.value})`);
+                    return;
+                }
+            }
+
             // Parse name to get section and key (e.g., "admin_bar[height]")
             const match = name.match(/^([^\[]+)\[([^\]]+)\]$/);
             if (!match) return;
 
             const [, section, key] = match;
             
-            // Debug: log background_color
+            // Debug: log background_color (only visible ones now)
             if (key === 'background_color') {
-                console.log('[collectFormData] background_color found:', {
+                console.log('[collectFormData] background_color found (VISIBLE):', {
                     value: input.value,
                     type: input.type,
                     visible: input.offsetParent !== null,

@@ -991,15 +991,15 @@ class WOOW_Settings {
                         $error_message = "Width must be a positive number";
                     }
                 }
-                // Spacing and margin mode selectors (keywords)
-                elseif ( $key === 'spacing_mode' || $key === 'margin_mode' ) {
+                // Spacing, margin, and border radius mode selectors (keywords)
+                elseif ( $key === 'spacing_mode' || $key === 'margin_mode' || $key === 'border_radius_mode' ) {
                     if ( ! in_array( $value, array( 'all', 'individual' ), true ) ) {
                         $is_valid = false;
                         $error_message = "Invalid mode (expected 'all' or 'individual')";
                     }
                 }
-                // Spacing and margin values (unitless numbers, unit added in CSS)
-                elseif ( strpos( $key, 'spacing_' ) !== false || strpos( $key, 'margin_' ) !== false ) {
+                // Spacing, margin, and border_radius values (unitless numbers, unit added in CSS)
+                elseif ( strpos( $key, 'spacing_' ) !== false || strpos( $key, 'margin_' ) !== false || strpos( $key, 'border_radius_' ) !== false ) {
                     // These are unitless numbers (unit added in CSS generation)
                     if ( ! is_numeric( $value ) || $value < 0 ) {
                         $is_valid = false;
