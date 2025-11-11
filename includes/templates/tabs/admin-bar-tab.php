@@ -21,6 +21,8 @@ $defaults = array(
     'hover_bg_color'    => 'rgba(255,255,255,0.1)',
     'hover_text_color'  => '#ffffff',
     'height'            => '48px',
+    'width'             => '100',
+    'width_unit'        => '%',
     'border_radius'     => '24px',
     'font_size'         => '14px',
     'font_weight'       => '600',
@@ -261,6 +263,52 @@ $admin_bar = array_merge( $defaults, $this->settings->get_section( 'admin_bar' )
                     </div>
                     <p class="woow-field-description">
                         <?php esc_html_e( 'Default: 48px. Range: 32-72px', 'woow-admin' ); ?>
+                    </p>
+                </div>
+
+                <!-- Width -->
+                <div class="woow-form-group">
+                    <label class="woow-label">
+                        <?php esc_html_e( 'Width', 'woow-admin' ); ?>
+                    </label>
+                    <div class="woow-slider-group">
+                        <input 
+                            type="range" 
+                            name="admin_bar[width]" 
+                            value="<?php echo esc_attr( intval( $admin_bar['width'] ?? 100 ) ); ?>"
+                            min="50" 
+                            max="100" 
+                            step="5"
+                            class="woow-slider"
+                            data-type="unitless"
+                            data-unit="<?php echo esc_attr( $admin_bar['width_unit'] ?? '%' ); ?>"
+                        />
+                        <span class="woow-slider-value"><?php echo esc_html( $admin_bar['width'] ?? 100 ); ?><?php echo esc_html( $admin_bar['width_unit'] ?? '%' ); ?></span>
+                    </div>
+                    <div class="woow-unit-selector" style="margin-top: 8px;">
+                        <label style="display: inline-flex; align-items: center; gap: 8px; margin-right: 16px;">
+                            <input 
+                                type="radio" 
+                                name="admin_bar[width_unit]" 
+                                value="%" 
+                                <?php checked( $admin_bar['width_unit'] ?? '%', '%' ); ?>
+                                class="woow-radio"
+                            />
+                            <span class="woow-radio-label"><?php esc_html_e( 'Percent (%)', 'woow-admin' ); ?></span>
+                        </label>
+                        <label style="display: inline-flex; align-items: center; gap: 8px;">
+                            <input 
+                                type="radio" 
+                                name="admin_bar[width_unit]" 
+                                value="px" 
+                                <?php checked( $admin_bar['width_unit'] ?? '%', 'px' ); ?>
+                                class="woow-radio"
+                            />
+                            <span class="woow-radio-label"><?php esc_html_e( 'Pixels (px)', 'woow-admin' ); ?></span>
+                        </label>
+                    </div>
+                    <p class="woow-field-description">
+                        <?php esc_html_e( 'Default: 100%. Adjust admin bar width. Use % for responsive or px for fixed width.', 'woow-admin' ); ?>
                     </p>
                 </div>
 

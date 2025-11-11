@@ -170,6 +170,145 @@ class WoowAdmin {
                 return e.returnValue;
             }
         });
+        
+        // Handle width unit change for admin bar
+        this.setupWidthUnitHandler();
+        
+        // Handle conditional fields visibility
+        this.setupConditionalFields();
+    }
+    
+    /**
+     * Setup width unit handler for admin bar width slider
+     */
+    setupWidthUnitHandler() {
+        const widthUnitRadios = document.querySelectorAll('input[name="admin_bar[width_unit]"]');
+        const widthSlider = document.querySelector('input[name="admin_bar[width]"]');
+        const widthValue = widthSlider?.nextElementSibling;
+        
+        if (!widthUnitRadios.length || !widthSlider) return;
+        
+        widthUnitRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const unit = e.target.value;
+                
+                // Update slider attributes based on unit
+                if (unit === '%') {
+                    widthSlider.min = '50';
+                    widthSlider.max = '100';
+                    widthSlider.step = '5';
+                    if (parseInt(widthSlider.value) > 100) {
+                        widthSlider.value = '100';
+                    }
+                } else if (unit === 'px') {
+                    widthSlider.min = '800';
+                    widthSlider.max = '1920';
+                    widthSlider.step = '50';
+                    if (parseInt(widthSlider.value) < 800) {
+                        widthSlider.value = '1200';
+                    }
+                }
+                
+                // Update data-unit attribute
+                widthSlider.dataset.unit = unit;
+                
+                // Update value display
+                if (widthValue && widthValue.classList.contains('woow-slider-value')) {
+                    widthValue.textContent = widthSlider.value + unit;
+                }
+                
+                // Trigger change event for live preview
+                widthSlider.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+        });
+        
+        // Update value display on slider input
+        if (widthSlider && widthValue) {
+            widthSlider.addEventListener('input', () => {
+                const unit = widthSlider.dataset.unit || '%';
+                widthValue.textContent = widthSlider.value + unit;
+            });
+        }
+    }
+    
+    /**
+     * Setup conditional fields visibility
+     * Shows/hides fields based on data-show-when attribute
+     */
+    setupConditionalFields() {
+        // Find all conditional fields
+        const conditionalFields = document.querySelectorAll('.woow-conditional');
+        
+        if (!conditionalFields.length) return;
+        
+        // Parse conditions and group by controller field
+        const conditions = new Map();
+        
+        conditionalFields.forEach(field => {
+            const condition = field.dataset.showWhen;
+            if (!condition) return;
+            
+            // Parse condition: "background_type=gradient"
+            const [fieldName, expectedValue] = condition.split('=');
+            if (!fieldName || !expectedValue) return;
+            
+            // Find controller field (select, radio, checkbox)
+            const controllerField = document.querySelector(`[name*="[${fieldName}]"]`);
+            if (!controllerField) return;
+            
+            // Store condition
+            if (!conditions.has(controllerField)) {
+                conditions.set(controllerField, []);
+            }
+            conditions.set(controllerField, [...conditions.get(controllerField), { field, expectedValue }]);
+        });
+        
+        // Function to update visibility
+        const updateVisibility = (controllerField) => {
+            const fieldConditions = conditions.get(controllerField);
+            if (!fieldConditions) return;
+            
+            // Get current value
+            let currentValue;
+            if (controllerField.type === 'checkbox') {
+                currentValue = controllerField.checked ? '1' : '0';
+            } else if (controllerField.type === 'radio') {
+                const checkedRadio = document.querySelector(`[name="${controllerField.name}"]:checked`);
+                currentValue = checkedRadio ? checkedRadio.value : '';
+            } else {
+                currentValue = controllerField.value;
+            }
+            
+            // Update each conditional field
+            fieldConditions.forEach(({ field, expectedValue }) => {
+                if (currentValue === expectedValue) {
+                    field.style.display = '';
+                    field.classList.add('woow-conditional-visible');
+                } else {
+                    field.style.display = 'none';
+                    field.classList.remove('woow-conditional-visible');
+                }
+            });
+        };
+        
+        // Attach event listeners to controller fields
+        conditions.forEach((fieldConditions, controllerField) => {
+            // Initial visibility
+            updateVisibility(controllerField);
+            
+            // Listen for changes
+            if (controllerField.type === 'radio') {
+                // For radio buttons, listen to all with same name
+                const radioGroup = document.querySelectorAll(`[name="${controllerField.name}"]`);
+                radioGroup.forEach(radio => {
+                    radio.addEventListener('change', () => updateVisibility(controllerField));
+                });
+            } else {
+                controllerField.addEventListener('change', () => updateVisibility(controllerField));
+            }
+        });
+        
+        console.log('[WOOW Admin] Conditional fields initialized:', conditionalFields.length);
     }
 
     /**
@@ -243,6 +382,9 @@ class WoowAdmin {
                 if (dataType === 'opacity') {
                     // Convert 0-100 range to 0-1 float
                     value = parseFloat(input.value) / 100;
+                } else if (dataType === 'unitless') {
+                    // Unitless value (e.g., width when unit is separate field)
+                    value = input.value;
                 } else {
                     // Append unit to value
                     const unit = input.dataset.unit || '';

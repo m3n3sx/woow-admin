@@ -32,6 +32,8 @@ function woow_get_default_settings() {
             
             // Dimensions
             'height' => '48',
+            'width' => '100',
+            'width_unit' => '%',
             'border_radius' => '24',
             
             // Glassmorphism

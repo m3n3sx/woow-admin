@@ -46,6 +46,13 @@ const FIELD_TYPE_MAP = {
     'image_position': FIELD_TYPES.KEYWORD,
     'image_attachment': FIELD_TYPES.KEYWORD,
     
+    // Unit selectors (not size values)
+    'width_unit': FIELD_TYPES.KEYWORD,
+    'admin_bar.width_unit': FIELD_TYPES.KEYWORD,
+    
+    // Width field (unitless number, unit is separate)
+    'admin_bar.width': FIELD_TYPES.PERCENTAGE,
+    
     // Size fields (need unit)
     'height': FIELD_TYPES.SIZE,
     'width': FIELD_TYPES.SIZE,
@@ -83,6 +90,7 @@ const VALID_KEYWORDS = {
     'image_repeat': ['repeat', 'repeat-x', 'repeat-y', 'no-repeat', 'space', 'round'],
     'image_position': ['center', 'top', 'bottom', 'left', 'right', 'top left', 'top right', 'bottom left', 'bottom right'],
     'image_attachment': ['scroll', 'fixed', 'local'],
+    'width_unit': ['%', 'px'],
 };
 
 /**
@@ -346,6 +354,47 @@ class Validator {
         }
         
         return validated;
+    }
+    
+    /**
+     * Validate all settings and return detailed result
+     * (Non-throwing version for UI validation)
+     * 
+     * @param {Object} settings - Settings object
+     * @returns {Object} Validation result with valid, errors, validFields
+     */
+    static validateAll(settings) {
+        const validated = {};
+        const errors = [];
+        const validFields = [];
+        
+        for (const [section, sectionSettings] of Object.entries(settings)) {
+            validated[section] = {};
+            
+            for (const [key, value] of Object.entries(sectionSettings)) {
+                const fullKey = `${section}.${key}`;
+                
+                try {
+                    validated[section][key] = this.validate(value, fullKey);
+                    validFields.push(fullKey);
+                } catch (error) {
+                    errors.push({
+                        field: fullKey,
+                        key: fullKey,
+                        value: value,
+                        message: error.message,
+                        error: error.message
+                    });
+                }
+            }
+        }
+        
+        return {
+            valid: errors.length === 0,
+            errors: errors,
+            validFields: validFields,
+            validated: validated
+        };
     }
 }
 

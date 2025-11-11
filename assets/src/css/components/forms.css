@@ -609,3 +609,22 @@ input[type="color"].woow-color-input {
     background: rgba(255, 255, 255, 0.2);
   }
 }
+
+
+/* Conditional Fields */
+.woow-conditional {
+  transition: opacity 0.2s ease, max-height 0.3s ease;
+  overflow: hidden;
+}
+
+.woow-conditional[style*="display: none"] {
+  opacity: 0;
+  max-height: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.woow-conditional-visible {
+  opacity: 1;
+  max-height: 1000px;
+}

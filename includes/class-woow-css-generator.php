@@ -179,19 +179,38 @@ class WOOW_CSS_Generator {
         
         // Get settings with defaults
         $height = $bar['height'] ?? '48px';
+        $width = $bar['width'] ?? '100';
+        $width_unit = $bar['width_unit'] ?? '%';
         $border_radius = $bar['border_radius'] ?? '24px';
         $top_offset = $bar['top_offset'] ?? '16px';
+        
+        // Calculate width with unit
+        $full_width = $width . $width_unit;
+        
+        // Calculate left/right positioning for centering
+        if ( $width_unit === '%' && $width < 100 ) {
+            $side_margin = ( 100 - $width ) / 2;
+            $left_position = $side_margin . '%';
+            $right_position = $side_margin . '%';
+        } elseif ( $width_unit === 'px' ) {
+            $left_position = 'calc((100% - ' . $full_width . ') / 2)';
+            $right_position = 'calc((100% - ' . $full_width . ') / 2)';
+        } else {
+            $left_position = '16px';
+            $right_position = '16px';
+        }
 
         $this->css .= "/* Admin Bar Styling - Customizable */\n";
         $this->css .= "#wpadminbar {\n";
         $this->css .= "    /* Position and spacing */\n";
         $this->css .= "    position: fixed !important;\n";
         $this->css .= "    top: {$top_offset} !important;\n";
-        $this->css .= "    left: 16px !important;\n";
-        $this->css .= "    right: 16px !important;\n";
-        $this->css .= "    width: auto !important;\n";
+        $this->css .= "    left: {$left_position} !important;\n";
+        $this->css .= "    right: {$right_position} !important;\n";
+        $this->css .= "    width: {$full_width} !important;\n";
+        $this->css .= "    max-width: calc(100vw - 32px) !important;\n";
         $this->css .= "    height: {$height} !important;\n";
-        $this->css .= "    margin: 0 !important;\n";
+        $this->css .= "    margin: 0 auto !important;\n";
         $this->css .= "    box-sizing: border-box !important;\n";
         $this->css .= "    \n";
         $this->css .= "    /* Flexbox for vertical centering */\n";

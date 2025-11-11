@@ -978,7 +978,19 @@ class WOOW_Settings {
                         $is_valid = false;
                         $error_message = "Invalid color format (expected #hex or rgba())";
                     }
-                } elseif ( strpos( $key, 'height' ) !== false || strpos( $key, 'width' ) !== false || strpos( $key, 'size' ) !== false || strpos( $key, 'radius' ) !== false || strpos( $key, 'padding' ) !== false || strpos( $key, 'margin' ) !== false || strpos( $key, 'offset' ) !== false || strpos( $key, 'blur' ) !== false ) {
+                } elseif ( $key === 'width_unit' ) {
+                    // Unit selector - accepts "%" or "px" as keywords
+                    if ( ! in_array( $value, array( '%', 'px' ), true ) ) {
+                        $is_valid = false;
+                        $error_message = "Invalid unit (expected '%' or 'px')";
+                    }
+                } elseif ( $key === 'width' ) {
+                    // Width value (unitless number, unit is separate field)
+                    if ( ! is_numeric( $value ) || $value < 0 ) {
+                        $is_valid = false;
+                        $error_message = "Width must be a positive number";
+                    }
+                } elseif ( strpos( $key, 'height' ) !== false || strpos( $key, 'size' ) !== false || strpos( $key, 'radius' ) !== false || strpos( $key, 'padding' ) !== false || strpos( $key, 'margin' ) !== false || strpos( $key, 'offset' ) !== false || strpos( $key, 'blur' ) !== false ) {
                     // Convert to string if numeric (for validation)
                     $value_str = is_numeric( $value ) ? (string) $value : $value;
                     if ( ! $this->sanitize_unit( $value_str ) ) {

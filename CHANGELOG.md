@@ -5,12 +5,14 @@ All notable changes to WOOW! Admin will be documented in this file.
 ## [2.0.0-beta] - 2025-11-11
 
 ### Added
+- ✨ **Admin Bar Width Control** - New slider with % and px unit selection
 - ✨ Default values system for all settings (`includes/defaults.php`)
 - ✨ Improved validation with proper type conversion
 - ✨ Enhanced color input handling with fallback values
 - ✨ Better opacity conversion (0-100 → 0-1)
 - ✨ Unitless line-height support
 - ✨ Keyword validation for CSS properties (cover, contain, auto)
+- ✨ Smart centering for admin bar when width < 100%
 
 ### Fixed
 - 🐛 Color inputs now have proper default values (no more empty #rrggbb errors)
