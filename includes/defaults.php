@@ -19,6 +19,7 @@ function woow_get_default_settings() {
         'admin_bar' => array(
             // Background & Gradient
             'background_color' => '#1e293b',
+            'background_type' => 'solid',
             'gradient_start' => '#1e293b',
             'gradient_end' => '#0f172a',
             'use_gradient' => true,
@@ -28,7 +29,8 @@ function woow_get_default_settings() {
             'hover_text_color' => '#ffffff',
             
             // Hover
-            'hover_bg_color' => '#2d3748',
+            'hover_bg_color' => 'rgba(255, 255, 255, 0.1)',
+            'hover_style' => 'normal', // normal or compact
             
             // Dimensions
             'height' => '48',
@@ -41,8 +43,34 @@ function woow_get_default_settings() {
             'opacity' => 0.9,
             'blur_strength' => '12',
             
-            // Shadow
+            // Shadow & Position
             'box_shadow' => '0 8px 24px rgba(0, 0, 0, 0.12)',
+            'shadow_style' => 'md',
+            'position' => 'fixed',
+            'top_offset' => '16px',
+            
+            // Submenu
+            'submenu_inherit_styles' => false,
+            'submenu_bg_color' => 'rgba(255, 255, 255, 0.98)',
+            'submenu_text_color' => '#0f172a',
+            'submenu_border_radius' => '12',
+            'submenu_font_size' => '14',
+            
+            // Spacing/Padding (internal)
+            'spacing_mode' => 'all', // all or individual
+            'spacing_all' => '24', // When mode is 'all'
+            'spacing_top' => '0',
+            'spacing_right' => '24',
+            'spacing_bottom' => '0',
+            'spacing_left' => '24',
+            
+            // Margin/Offset (from browser edges)
+            'margin_mode' => 'all', // all or individual
+            'margin_all' => '16', // When mode is 'all'
+            'margin_top' => '16',
+            'margin_right' => '16',
+            'margin_bottom' => '16',
+            'margin_left' => '16',
         ),
         
         'admin_menu' => array(

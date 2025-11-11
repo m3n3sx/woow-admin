@@ -990,7 +990,23 @@ class WOOW_Settings {
                         $is_valid = false;
                         $error_message = "Width must be a positive number";
                     }
-                } elseif ( strpos( $key, 'height' ) !== false || strpos( $key, 'size' ) !== false || strpos( $key, 'radius' ) !== false || strpos( $key, 'padding' ) !== false || strpos( $key, 'margin' ) !== false || strpos( $key, 'offset' ) !== false || strpos( $key, 'blur' ) !== false ) {
+                }
+                // Spacing and margin mode selectors (keywords)
+                elseif ( $key === 'spacing_mode' || $key === 'margin_mode' ) {
+                    if ( ! in_array( $value, array( 'all', 'individual' ), true ) ) {
+                        $is_valid = false;
+                        $error_message = "Invalid mode (expected 'all' or 'individual')";
+                    }
+                }
+                // Spacing and margin values (unitless numbers, unit added in CSS)
+                elseif ( strpos( $key, 'spacing_' ) !== false || strpos( $key, 'margin_' ) !== false ) {
+                    // These are unitless numbers (unit added in CSS generation)
+                    if ( ! is_numeric( $value ) || $value < 0 ) {
+                        $is_valid = false;
+                        $error_message = "Value must be a positive number";
+                    }
+                }
+                elseif ( strpos( $key, 'height' ) !== false || strpos( $key, 'size' ) !== false || strpos( $key, 'radius' ) !== false || strpos( $key, 'padding' ) !== false || strpos( $key, 'margin' ) !== false || strpos( $key, 'offset' ) !== false || strpos( $key, 'blur' ) !== false ) {
                     // Convert to string if numeric (for validation)
                     $value_str = is_numeric( $value ) ? (string) $value : $value;
                     if ( ! $this->sanitize_unit( $value_str ) ) {

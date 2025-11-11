@@ -6,6 +6,14 @@ All notable changes to WOOW! Admin will be documented in this file.
 
 ### Added
 - ✨ **Admin Bar Width Control** - New slider with % and px unit selection
+- ✨ **Spacing Controls** - Padding with all/individual modes
+- ✨ **Margin Controls** - Offset from edges with all/individual modes
+- ✨ **Conditional Fields** - Dynamic form visibility based on selections
+- ✨ **Glassmorphism Effect** - Transparency and blur with rgba conversion
+- ✨ **Text & Icon Colors** - Comprehensive color controls for admin bar
+- ✨ **Shadow Styles** - Multiple shadow presets (none, sm, md, lg, xl, 2xl)
+- ✨ **Hover Styles** - Normal and compact hover modes
+- ✨ **Submenu Styling** - Inherit or custom submenu colors
 - ✨ Default values system for all settings (`includes/defaults.php`)
 - ✨ Improved validation with proper type conversion
 - ✨ Enhanced color input handling with fallback values
@@ -15,11 +23,16 @@ All notable changes to WOOW! Admin will be documented in this file.
 - ✨ Smart centering for admin bar when width < 100%
 
 ### Fixed
+- 🐛 **Margin/Spacing validation** - Fixed unitless field validation
+- 🐛 **Validator sync** - Fixed case-sensitive file naming (validator.js ↔ Validator.js)
+- 🐛 **Live preview** - Restored functionality after validation updates
+- 🐛 **Save settings** - Fixed AJAX save with proper validation
 - 🐛 Color inputs now have proper default values (no more empty #rrggbb errors)
 - 🐛 Validation no longer requires units for line-height
 - 🐛 Image size accepts keywords without validation errors
 - 🐛 Opacity slider properly converts values on save
 - 🐛 Size inputs automatically add units (px) when needed
+- 🐛 Double units bug (24pxpx) fixed with data-type="unitless"
 
 ### Improved
 - ⚡ Better error handling and user feedback

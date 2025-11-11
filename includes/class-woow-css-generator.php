@@ -184,55 +184,124 @@ class WOOW_CSS_Generator {
         $border_radius = $bar['border_radius'] ?? '24px';
         $top_offset = $bar['top_offset'] ?? '16px';
         
-        // Calculate width with unit
+        // Get position and shadow settings
+        $position = $bar['position'] ?? 'fixed';
+        $shadow_style = $bar['shadow_style'] ?? 'md';
+        
+        // Shadow styles
+        $shadows = array(
+            'none' => 'none',
+            'sm' => '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+            'md' => '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+            'lg' => '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+            'xl' => '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            '2xl' => '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        );
+        $box_shadow = $shadows[ $shadow_style ] ?? $shadows['md'];
+        
+        // Margin/Offset (from browser edges)
+        $margin_mode = $bar['margin_mode'] ?? 'all';
+        if ( $margin_mode === 'all' ) {
+            $margin_all = $bar['margin_all'] ?? '16';
+            $margin_top = $margin_all;
+            $margin_right = $margin_all;
+            $margin_bottom = $margin_all;
+            $margin_left = $margin_all;
+        } else {
+            $margin_top = $bar['margin_top'] ?? '16';
+            $margin_right = $bar['margin_right'] ?? '16';
+            $margin_bottom = $bar['margin_bottom'] ?? '16';
+            $margin_left = $bar['margin_left'] ?? '16';
+        }
+        
+        // Calculate width with unit and margins
         $full_width = $width . $width_unit;
         
-        // Calculate left/right positioning for centering
-        if ( $width_unit === '%' && $width < 100 ) {
-            $side_margin = ( 100 - $width ) / 2;
-            $left_position = $side_margin . '%';
-            $right_position = $side_margin . '%';
+        // Calculate final positioning
+        if ( $width_unit === '%' ) {
+            // Percentage width: use margins directly
+            $final_width = $full_width;
+            $final_left = $margin_left . 'px';
+            $final_right = $margin_right . 'px';
         } elseif ( $width_unit === 'px' ) {
-            $left_position = 'calc((100% - ' . $full_width . ') / 2)';
-            $right_position = 'calc((100% - ' . $full_width . ') / 2)';
+            // Pixel width: center with margins
+            $final_width = $full_width;
+            $final_left = "calc((100% - {$full_width}) / 2 + {$margin_left}px)";
+            $final_right = "calc((100% - {$full_width}) / 2 + {$margin_right}px)";
         } else {
-            $left_position = '16px';
-            $right_position = '16px';
+            $final_width = '100%';
+            $final_left = $margin_left . 'px';
+            $final_right = $margin_right . 'px';
         }
-
+        
         $this->css .= "/* Admin Bar Styling - Customizable */\n";
         $this->css .= "#wpadminbar {\n";
         $this->css .= "    /* Position and spacing */\n";
-        $this->css .= "    position: fixed !important;\n";
-        $this->css .= "    top: {$top_offset} !important;\n";
-        $this->css .= "    left: {$left_position} !important;\n";
-        $this->css .= "    right: {$right_position} !important;\n";
-        $this->css .= "    width: {$full_width} !important;\n";
-        $this->css .= "    max-width: calc(100vw - 32px) !important;\n";
+        $this->css .= "    position: {$position} !important;\n";
+        $this->css .= "    top: {$margin_top}px !important;\n";
+        $this->css .= "    left: {$final_left} !important;\n";
+        $this->css .= "    right: {$final_right} !important;\n";
+        $this->css .= "    bottom: auto !important;\n";
+        $this->css .= "    width: {$final_width} !important;\n";
+        $this->css .= "    max-width: calc(100vw - {$margin_left}px - {$margin_right}px) !important;\n";
         $this->css .= "    height: {$height} !important;\n";
-        $this->css .= "    margin: 0 auto !important;\n";
+        $this->css .= "    margin: 0 !important;\n";
         $this->css .= "    box-sizing: border-box !important;\n";
+        $this->css .= "    z-index: 99999 !important;\n";
         $this->css .= "    \n";
         $this->css .= "    /* Flexbox for vertical centering */\n";
         $this->css .= "    display: flex !important;\n";
         $this->css .= "    align-items: center !important;\n";
         $this->css .= "    flex-wrap: nowrap !important;\n";
         $this->css .= "    \n";
-        $this->css .= "    /* Visual styling */\n";
-        $this->css .= "    border-radius: {$border_radius} !important;\n";
-        $this->css .= "    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;\n";
-        $this->css .= "    padding: 0 1.5rem !important;\n";
-        
-        // Background based on type
-        if ( $bar['background_type'] === 'gradient' ) {
-            $this->css .= "    background: linear-gradient(to right, {$bar['gradient_start']}, {$bar['gradient_end']}) !important;\n";
+        // Spacing/Padding
+        $spacing_mode = $bar['spacing_mode'] ?? 'all';
+        if ( $spacing_mode === 'all' ) {
+            $spacing_all = $bar['spacing_all'] ?? '24';
+            $padding = "0 {$spacing_all}px";
         } else {
-            $this->css .= "    background: {$bar['background_color']} !important;\n";
+            $spacing_top = $bar['spacing_top'] ?? '0';
+            $spacing_right = $bar['spacing_right'] ?? '24';
+            $spacing_bottom = $bar['spacing_bottom'] ?? '0';
+            $spacing_left = $bar['spacing_left'] ?? '24';
+            $padding = "{$spacing_top}px {$spacing_right}px {$spacing_bottom}px {$spacing_left}px";
         }
         
-        // Glassmorphism effect
-        if ( $bar['glassmorphism'] ) {
-            $this->css .= $this->get_glassmorphism_css( $bar['blur_strength'], $bar['opacity'] );
+        $this->css .= "    /* Visual styling */\n";
+        $this->css .= "    /* Spacing mode: {$spacing_mode}, Padding: {$padding} */\n";
+        $this->css .= "    border-radius: {$border_radius} !important;\n";
+        $this->css .= "    box-shadow: {$box_shadow} !important;\n";
+        $this->css .= "    padding: {$padding} !important;\n";
+        
+        // Background based on type and glassmorphism
+        $background_type = $bar['background_type'] ?? 'solid';
+        $glassmorphism_enabled = ( $background_type === 'glass' ) || ( $bar['glassmorphism'] ?? false );
+        $opacity = $bar['opacity'] ?? 0.9;
+        $blur_strength = $bar['blur_strength'] ?? '12px';
+        
+        if ( $glassmorphism_enabled ) {
+            // Glassmorphism: transparent background + blur
+            if ( $bar['background_type'] === 'gradient' ) {
+                // Convert gradient colors to rgba with opacity
+                $start_rgba = $this->hex_to_rgba( $bar['gradient_start'], $opacity );
+                $end_rgba = $this->hex_to_rgba( $bar['gradient_end'], $opacity );
+                $this->css .= "    background: linear-gradient(to right, {$start_rgba}, {$end_rgba}) !important;\n";
+            } else {
+                // Convert solid color to rgba with opacity
+                $bg_rgba = $this->hex_to_rgba( $bar['background_color'], $opacity );
+                $this->css .= "    background: {$bg_rgba} !important;\n";
+            }
+            
+            // Add backdrop blur
+            $this->css .= "    backdrop-filter: blur({$blur_strength}) !important;\n";
+            $this->css .= "    -webkit-backdrop-filter: blur({$blur_strength}) !important;\n";
+        } else {
+            // Normal background (no glassmorphism)
+            if ( $bar['background_type'] === 'gradient' ) {
+                $this->css .= "    background: linear-gradient(to right, {$bar['gradient_start']}, {$bar['gradient_end']}) !important;\n";
+            } else {
+                $this->css .= "    background: {$bar['background_color']} !important;\n";
+            }
         }
         
         $this->css .= "}\n\n";
@@ -292,14 +361,21 @@ class WOOW_CSS_Generator {
         $this->css .= "    height: 100% !important;\n";
         $this->css .= "    display: flex !important;\n";
         $this->css .= "    align-items: center !important;\n";
-        $this->css .= "    transition: background 200ms var(--woow-easing);\n";
+        $this->css .= "    transition: background 200ms var(--woow-easing), color 200ms var(--woow-easing);\n";
         $this->css .= "}\n\n";
         
-        // Admin bar label and icons - vertical center
+        // Admin bar label and icons - vertical center + color
         $this->css .= "#wpadminbar .ab-label,\n";
         $this->css .= "#wpadminbar .ab-icon {\n";
         $this->css .= "    display: flex !important;\n";
         $this->css .= "    align-items: center !important;\n";
+        $this->css .= "    color: {$bar['text_color']} !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Admin bar icon before pseudo-elements (dashicons)
+        $this->css .= "#wpadminbar .ab-icon:before,\n";
+        $this->css .= "#wpadminbar .ab-item:before {\n";
+        $this->css .= "    color: {$bar['text_color']} !important;\n";
         $this->css .= "}\n\n";
         
         // Admin bar empty items (like separators)
@@ -310,10 +386,34 @@ class WOOW_CSS_Generator {
         $this->css .= "}\n\n";
         
         // Hover states
-        $this->css .= "#wpadminbar .ab-item:hover {\n";
-        $this->css .= "    background: {$bar['hover_bg_color']} !important;\n";
-        $this->css .= "    color: {$bar['hover_text_color']} !important;\n";
-        $this->css .= "    border-radius: 12px;\n";
+        $hover_style = $bar['hover_style'] ?? 'normal';
+        $hover_bg = $bar['hover_bg_color'] ?? 'rgba(255, 255, 255, 0.1)';
+        $hover_text = $bar['hover_text_color'] ?? '#ffffff';
+        
+        if ( $hover_style === 'compact' ) {
+            // Compact hover: padding from edges
+            $this->css .= "#wpadminbar .ab-item:hover {\n";
+            $this->css .= "    background: {$hover_bg} !important;\n";
+            $this->css .= "    color: {$hover_text} !important;\n";
+            $this->css .= "    border-radius: 12px;\n";
+            $this->css .= "    margin: 6px 0 !important;\n";
+            $this->css .= "    height: calc(100% - 12px) !important;\n";
+            $this->css .= "}\n\n";
+        } else {
+            // Normal hover: full height
+            $this->css .= "#wpadminbar .ab-item:hover {\n";
+            $this->css .= "    background: {$hover_bg} !important;\n";
+            $this->css .= "    color: {$hover_text} !important;\n";
+            $this->css .= "    border-radius: 12px;\n";
+            $this->css .= "}\n\n";
+        }
+        
+        // Hover state for icons and labels
+        $this->css .= "#wpadminbar .ab-item:hover .ab-icon,\n";
+        $this->css .= "#wpadminbar .ab-item:hover .ab-label,\n";
+        $this->css .= "#wpadminbar .ab-item:hover .ab-icon:before,\n";
+        $this->css .= "#wpadminbar .ab-item:hover:before {\n";
+        $this->css .= "    color: {$hover_text} !important;\n";
         $this->css .= "}\n\n";
         
         // WordPress logo
@@ -327,29 +427,41 @@ class WOOW_CSS_Generator {
         $this->css .= "    justify-content: center;\n";
         $this->css .= "}\n\n";
         
-        // Submenus - use light background with dark text for better contrast
-        $submenu_bg = 'rgba(255, 255, 255, 0.98)';
-        $submenu_text = '#0f172a';
-        $submenu_hover = 'rgba(99, 102, 241, 0.08)';
+        // Submenu styling
+        $submenu_inherit = $bar['submenu_inherit_styles'] ?? false;
         
-        // If admin bar has light background, use dark submenu
-        $bg_color = $bar['background_color'] ?? '#1e293b';
-        if ( $this->is_light_color( $bg_color ) ) {
-            $submenu_bg = 'rgba(30, 41, 59, 0.98)';
-            $submenu_text = '#ffffff';
-            $submenu_hover = 'rgba(255, 255, 255, 0.1)';
+        if ( $submenu_inherit ) {
+            // Inherit from admin bar
+            $submenu_bg = $glassmorphism_enabled ? $this->hex_to_rgba( $bar['background_color'], $opacity ) : $bar['background_color'];
+            $submenu_text = $bar['text_color'];
+            $submenu_hover = $bar['hover_bg_color'];
+            $submenu_radius = $bar['border_radius'] ?? '12';
+            $submenu_font_size = $bar['font_size'] ?? '14px';
+        } else {
+            // Custom submenu styles
+            $submenu_bg = $bar['submenu_bg_color'] ?? 'rgba(255, 255, 255, 0.98)';
+            $submenu_text = $bar['submenu_text_color'] ?? '#0f172a';
+            $submenu_hover = 'rgba(99, 102, 241, 0.08)';
+            $submenu_radius = $bar['submenu_border_radius'] ?? '12';
+            $submenu_font_size = ( $bar['submenu_font_size'] ?? '14' ) . 'px';
         }
         
         // Override WordPress default submenu wrapper background
-        // Only style the outer wrapper (.ab-sub-wrapper) to avoid double container effect
         $this->css .= "#wpadminbar .menupop .ab-sub-wrapper {\n";
         $this->css .= "    position: absolute !important;\n";
         $this->css .= "    top: 100% !important;\n";
         $this->css .= "    margin-top: 3px !important;\n";
         $this->css .= "    background: {$submenu_bg} !important;\n";
-        $this->css .= "    backdrop-filter: blur(12px) !important;\n";
-        $this->css .= "    -webkit-backdrop-filter: blur(12px) !important;\n";
-        $this->css .= "    border-radius: 12px !important;\n";
+        
+        if ( $submenu_inherit && $glassmorphism_enabled ) {
+            $this->css .= "    backdrop-filter: blur({$blur_strength}) !important;\n";
+            $this->css .= "    -webkit-backdrop-filter: blur({$blur_strength}) !important;\n";
+        } else {
+            $this->css .= "    backdrop-filter: blur(12px) !important;\n";
+            $this->css .= "    -webkit-backdrop-filter: blur(12px) !important;\n";
+        }
+        
+        $this->css .= "    border-radius: {$submenu_radius}px !important;\n";
         $this->css .= "    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;\n";
         $this->css .= "    border: 1px solid rgba(0, 0, 0, 0.1) !important;\n";
         $this->css .= "    padding: 0 !important;\n";
@@ -368,12 +480,19 @@ class WOOW_CSS_Generator {
         $this->css .= "    color: {$submenu_text} !important;\n";
         $this->css .= "    border-radius: 8px !important;\n";
         $this->css .= "    padding: 8px 12px !important;\n";
+        $this->css .= "    font-size: {$submenu_font_size} !important;\n";
         $this->css .= "    transition: all 200ms var(--woow-easing) !important;\n";
         $this->css .= "}\n\n";
         
         $this->css .= "#wpadminbar .ab-submenu .ab-item:hover,\n";
         $this->css .= "#wpadminbar .ab-submenu .ab-item:focus {\n";
         $this->css .= "    background: {$submenu_hover} !important;\n";
+        $this->css .= "    color: {$submenu_text} !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Submenu icons color
+        $this->css .= "#wpadminbar .ab-submenu .ab-icon:before,\n";
+        $this->css .= "#wpadminbar .ab-submenu .ab-item:before {\n";
         $this->css .= "    color: {$submenu_text} !important;\n";
         $this->css .= "}\n\n";
         
@@ -1441,5 +1560,30 @@ class WOOW_CSS_Generator {
         $css = str_replace( ';}', '}', $css );
         
         return trim( $css );
+    }
+    
+    /**
+     * Convert hex color to rgba with opacity
+     *
+     * @param string $hex Hex color (#rrggbb or #rgb)
+     * @param float $opacity Opacity (0-1)
+     * @return string RGBA color string
+     */
+    private function hex_to_rgba( string $hex, float $opacity = 1.0 ): string {
+        // Remove # if present
+        $hex = ltrim( $hex, '#' );
+        
+        // Handle short hex (#rgb)
+        if ( strlen( $hex ) === 3 ) {
+            $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+        }
+        
+        // Convert to RGB
+        $r = hexdec( substr( $hex, 0, 2 ) );
+        $g = hexdec( substr( $hex, 2, 2 ) );
+        $b = hexdec( substr( $hex, 4, 2 ) );
+        
+        // Return rgba string
+        return "rgba({$r}, {$g}, {$b}, {$opacity})";
     }
 }

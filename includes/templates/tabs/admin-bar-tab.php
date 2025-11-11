@@ -20,6 +20,7 @@ $defaults = array(
     'text_color'        => '#ffffff',
     'hover_bg_color'    => 'rgba(255,255,255,0.1)',
     'hover_text_color'  => '#ffffff',
+    'hover_style'       => 'normal',
     'height'            => '48px',
     'width'             => '100',
     'width_unit'        => '%',
@@ -32,6 +33,23 @@ $defaults = array(
     'shadow_style'      => 'md',
     'position'          => 'fixed',
     'top_offset'        => '16px',
+    'spacing_mode'      => 'all',
+    'spacing_all'       => '24',
+    'spacing_top'       => '0',
+    'spacing_right'     => '24',
+    'spacing_bottom'    => '0',
+    'spacing_left'      => '24',
+    'margin_mode'       => 'all',
+    'margin_all'        => '16',
+    'margin_top'        => '16',
+    'margin_right'      => '16',
+    'margin_bottom'     => '16',
+    'margin_left'       => '16',
+    'submenu_inherit_styles' => false,
+    'submenu_bg_color'  => 'rgba(255, 255, 255, 0.98)',
+    'submenu_text_color' => '#0f172a',
+    'submenu_border_radius' => '12',
+    'submenu_font_size' => '14',
     'custom_css'        => '',
 );
 
@@ -170,6 +188,76 @@ $admin_bar = array_merge( $defaults, $this->settings->get_section( 'admin_bar' )
                 </div>
             </div>
 
+            <!-- Glassmorphism Options (visible when glass selected) -->
+            <div class="woow-form-group woow-conditional" data-show-when="background_type=glass">
+                <label class="woow-label">
+                    <?php esc_html_e( 'Base Color', 'woow-admin' ); ?>
+                </label>
+                <div class="woow-color-picker-group">
+                    <input 
+                        type="color" 
+                        name="admin_bar[background_color]" 
+                        value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_bar['background_color'] ?? '', '#1e293b' ) ); ?>"
+                        data-default="#1e293b"
+                        class="woow-color-input"
+                    />
+                    <input 
+                        type="text" 
+                        value="<?php echo esc_attr( $admin_bar['background_color'] ); ?>"
+                        class="woow-color-text"
+                    />
+                </div>
+                <p class="woow-field-description">
+                    <?php esc_html_e( 'Base color for glassmorphism effect (will be made transparent)', 'woow-admin' ); ?>
+                </p>
+            </div>
+
+            <div class="woow-form-row woow-conditional" data-show-when="background_type=glass">
+                <div class="woow-form-group">
+                    <label class="woow-label">
+                        <?php esc_html_e( 'Opacity', 'woow-admin' ); ?>
+                    </label>
+                    <div class="woow-slider-group">
+                        <input 
+                            type="range" 
+                            name="admin_bar[opacity]" 
+                            value="<?php echo esc_attr( ( $admin_bar['opacity'] ?? 0.9 ) * 100 ); ?>"
+                            min="0" 
+                            max="100" 
+                            step="5"
+                            class="woow-slider"
+                            data-type="opacity"
+                        />
+                        <span class="woow-slider-value"><?php echo esc_html( ( $admin_bar['opacity'] ?? 0.9 ) * 100 ); ?>%</span>
+                    </div>
+                    <p class="woow-field-description">
+                        <?php esc_html_e( 'Default: 90%. Background transparency', 'woow-admin' ); ?>
+                    </p>
+                </div>
+
+                <div class="woow-form-group">
+                    <label class="woow-label">
+                        <?php esc_html_e( 'Blur Strength', 'woow-admin' ); ?>
+                    </label>
+                    <div class="woow-slider-group">
+                        <input 
+                            type="range" 
+                            name="admin_bar[blur_strength]" 
+                            value="<?php echo esc_attr( intval( $admin_bar['blur_strength'] ?? 12 ) ); ?>"
+                            min="0" 
+                            max="50" 
+                            step="2"
+                            class="woow-slider"
+                            data-unit="px"
+                        />
+                        <span class="woow-slider-value"><?php echo esc_html( $admin_bar['blur_strength'] ?? '12px' ); ?></span>
+                    </div>
+                    <p class="woow-field-description">
+                        <?php esc_html_e( 'Default: 12px. Backdrop blur effect', 'woow-admin' ); ?>
+                    </p>
+                </div>
+            </div>
+
             <!-- Text Color -->
             <div class="woow-form-group">
                 <label class="woow-label">
@@ -190,6 +278,32 @@ $admin_bar = array_merge( $defaults, $this->settings->get_section( 'admin_bar' )
                     />
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Hover & Interaction Card -->
+    <div class="woow-card">
+        <div class="woow-card-header">
+            <h3><?php esc_html_e( 'Hover & Interaction', 'woow-admin' ); ?></h3>
+        </div>
+        <div class="woow-card-body">
+            <!-- Hover Style -->
+            <div class="woow-form-group">
+                <label class="woow-label">
+                    <?php esc_html_e( 'Hover Style', 'woow-admin' ); ?>
+                </label>
+                <select name="admin_bar[hover_style]" class="woow-select">
+                    <option value="normal" <?php selected( $admin_bar['hover_style'] ?? 'normal', 'normal' ); ?>>
+                        <?php esc_html_e( 'Normal (Full Height)', 'woow-admin' ); ?>
+                    </option>
+                    <option value="compact" <?php selected( $admin_bar['hover_style'] ?? 'normal', 'compact' ); ?>>
+                        <?php esc_html_e( 'Compact (Padded)', 'woow-admin' ); ?>
+                    </option>
+                </select>
+                <p class="woow-field-description">
+                    <?php esc_html_e( 'Normal: hover fills full height. Compact: hover has padding from edges.', 'woow-admin' ); ?>
+                </p>
+            </div>
 
             <!-- Hover Colors -->
             <div class="woow-form-row">
@@ -201,16 +315,20 @@ $admin_bar = array_merge( $defaults, $this->settings->get_section( 'admin_bar' )
                         <input 
                             type="color" 
                             name="admin_bar[hover_bg_color]" 
-                            value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_bar['hover_bg_color'] ?? '', '#ffffff' ) ); ?>"
-                            data-default="#ffffff"
+                            value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_bar['hover_bg_color'] ?? '', 'rgba(255,255,255,0.1)' ) ); ?>"
+                            data-default="rgba(255,255,255,0.1)"
                             class="woow-color-input"
                         />
                         <input 
                             type="text" 
-                            value="<?php echo esc_attr( $admin_bar['hover_bg_color'] ); ?>"
+                            value="<?php echo esc_attr( $admin_bar['hover_bg_color'] ?? 'rgba(255,255,255,0.1)' ); ?>"
                             class="woow-color-text"
+                            placeholder="rgba(255,255,255,0.1) or transparent"
                         />
                     </div>
+                    <p class="woow-field-description">
+                        <?php esc_html_e( 'Use "transparent" for no background on hover', 'woow-admin' ); ?>
+                    </p>
                 </div>
 
                 <div class="woow-form-group">
@@ -230,6 +348,121 @@ $admin_bar = array_merge( $defaults, $this->settings->get_section( 'admin_bar' )
                             value="<?php echo esc_attr( $admin_bar['hover_text_color'] ); ?>"
                             class="woow-color-text"
                         />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submenu Card -->
+    <div class="woow-card">
+        <div class="woow-card-header">
+            <h3><?php esc_html_e( 'Submenu Styling', 'woow-admin' ); ?></h3>
+        </div>
+        <div class="woow-card-body">
+            <!-- Inherit Styles Toggle -->
+            <div class="woow-form-group">
+                <label class="woow-toggle">
+                    <input 
+                        type="checkbox" 
+                        name="admin_bar[submenu_inherit_styles]" 
+                        value="1"
+                        <?php checked( $admin_bar['submenu_inherit_styles'] ?? false, true ); ?>
+                        class="woow-toggle-input"
+                    />
+                    <span class="woow-toggle-slider"></span>
+                    <span class="woow-toggle-label">
+                        <?php esc_html_e( 'Inherit Admin Bar Styles', 'woow-admin' ); ?>
+                    </span>
+                </label>
+                <p class="woow-field-description">
+                    <?php esc_html_e( 'When enabled, submenu will use same colors and styles as admin bar', 'woow-admin' ); ?>
+                </p>
+            </div>
+
+            <!-- Custom Submenu Styles (visible when NOT inheriting) -->
+            <div class="woow-conditional" data-show-when="submenu_inherit_styles=0">
+                <div class="woow-form-row">
+                    <div class="woow-form-group">
+                        <label class="woow-label">
+                            <?php esc_html_e( 'Submenu Background', 'woow-admin' ); ?>
+                        </label>
+                        <div class="woow-color-picker-group">
+                            <input 
+                                type="color" 
+                                name="admin_bar[submenu_bg_color]" 
+                                value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_bar['submenu_bg_color'] ?? '', '#ffffff' ) ); ?>"
+                                data-default="#ffffff"
+                                class="woow-color-input"
+                            />
+                            <input 
+                                type="text" 
+                                value="<?php echo esc_attr( $admin_bar['submenu_bg_color'] ?? 'rgba(255,255,255,0.98)' ); ?>"
+                                class="woow-color-text"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="woow-form-group">
+                        <label class="woow-label">
+                            <?php esc_html_e( 'Submenu Text Color', 'woow-admin' ); ?>
+                        </label>
+                        <div class="woow-color-picker-group">
+                            <input 
+                                type="color" 
+                                name="admin_bar[submenu_text_color]" 
+                                value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_bar['submenu_text_color'] ?? '', '#0f172a' ) ); ?>"
+                                data-default="#0f172a"
+                                class="woow-color-input"
+                            />
+                            <input 
+                                type="text" 
+                                value="<?php echo esc_attr( $admin_bar['submenu_text_color'] ); ?>"
+                                class="woow-color-text"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="woow-form-row">
+                    <div class="woow-form-group">
+                        <label class="woow-label">
+                            <?php esc_html_e( 'Submenu Border Radius', 'woow-admin' ); ?>
+                        </label>
+                        <div class="woow-slider-group">
+                            <input 
+                                type="range" 
+                                name="admin_bar[submenu_border_radius]" 
+                                value="<?php echo esc_attr( intval( $admin_bar['submenu_border_radius'] ?? 12 ) ); ?>"
+                                min="0" 
+                                max="24" 
+                                step="2"
+                                class="woow-slider"
+                                data-type="unitless"
+                                data-unit="px"
+                            />
+                            <span class="woow-slider-value"><?php echo esc_html( $admin_bar['submenu_border_radius'] ?? '12' ); ?>px</span>
+                        </div>
+                    </div>
+
+                    <div class="woow-form-group">
+                        <label class="woow-label">
+                            <?php esc_html_e( 'Submenu Font Size', 'woow-admin' ); ?>
+                        </label>
+                        <div class="woow-slider-group">
+                            <input 
+                                type="range" 
+                                name="admin_bar[submenu_font_size]" 
+                                value="<?php echo esc_attr( intval( $admin_bar['submenu_font_size'] ?? 14 ) ); ?>"
+                                min="12" 
+                                max="18" 
+                                step="1"
+                                class="woow-slider"
+                                data-type="unitless"
+                                data-unit="px"
+                            />
+                            <span class="woow-slider-value"><?php echo esc_html( $admin_bar['submenu_font_size'] ?? '14' ); ?>px</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -384,6 +617,280 @@ $admin_bar = array_merge( $defaults, $this->settings->get_section( 'admin_bar' )
                             <?php esc_html_e( 'Bold (700)', 'woow-admin' ); ?>
                         </option>
                     </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spacing/Padding Card -->
+    <div class="woow-card">
+        <div class="woow-card-header">
+            <h3><?php esc_html_e( 'Spacing (Padding)', 'woow-admin' ); ?></h3>
+        </div>
+        <div class="woow-card-body">
+            <!-- Spacing Mode -->
+            <div class="woow-form-group">
+                <label class="woow-label">
+                    <?php esc_html_e( 'Spacing Mode', 'woow-admin' ); ?>
+                </label>
+                <select name="admin_bar[spacing_mode]" class="woow-select">
+                    <option value="all" <?php selected( $admin_bar['spacing_mode'] ?? 'all', 'all' ); ?>>
+                        <?php esc_html_e( 'All Sides (Uniform)', 'woow-admin' ); ?>
+                    </option>
+                    <option value="individual" <?php selected( $admin_bar['spacing_mode'] ?? 'all', 'individual' ); ?>>
+                        <?php esc_html_e( 'Individual Sides', 'woow-admin' ); ?>
+                    </option>
+                </select>
+                <p class="woow-field-description">
+                    <?php esc_html_e( 'Choose uniform spacing for all sides or set each side individually', 'woow-admin' ); ?>
+                </p>
+            </div>
+
+            <!-- All Sides Spacing (visible when mode is 'all') -->
+            <div class="woow-form-group woow-conditional" data-show-when="spacing_mode=all">
+                <label class="woow-label">
+                    <?php esc_html_e( 'Padding (All Sides)', 'woow-admin' ); ?>
+                </label>
+                <div class="woow-slider-group">
+                    <input 
+                        type="range" 
+                        name="admin_bar[spacing_all]" 
+                        value="<?php echo esc_attr( intval( $admin_bar['spacing_all'] ?? 24 ) ); ?>"
+                        min="0" 
+                        max="64" 
+                        step="4"
+                        class="woow-slider"
+                        data-type="unitless"
+                        data-unit="px"
+                    />
+                    <span class="woow-slider-value"><?php echo esc_html( $admin_bar['spacing_all'] ?? '24' ); ?>px</span>
+                </div>
+                <p class="woow-field-description">
+                    <?php esc_html_e( 'Default: 24px. Applies to left and right padding', 'woow-admin' ); ?>
+                </p>
+            </div>
+
+            <!-- Individual Sides (visible when mode is 'individual') -->
+            <div class="woow-conditional" data-show-when="spacing_mode=individual">
+                <div class="woow-form-row">
+                    <div class="woow-form-group">
+                        <label class="woow-label">
+                            <?php esc_html_e( 'Top Padding', 'woow-admin' ); ?>
+                        </label>
+                        <div class="woow-slider-group">
+                            <input 
+                                type="range" 
+                                name="admin_bar[spacing_top]" 
+                                value="<?php echo esc_attr( intval( $admin_bar['spacing_top'] ?? 0 ) ); ?>"
+                                min="0" 
+                                max="32" 
+                                step="2"
+                                class="woow-slider"
+                                data-type="unitless"
+                                data-unit="px"
+                            />
+                            <span class="woow-slider-value"><?php echo esc_html( $admin_bar['spacing_top'] ?? '0' ); ?>px</span>
+                        </div>
+                    </div>
+
+                    <div class="woow-form-group">
+                        <label class="woow-label">
+                            <?php esc_html_e( 'Bottom Padding', 'woow-admin' ); ?>
+                        </label>
+                        <div class="woow-slider-group">
+                            <input 
+                                type="range" 
+                                name="admin_bar[spacing_bottom]" 
+                                value="<?php echo esc_attr( intval( $admin_bar['spacing_bottom'] ?? 0 ) ); ?>"
+                                min="0" 
+                                max="32" 
+                                step="2"
+                                class="woow-slider"
+                                data-type="unitless"
+                                data-unit="px"
+                            />
+                            <span class="woow-slider-value"><?php echo esc_html( $admin_bar['spacing_bottom'] ?? '0' ); ?>px</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="woow-form-row">
+                    <div class="woow-form-group">
+                        <label class="woow-label">
+                            <?php esc_html_e( 'Left Padding', 'woow-admin' ); ?>
+                        </label>
+                        <div class="woow-slider-group">
+                            <input 
+                                type="range" 
+                                name="admin_bar[spacing_left]" 
+                                value="<?php echo esc_attr( intval( $admin_bar['spacing_left'] ?? 24 ) ); ?>"
+                                min="0" 
+                                max="64" 
+                                step="4"
+                                class="woow-slider"
+                                data-type="unitless"
+                                data-unit="px"
+                            />
+                            <span class="woow-slider-value"><?php echo esc_html( $admin_bar['spacing_left'] ?? '24' ); ?>px</span>
+                        </div>
+                    </div>
+
+                    <div class="woow-form-group">
+                        <label class="woow-label">
+                            <?php esc_html_e( 'Right Padding', 'woow-admin' ); ?>
+                        </label>
+                        <div class="woow-slider-group">
+                            <input 
+                                type="range" 
+                                name="admin_bar[spacing_right]" 
+                                value="<?php echo esc_attr( intval( $admin_bar['spacing_right'] ?? 24 ) ); ?>"
+                                min="0" 
+                                max="64" 
+                                step="4"
+                                class="woow-slider"
+                                data-type="unitless"
+                                data-unit="px"
+                            />
+                            <span class="woow-slider-value"><?php echo esc_html( $admin_bar['spacing_right'] ?? '24' ); ?>px</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Margin/Offset Card -->
+    <div class="woow-card">
+        <div class="woow-card-header">
+            <h3><?php esc_html_e( 'Margin (Offset from Edges)', 'woow-admin' ); ?></h3>
+        </div>
+        <div class="woow-card-body">
+            <!-- Margin Mode -->
+            <div class="woow-form-group">
+                <label class="woow-label">
+                    <?php esc_html_e( 'Margin Mode', 'woow-admin' ); ?>
+                </label>
+                <select name="admin_bar[margin_mode]" class="woow-select">
+                    <option value="all" <?php selected( $admin_bar['margin_mode'] ?? 'all', 'all' ); ?>>
+                        <?php esc_html_e( 'All Sides (Uniform)', 'woow-admin' ); ?>
+                    </option>
+                    <option value="individual" <?php selected( $admin_bar['margin_mode'] ?? 'all', 'individual' ); ?>>
+                        <?php esc_html_e( 'Individual Sides', 'woow-admin' ); ?>
+                    </option>
+                </select>
+                <p class="woow-field-description">
+                    <?php esc_html_e( 'Distance from browser edges. Uniform applies to all sides equally.', 'woow-admin' ); ?>
+                </p>
+            </div>
+
+            <!-- All Sides Margin (visible when mode is 'all') -->
+            <div class="woow-form-group woow-conditional" data-show-when="margin_mode=all">
+                <label class="woow-label">
+                    <?php esc_html_e( 'Margin (All Sides)', 'woow-admin' ); ?>
+                </label>
+                <div class="woow-slider-group">
+                    <input 
+                        type="range" 
+                        name="admin_bar[margin_all]" 
+                        value="<?php echo esc_attr( intval( $admin_bar['margin_all'] ?? 16 ) ); ?>"
+                        min="0" 
+                        max="64" 
+                        step="4"
+                        class="woow-slider"
+                        data-type="unitless"
+                        data-unit="px"
+                    />
+                    <span class="woow-slider-value"><?php echo esc_html( $admin_bar['margin_all'] ?? '16' ); ?>px</span>
+                </div>
+                <p class="woow-field-description">
+                    <?php esc_html_e( 'Default: 16px. Distance from all browser edges', 'woow-admin' ); ?>
+                </p>
+            </div>
+
+            <!-- Individual Sides (visible when mode is 'individual') -->
+            <div class="woow-conditional" data-show-when="margin_mode=individual">
+                <div class="woow-form-row">
+                    <div class="woow-form-group">
+                        <label class="woow-label">
+                            <?php esc_html_e( 'Top Margin', 'woow-admin' ); ?>
+                        </label>
+                        <div class="woow-slider-group">
+                            <input 
+                                type="range" 
+                                name="admin_bar[margin_top]" 
+                                value="<?php echo esc_attr( intval( $admin_bar['margin_top'] ?? 16 ) ); ?>"
+                                min="0" 
+                                max="64" 
+                                step="4"
+                                class="woow-slider"
+                                data-type="unitless"
+                                data-unit="px"
+                            />
+                            <span class="woow-slider-value"><?php echo esc_html( $admin_bar['margin_top'] ?? '16' ); ?>px</span>
+                        </div>
+                    </div>
+
+                    <div class="woow-form-group">
+                        <label class="woow-label">
+                            <?php esc_html_e( 'Bottom Margin', 'woow-admin' ); ?>
+                        </label>
+                        <div class="woow-slider-group">
+                            <input 
+                                type="range" 
+                                name="admin_bar[margin_bottom]" 
+                                value="<?php echo esc_attr( intval( $admin_bar['margin_bottom'] ?? 16 ) ); ?>"
+                                min="0" 
+                                max="64" 
+                                step="4"
+                                class="woow-slider"
+                                data-type="unitless"
+                                data-unit="px"
+                            />
+                            <span class="woow-slider-value"><?php echo esc_html( $admin_bar['margin_bottom'] ?? '16' ); ?>px</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="woow-form-row">
+                    <div class="woow-form-group">
+                        <label class="woow-label">
+                            <?php esc_html_e( 'Left Margin', 'woow-admin' ); ?>
+                        </label>
+                        <div class="woow-slider-group">
+                            <input 
+                                type="range" 
+                                name="admin_bar[margin_left]" 
+                                value="<?php echo esc_attr( intval( $admin_bar['margin_left'] ?? 16 ) ); ?>"
+                                min="0" 
+                                max="64" 
+                                step="4"
+                                class="woow-slider"
+                                data-type="unitless"
+                                data-unit="px"
+                            />
+                            <span class="woow-slider-value"><?php echo esc_html( $admin_bar['margin_left'] ?? '16' ); ?>px</span>
+                        </div>
+                    </div>
+
+                    <div class="woow-form-group">
+                        <label class="woow-label">
+                            <?php esc_html_e( 'Right Margin', 'woow-admin' ); ?>
+                        </label>
+                        <div class="woow-slider-group">
+                            <input 
+                                type="range" 
+                                name="admin_bar[margin_right]" 
+                                value="<?php echo esc_attr( intval( $admin_bar['margin_right'] ?? 16 ) ); ?>"
+                                min="0" 
+                                max="64" 
+                                step="4"
+                                class="woow-slider"
+                                data-type="unitless"
+                                data-unit="px"
+                            />
+                            <span class="woow-slider-value"><?php echo esc_html( $admin_bar['margin_right'] ?? '16' ); ?>px</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

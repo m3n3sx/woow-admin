@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants
-define( 'WOOW_VERSION', '2.0.0-beta' );
+define( 'WOOW_VERSION', '2.0.0-beta.' . time() ); // Force cache bust
 define( 'WOOW_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WOOW_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'WOOW_ASSETS_URL', WOOW_PLUGIN_URL . 'assets/dist/' );

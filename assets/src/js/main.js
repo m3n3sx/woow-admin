@@ -38,8 +38,8 @@ class WoowAdmin {
         // Component instances
         this.components = {};
 
-        // Validator instance
-        this.validator = new Validator();
+        // Validator (static class reference)
+        this.validator = Validator;
 
         // Debounce timer
         this.debounceTimer = null;

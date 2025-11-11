@@ -53,6 +53,42 @@ const FIELD_TYPE_MAP = {
     // Width field (unitless number, unit is separate)
     'admin_bar.width': FIELD_TYPES.PERCENTAGE,
     
+    // Spacing fields (unitless, unit added in CSS)
+    'spacing_all': FIELD_TYPES.PERCENTAGE,
+    'spacing_top': FIELD_TYPES.PERCENTAGE,
+    'spacing_right': FIELD_TYPES.PERCENTAGE,
+    'spacing_bottom': FIELD_TYPES.PERCENTAGE,
+    'spacing_left': FIELD_TYPES.PERCENTAGE,
+    'admin_bar.spacing_all': FIELD_TYPES.PERCENTAGE,
+    'admin_bar.spacing_top': FIELD_TYPES.PERCENTAGE,
+    'admin_bar.spacing_right': FIELD_TYPES.PERCENTAGE,
+    'admin_bar.spacing_bottom': FIELD_TYPES.PERCENTAGE,
+    'admin_bar.spacing_left': FIELD_TYPES.PERCENTAGE,
+    
+    // Margin fields (unitless, unit added in CSS)
+    'margin_all': FIELD_TYPES.PERCENTAGE,
+    'margin_top': FIELD_TYPES.PERCENTAGE,
+    'margin_right': FIELD_TYPES.PERCENTAGE,
+    'margin_bottom': FIELD_TYPES.PERCENTAGE,
+    'margin_left': FIELD_TYPES.PERCENTAGE,
+    'admin_bar.margin_all': FIELD_TYPES.PERCENTAGE,
+    'admin_bar.margin_top': FIELD_TYPES.PERCENTAGE,
+    'admin_bar.margin_right': FIELD_TYPES.PERCENTAGE,
+    'admin_bar.margin_bottom': FIELD_TYPES.PERCENTAGE,
+    'admin_bar.margin_left': FIELD_TYPES.PERCENTAGE,
+    
+    // Mode selectors
+    'spacing_mode': FIELD_TYPES.KEYWORD,
+    'margin_mode': FIELD_TYPES.KEYWORD,
+    'admin_bar.spacing_mode': FIELD_TYPES.KEYWORD,
+    'admin_bar.margin_mode': FIELD_TYPES.KEYWORD,
+    
+    // Submenu fields (unitless, unit added in CSS)
+    'submenu_border_radius': FIELD_TYPES.PERCENTAGE,
+    'submenu_font_size': FIELD_TYPES.PERCENTAGE,
+    'admin_bar.submenu_border_radius': FIELD_TYPES.PERCENTAGE,
+    'admin_bar.submenu_font_size': FIELD_TYPES.PERCENTAGE,
+    
     // Size fields (need unit)
     'height': FIELD_TYPES.SIZE,
     'width': FIELD_TYPES.SIZE,
@@ -91,6 +127,8 @@ const VALID_KEYWORDS = {
     'image_position': ['center', 'top', 'bottom', 'left', 'right', 'top left', 'top right', 'bottom left', 'bottom right'],
     'image_attachment': ['scroll', 'fixed', 'local'],
     'width_unit': ['%', 'px'],
+    'spacing_mode': ['all', 'individual'],
+    'margin_mode': ['all', 'individual'],
 };
 
 /**
