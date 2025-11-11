@@ -1322,8 +1322,13 @@ class WOOW_Settings {
      * @return bool Success status
      */
     public function save_settings( array $settings ): bool {
+        error_log( '[WOOW Admin] save_settings called with: ' . print_r( $settings['admin_bar'] ?? 'no admin_bar', true ) );
+        error_log( '[WOOW Admin] Current background_color: ' . ( $this->settings['admin_bar']['background_color'] ?? 'not set' ) );
+        
         // Merge with existing settings to preserve structure
         $this->settings = array_replace_recursive( $this->settings, $settings );
+        
+        error_log( '[WOOW Admin] After merge background_color: ' . ( $this->settings['admin_bar']['background_color'] ?? 'not set' ) );
         
         // Save to database
         // Note: update_option() returns false if value hasn't changed

@@ -273,35 +273,24 @@ class WOOW_CSS_Generator {
         $this->css .= "    box-shadow: {$box_shadow} !important;\n";
         $this->css .= "    padding: {$padding} !important;\n";
         
-        // Background based on type and glassmorphism
+        // Background based on type
         $background_type = $bar['background_type'] ?? 'solid';
-        $glassmorphism_enabled = ( $background_type === 'glass' ) || ( $bar['glassmorphism'] ?? false );
         $opacity = $bar['opacity'] ?? 0.9;
         $blur_strength = $bar['blur_strength'] ?? '12px';
         
-        if ( $glassmorphism_enabled ) {
+        // Apply background based on selected type
+        if ( $background_type === 'glass' ) {
             // Glassmorphism: transparent background + blur
-            if ( $bar['background_type'] === 'gradient' ) {
-                // Convert gradient colors to rgba with opacity
-                $start_rgba = $this->hex_to_rgba( $bar['gradient_start'], $opacity );
-                $end_rgba = $this->hex_to_rgba( $bar['gradient_end'], $opacity );
-                $this->css .= "    background: linear-gradient(to right, {$start_rgba}, {$end_rgba}) !important;\n";
-            } else {
-                // Convert solid color to rgba with opacity
-                $bg_rgba = $this->hex_to_rgba( $bar['background_color'], $opacity );
-                $this->css .= "    background: {$bg_rgba} !important;\n";
-            }
-            
-            // Add backdrop blur
+            $bg_rgba = $this->hex_to_rgba( $bar['background_color'], $opacity );
+            $this->css .= "    background: {$bg_rgba} !important;\n";
             $this->css .= "    backdrop-filter: blur({$blur_strength}) !important;\n";
             $this->css .= "    -webkit-backdrop-filter: blur({$blur_strength}) !important;\n";
+        } elseif ( $background_type === 'gradient' ) {
+            // Gradient background (solid, no transparency)
+            $this->css .= "    background: linear-gradient(to right, {$bar['gradient_start']}, {$bar['gradient_end']}) !important;\n";
         } else {
-            // Normal background (no glassmorphism)
-            if ( $bar['background_type'] === 'gradient' ) {
-                $this->css .= "    background: linear-gradient(to right, {$bar['gradient_start']}, {$bar['gradient_end']}) !important;\n";
-            } else {
-                $this->css .= "    background: {$bar['background_color']} !important;\n";
-            }
+            // Solid background (default)
+            $this->css .= "    background: {$bar['background_color']} !important;\n";
         }
         
         $this->css .= "}\n\n";

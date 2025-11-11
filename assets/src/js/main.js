@@ -354,6 +354,16 @@ class WoowAdmin {
             if (!match) return;
 
             const [, section, key] = match;
+            
+            // Debug: log background_color
+            if (key === 'background_color') {
+                console.log('[collectFormData] background_color found:', {
+                    value: input.value,
+                    type: input.type,
+                    visible: input.offsetParent !== null,
+                    display: window.getComputedStyle(input).display
+                });
+            }
 
             // Initialize section if needed
             if (!formData[section]) {
@@ -671,7 +681,11 @@ class WoowAdmin {
                 
                 // Show validation errors to user
                 validationResult.errors.forEach(error => {
-                    console.error(`[WOOW Admin] ${error.field}: ${error.message} (value: ${error.value})`);
+                    console.error('[WOOW Admin] Validation error:', {
+                        field: error.field,
+                        message: error.message,
+                        value: error.value
+                    });
                     this.showFieldError(error.field, error.message);
                 });
 
@@ -773,6 +787,7 @@ class WoowAdmin {
                     1, // Retry once
                     1000 // Wait 1 second before retry
                 );
+                console.log('[WOOW Admin] AJAX response received, status:', response.status);
             } catch (networkError) {
                 console.error('[WOOW Admin] Network error after retry:', networkError);
                 

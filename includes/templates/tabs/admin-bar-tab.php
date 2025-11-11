@@ -438,7 +438,6 @@ $admin_bar = array_merge( $defaults, $this->settings->get_section( 'admin_bar' )
                                 max="24" 
                                 step="2"
                                 class="woow-slider"
-                                data-type="unitless"
                                 data-unit="px"
                             />
                             <span class="woow-slider-value"><?php echo esc_html( $admin_bar['submenu_border_radius'] ?? '12' ); ?>px</span>
@@ -458,7 +457,6 @@ $admin_bar = array_merge( $defaults, $this->settings->get_section( 'admin_bar' )
                                 max="18" 
                                 step="1"
                                 class="woow-slider"
-                                data-type="unitless"
                                 data-unit="px"
                             />
                             <span class="woow-slider-value"><?php echo esc_html( $admin_bar['submenu_font_size'] ?? '14' ); ?>px</span>

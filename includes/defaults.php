@@ -53,8 +53,8 @@ function woow_get_default_settings() {
             'submenu_inherit_styles' => false,
             'submenu_bg_color' => 'rgba(255, 255, 255, 0.98)',
             'submenu_text_color' => '#0f172a',
-            'submenu_border_radius' => '12',
-            'submenu_font_size' => '14',
+            'submenu_border_radius' => '12px',
+            'submenu_font_size' => '14px',
             
             // Spacing/Padding (internal)
             'spacing_mode' => 'all', // all or individual
