@@ -1,5 +1,7 @@
 # WOOW! Admin
 
+**Version:** 2.0.0-beta
+
 Transform your WordPress admin panel with modern glassmorphism design, 10 color palettes, 11 templates, and real-time customization.
 
 ## Features

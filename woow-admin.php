@@ -3,7 +3,7 @@
  * Plugin Name: WOOW! Admin
  * Plugin URI: https://github.com/m3n3sx/woow-admin
  * Description: Transform your WordPress admin panel with modern glassmorphism design, 10 color palettes, 11 templates, and real-time customization.
- * Version: 1.0.0
+ * Version: 2.0.0-beta
  * Requires at least: 6.0
  * Requires PHP: 8.0
  * Author: WOOW! Team
@@ -14,7 +14,7 @@
  * Domain Path: /languages
  *
  * @package WoowAdmin
- * @since 1.0.0
+ * @since 2.0.0-beta
  */
 
 declare(strict_types=1);
@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants
-define( 'WOOW_VERSION', '1.2.3' );
+define( 'WOOW_VERSION', '2.0.0-beta' );
 define( 'WOOW_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WOOW_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'WOOW_ASSETS_URL', WOOW_PLUGIN_URL . 'assets/dist/' );
@@ -209,6 +209,9 @@ function woow_missing_autoloader_notice(): void {
  * @return void
  */
 function woow_init(): void {
+    // Load defaults
+    require_once WOOW_PLUGIN_DIR . 'includes/defaults.php';
+    
     // Load autoloader
     woow_load_autoloader();
     

@@ -1,6 +1,6 @@
 {
   "name": "woow-admin",
-  "version": "1.0.0",
+  "version": "2.0.0-beta",
   "description": "Modern WordPress admin panel with glassmorphism design",
   "type": "module",
   "scripts": {

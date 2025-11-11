@@ -484,6 +484,7 @@ input[type="color"].woow-color-input {
 .woow-select.error,
 .woow-field-error {
   border-color: var(--woow-destructive) !important;
+  animation: woow-shake 0.3s ease-in-out;
 }
 
 .woow-input.error:focus,
@@ -494,11 +495,25 @@ input[type="color"].woow-color-input {
 }
 
 .woow-error-message {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   margin-top: var(--woow-spacing-xs);
   font-size: var(--woow-font-size-small);
   color: var(--woow-destructive);
   font-weight: var(--woow-font-weight-medium);
+}
+
+.woow-error-message::before {
+  content: "⚠";
+  font-size: 16px;
+}
+
+/* Shake animation for errors */
+@keyframes woow-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
 }
 
 /* Success State */

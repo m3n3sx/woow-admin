@@ -167,14 +167,27 @@ export class Validator {
 
     /**
      * Validate opacity value (0-1 float)
+     * Accepts 0-100 from range sliders and converts to 0-1
      *
      * @param {*} value - Value to validate
      * @returns {Object} Validation result
      */
     validateOpacity(value) {
-        const opacity = parseFloat(value);
+        let opacity = parseFloat(value);
         
-        if (isNaN(opacity) || opacity < 0 || opacity > 1) {
+        if (isNaN(opacity)) {
+            return {
+                valid: false,
+                error: 'Opacity must be a number'
+            };
+        }
+        
+        // If value is 0-100 (from range slider), convert to 0-1
+        if (opacity > 1 && opacity <= 100) {
+            opacity = opacity / 100;
+        }
+        
+        if (opacity < 0 || opacity > 1) {
             return {
                 valid: false,
                 error: 'Opacity must be between 0 and 1'
@@ -185,18 +198,20 @@ export class Validator {
     }
 
     /**
-     * Validate line-height value (unitless 1.0-3.0)
+     * Validate line-height value (unitless 0.5-5.0)
      *
      * @param {*} value - Value to validate
      * @returns {Object} Validation result
      */
     validateLineHeight(value) {
-        const lineHeight = parseFloat(value);
+        // Remove any units if present (should be unitless)
+        let cleanValue = String(value).replace(/px|em|rem|%/gi, '').trim();
+        const lineHeight = parseFloat(cleanValue);
         
-        if (isNaN(lineHeight) || lineHeight < 1.0 || lineHeight > 3.0) {
+        if (isNaN(lineHeight) || lineHeight < 0.5 || lineHeight > 5.0) {
             return {
                 valid: false,
-                error: 'Line-height must be between 1.0 and 3.0'
+                error: 'Line-height must be between 0.5 and 5.0 (unitless)'
             };
         }
         
