@@ -16,7 +16,15 @@ if (!defined('ABSPATH')) {
  */
 function woow_get_default_settings() {
     return array(
+        'general' => array(
+            'enabled' => true,
+            'current_palette' => 'professional_blue',
+            'current_template' => 'default',
+        ),
+        
         'admin_bar' => array(
+            'enabled' => true,
+            
             // Background & Gradient
             'background_color' => '#1e293b',
             'background_type' => 'solid',
@@ -81,20 +89,22 @@ function woow_get_default_settings() {
         ),
         
         'admin_menu' => array(
+            'enabled' => true,
+            
             // Background
             'background_type' => 'solid',
             'background_color' => '#ffffff',
             'glass_base_color' => '#ffffff',
             'gradient_start' => '#ffffff',
             'gradient_end' => '#f8fafc',
-            'border_color' => '#e2e8f0',
+            'border_color' => 'rgba(226, 232, 240, 0.5)',
             
             // Text
-            'text_color' => '#0f172a',
-            'hover_text_color' => '#6366f1',
+            'text_color' => '#64748b',
+            'hover_text_color' => '#0f172a',
             
             // Hover
-            'hover_bg_color' => '#f8fafc',
+            'hover_bg_color' => 'rgba(248, 250, 252, 0.8)',
             'hover_style' => 'normal',
             
             // Active (Gradient or Solid)
@@ -110,22 +120,22 @@ function woow_get_default_settings() {
             
             // Border Radius
             'border_radius_mode' => 'all',
-            'border_radius_all' => '12',
-            'border_radius_top_left' => '12',
-            'border_radius_top_right' => '12',
-            'border_radius_bottom_right' => '12',
-            'border_radius_bottom_left' => '12',
+            'border_radius_all' => '24',
+            'border_radius_top_left' => '24',
+            'border_radius_top_right' => '24',
+            'border_radius_bottom_right' => '24',
+            'border_radius_bottom_left' => '24',
             
             // Item Border Radius (for menu items)
             'item_border_radius' => '12',
             
             // Typography
             'font_size' => '14',
-            'font_weight' => '400',
+            'font_weight' => '600',
             
             // Glassmorphism
             'glassmorphism' => true,
-            'opacity' => 0.9,
+            'opacity' => 0.8,
             'blur_strength' => '12',
             
             // Shadow
@@ -133,18 +143,18 @@ function woow_get_default_settings() {
             
             // Spacing/Padding (internal - for menu items)
             'spacing_mode' => 'all',
-            'spacing_all' => '10',
-            'spacing_top' => '10',
-            'spacing_right' => '12',
-            'spacing_bottom' => '10',
-            'spacing_left' => '12',
+            'spacing_all' => '12',
+            'spacing_top' => '12',
+            'spacing_right' => '16',
+            'spacing_bottom' => '12',
+            'spacing_left' => '16',
             
             // Margin (external - menu container)
-            'margin_mode' => 'all',
+            'margin_mode' => 'individual',
             'margin_all' => '16',
             'margin_top' => '16',
             'margin_right' => '0',
-            'margin_bottom' => '0',
+            'margin_bottom' => '16',
             'margin_left' => '16',
             
             // Icons
@@ -157,10 +167,12 @@ function woow_get_default_settings() {
             'submenu_bg_color' => 'rgba(255, 255, 255, 0.98)',
             'submenu_text_color' => '#0f172a',
             'submenu_hover_bg_color' => '#f1f5f9',
-            'submenu_border_radius' => '8',
+            'submenu_border_radius' => '12',
         ),
         
         'dashboard_widgets' => array(
+            'enabled' => true,
+            
             // Background
             'background_color' => '#ffffff',
             'border_color' => '#e2e8f0',
@@ -184,6 +196,8 @@ function woow_get_default_settings() {
         ),
         
         'form_controls' => array(
+            'enabled' => true,
+            
             // Input Background
             'input_bg_color' => '#ffffff',
             'input_border_color' => '#e2e8f0',
@@ -204,6 +218,8 @@ function woow_get_default_settings() {
         ),
         
         'buttons' => array(
+            'enabled' => true,
+            
             // Primary Button
             'primary_bg_color' => '#6366f1',
             'primary_text_color' => '#ffffff',
@@ -227,6 +243,8 @@ function woow_get_default_settings() {
         ),
         
         'backgrounds' => array(
+            'enabled' => true,
+            
             // Main Background
             'main_bg_color_start' => '#f8fafc',
             'main_bg_color_middle' => '#eff6ff',
@@ -242,6 +260,8 @@ function woow_get_default_settings() {
         ),
         
         'typography' => array(
+            'enabled' => true,
+            
             // Headings
             'h1_color' => '#0f172a',
             'h1_font_size' => '28',
@@ -270,6 +290,8 @@ function woow_get_default_settings() {
         ),
         
         'visual_effects' => array(
+            'enabled' => true,
+            
             // Glassmorphism Global
             'global_glassmorphism' => true,
             'global_blur_strength' => '12',
@@ -286,6 +308,8 @@ function woow_get_default_settings() {
         ),
         
         'login_page' => array(
+            'enabled' => true,
+            
             // Background
             'login_bg_color_start' => '#6366f1',
             'login_bg_color_end' => '#8b5cf6',

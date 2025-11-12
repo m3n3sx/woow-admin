@@ -41,11 +41,11 @@ $defaults = array(
     
     // Border Radius
     'border_radius_mode'    => 'all',
-    'border_radius_all'     => '12',
-    'border_radius_top_left' => '12',
-    'border_radius_top_right' => '12',
-    'border_radius_bottom_right' => '12',
-    'border_radius_bottom_left' => '12',
+    'border_radius_all'     => '26',
+    'border_radius_top_left' => '26',
+    'border_radius_top_right' => '26',
+    'border_radius_bottom_right' => '26',
+    'border_radius_bottom_left' => '26',
     
     // Item Border Radius
     'item_border_radius'    => '12',
@@ -72,7 +72,7 @@ $defaults = array(
     'spacing_left'          => '12',
     
     // Margin (external - menu container)
-    'margin_mode'           => 'all',
+    'margin_mode'           => 'individual',
     'margin_all'            => '16',
     'margin_top'            => '16',
     'margin_right'          => '0',
