@@ -973,6 +973,14 @@ class WOOW_Settings {
                     // Valid keywords for image_repeat: no-repeat, repeat, repeat-x, repeat-y
                     // Valid keywords for pattern: none, dots, grid, diagonal
                 }
+                // Check for _type fields first (they are keywords, not colors)
+                elseif ( strpos( $key, '_type' ) !== false ) {
+                    // These are keyword values (background_type, active_bg_type, etc.)
+                    if ( ! is_string( $value ) ) {
+                        $is_valid = false;
+                        $error_message = "Value must be a string";
+                    }
+                }
                 elseif ( strpos( $key, 'color' ) !== false || strpos( $key, '_bg' ) !== false || strpos( $key, '_text' ) !== false ) {
                     if ( ! $this->sanitize_color( $value ) ) {
                         $is_valid = false;
@@ -1004,6 +1012,35 @@ class WOOW_Settings {
                     if ( ! is_numeric( $value ) || $value < 0 ) {
                         $is_valid = false;
                         $error_message = "Value must be a positive number";
+                    }
+                }
+                // Admin Menu specific unitless fields (BEFORE general patterns!)
+                elseif ( $section === 'admin_menu' && ( 
+                    $key === 'width' || 
+                    $key === 'item_height' || 
+                    $key === 'item_border_radius' || 
+                    $key === 'font_size' || 
+                    $key === 'blur_strength' || 
+                    $key === 'icon_size' || 
+                    $key === 'submenu_border_radius' 
+                ) ) {
+                    // These are unitless numbers (unit added in CSS generation)
+                    if ( ! is_numeric( $value ) || $value < 0 ) {
+                        $is_valid = false;
+                        $error_message = "Value must be a positive number";
+                    }
+                }
+                // Admin Menu keyword fields
+                elseif ( $section === 'admin_menu' && ( 
+                    $key === 'font_weight' || 
+                    $key === 'shadow_style' || 
+                    $key === 'background_type' || 
+                    $key === 'hover_style' 
+                ) ) {
+                    // These are keyword values
+                    if ( ! is_string( $value ) ) {
+                        $is_valid = false;
+                        $error_message = "Value must be a string";
                     }
                 }
                 elseif ( strpos( $key, 'height' ) !== false || strpos( $key, 'size' ) !== false || strpos( $key, 'radius' ) !== false || strpos( $key, 'padding' ) !== false || strpos( $key, 'margin' ) !== false || strpos( $key, 'offset' ) !== false || strpos( $key, 'blur' ) !== false ) {

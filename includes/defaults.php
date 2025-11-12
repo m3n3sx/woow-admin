@@ -82,7 +82,11 @@ function woow_get_default_settings() {
         
         'admin_menu' => array(
             // Background
+            'background_type' => 'solid',
             'background_color' => '#ffffff',
+            'glass_base_color' => '#ffffff',
+            'gradient_start' => '#ffffff',
+            'gradient_end' => '#f8fafc',
             'border_color' => '#e2e8f0',
             
             // Text
@@ -91,8 +95,11 @@ function woow_get_default_settings() {
             
             // Hover
             'hover_bg_color' => '#f8fafc',
+            'hover_style' => 'normal',
             
-            // Active (Gradient)
+            // Active (Gradient or Solid)
+            'active_bg_type' => 'gradient',
+            'active_bg_solid' => '#6366f1',
             'active_bg_start' => '#6366f1',
             'active_bg_end' => '#8b5cf6',
             'active_text_color' => '#ffffff',
@@ -100,17 +107,57 @@ function woow_get_default_settings() {
             // Dimensions
             'width' => '256',
             'item_height' => '48',
-            'item_padding' => '10px 12px',
-            'border_radius' => '12',
+            
+            // Border Radius
+            'border_radius_mode' => 'all',
+            'border_radius_all' => '12',
+            'border_radius_top_left' => '12',
+            'border_radius_top_right' => '12',
+            'border_radius_bottom_right' => '12',
+            'border_radius_bottom_left' => '12',
+            
+            // Item Border Radius (for menu items)
+            'item_border_radius' => '12',
+            
+            // Typography
+            'font_size' => '14',
+            'font_weight' => '400',
             
             // Glassmorphism
             'glassmorphism' => true,
             'opacity' => 0.9,
             'blur_strength' => '12',
             
+            // Shadow
+            'shadow_style' => 'lg',
+            
+            // Spacing/Padding (internal - for menu items)
+            'spacing_mode' => 'all',
+            'spacing_all' => '10',
+            'spacing_top' => '10',
+            'spacing_right' => '12',
+            'spacing_bottom' => '10',
+            'spacing_left' => '12',
+            
+            // Margin (external - menu container)
+            'margin_mode' => 'all',
+            'margin_all' => '16',
+            'margin_top' => '16',
+            'margin_right' => '0',
+            'margin_bottom' => '0',
+            'margin_left' => '16',
+            
             // Icons
             'icon_size' => '20',
             'icon_color' => '#64748b',
+            'icon_hover_color' => '#6366f1',
+            'icon_active_color' => '#ffffff',
+            
+            // Submenu
+            'submenu_bg_color' => 'rgba(255, 255, 255, 0.98)',
+            'submenu_text_color' => '#0f172a',
+            'submenu_hover_bg_color' => '#f1f5f9',
+            'submenu_border_radius' => '8',
         ),
         
         'dashboard_widgets' => array(

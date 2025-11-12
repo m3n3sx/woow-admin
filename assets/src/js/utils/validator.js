@@ -50,8 +50,10 @@ const FIELD_TYPE_MAP = {
     'width_unit': FIELD_TYPES.KEYWORD,
     'admin_bar.width_unit': FIELD_TYPES.KEYWORD,
     
-    // Width field (unitless number, unit is separate)
-    'admin_bar.width': FIELD_TYPES.PERCENTAGE,
+    // Width fields
+    'admin_bar.width': FIELD_TYPES.PERCENTAGE,  // 0-100 (percent or px depending on unit)
+    'admin_menu.width': FIELD_TYPES.LINE_HEIGHT,  // 160-320 (px, unitless)
+    'admin_menu.item_height': FIELD_TYPES.LINE_HEIGHT,  // 36-64 (px, unitless)
     
     // Spacing fields (unitless, unit added in CSS)
     'spacing_all': FIELD_TYPES.PERCENTAGE,
@@ -98,6 +100,39 @@ const FIELD_TYPE_MAP = {
     'border_radius_bottom_right': FIELD_TYPES.PERCENTAGE,
     'border_radius_bottom_left': FIELD_TYPES.PERCENTAGE,
     'admin_bar.border_radius_all': FIELD_TYPES.PERCENTAGE,
+    
+    // Admin Menu fields (unitless, unit added in CSS)
+    'admin_menu.width': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.item_height': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.border_radius_mode': FIELD_TYPES.KEYWORD,
+    'admin_menu.border_radius_all': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.border_radius_top_left': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.border_radius_top_right': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.border_radius_bottom_right': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.border_radius_bottom_left': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.item_border_radius': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.font_size': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.font_weight': FIELD_TYPES.KEYWORD,
+    'admin_menu.opacity': FIELD_TYPES.OPACITY,
+    'admin_menu.blur_strength': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.shadow_style': FIELD_TYPES.KEYWORD,
+    'admin_menu.spacing_mode': FIELD_TYPES.KEYWORD,
+    'admin_menu.spacing_all': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.spacing_top': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.spacing_right': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.spacing_bottom': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.spacing_left': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.margin_mode': FIELD_TYPES.KEYWORD,
+    'admin_menu.margin_all': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.margin_top': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.margin_right': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.margin_bottom': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.margin_left': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.icon_size': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.submenu_border_radius': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.background_type': FIELD_TYPES.KEYWORD,
+    'admin_menu.hover_style': FIELD_TYPES.KEYWORD,
+    'admin_menu.active_bg_type': FIELD_TYPES.KEYWORD,
     'admin_bar.border_radius_top_left': FIELD_TYPES.PERCENTAGE,
     'admin_bar.border_radius_top_right': FIELD_TYPES.PERCENTAGE,
     'admin_bar.border_radius_bottom_right': FIELD_TYPES.PERCENTAGE,
@@ -237,16 +272,32 @@ class Validator {
     
     /**
      * Validate line-height (unitless number)
+     * Also used for pixel values like width (160-320) and height (36-64)
      */
     static validateLineHeight(value, key) {
         const lineHeight = parseFloat(value);
         
         if (isNaN(lineHeight)) {
-            throw new Error(`Invalid line-height for '${key}': ${value}. Must be a number.`);
+            throw new Error(`Invalid value for '${key}': ${value}. Must be a number.`);
         }
         
-        if (lineHeight < 0.5 || lineHeight > 5.0) {
-            throw new Error(`Line-height for '${key}' should be between 0.5 and 5.0. Got: ${lineHeight}`);
+        // For actual line-height fields (0.5-5.0 range)
+        if (key.includes('line_height')) {
+            if (lineHeight < 0.5 || lineHeight > 5.0) {
+                throw new Error(`Line-height for '${key}' should be between 0.5 and 5.0. Got: ${lineHeight}`);
+            }
+        }
+        // For width/height fields (allow larger values for pixels)
+        else if (key.includes('width') || key.includes('height')) {
+            if (lineHeight < 0 || lineHeight > 2000) {
+                throw new Error(`Value for '${key}' should be between 0 and 2000. Got: ${lineHeight}`);
+            }
+        }
+        // For other unitless fields (reasonable range)
+        else {
+            if (lineHeight < 0 || lineHeight > 500) {
+                throw new Error(`Value for '${key}' should be between 0 and 500. Got: ${lineHeight}`);
+            }
         }
         
         return lineHeight;

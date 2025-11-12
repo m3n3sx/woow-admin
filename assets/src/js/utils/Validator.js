@@ -80,14 +80,61 @@ const FIELD_TYPE_MAP = {
     // Mode selectors
     'spacing_mode': FIELD_TYPES.KEYWORD,
     'margin_mode': FIELD_TYPES.KEYWORD,
+    'border_radius_mode': FIELD_TYPES.KEYWORD,
     'admin_bar.spacing_mode': FIELD_TYPES.KEYWORD,
     'admin_bar.margin_mode': FIELD_TYPES.KEYWORD,
+    'admin_bar.border_radius_mode': FIELD_TYPES.KEYWORD,
     
     // Submenu fields (unitless, unit added in CSS)
     'submenu_border_radius': FIELD_TYPES.PERCENTAGE,
     'submenu_font_size': FIELD_TYPES.PERCENTAGE,
     'admin_bar.submenu_border_radius': FIELD_TYPES.PERCENTAGE,
     'admin_bar.submenu_font_size': FIELD_TYPES.PERCENTAGE,
+    
+    // Border radius fields (unitless, unit added in CSS)
+    'border_radius_all': FIELD_TYPES.PERCENTAGE,
+    'border_radius_top_left': FIELD_TYPES.PERCENTAGE,
+    'border_radius_top_right': FIELD_TYPES.PERCENTAGE,
+    'border_radius_bottom_right': FIELD_TYPES.PERCENTAGE,
+    'border_radius_bottom_left': FIELD_TYPES.PERCENTAGE,
+    'admin_bar.border_radius_all': FIELD_TYPES.PERCENTAGE,
+    
+    // Admin Menu fields (unitless, unit added in CSS)
+    'admin_menu.width': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.item_height': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.border_radius_mode': FIELD_TYPES.KEYWORD,
+    'admin_menu.border_radius_all': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.border_radius_top_left': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.border_radius_top_right': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.border_radius_bottom_right': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.border_radius_bottom_left': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.item_border_radius': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.font_size': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.font_weight': FIELD_TYPES.KEYWORD,
+    'admin_menu.opacity': FIELD_TYPES.OPACITY,
+    'admin_menu.blur_strength': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.shadow_style': FIELD_TYPES.KEYWORD,
+    'admin_menu.spacing_mode': FIELD_TYPES.KEYWORD,
+    'admin_menu.spacing_all': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.spacing_top': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.spacing_right': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.spacing_bottom': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.spacing_left': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.margin_mode': FIELD_TYPES.KEYWORD,
+    'admin_menu.margin_all': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.margin_top': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.margin_right': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.margin_bottom': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.margin_left': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.icon_size': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.submenu_border_radius': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.background_type': FIELD_TYPES.KEYWORD,
+    'admin_menu.hover_style': FIELD_TYPES.KEYWORD,
+    'admin_menu.active_bg_type': FIELD_TYPES.KEYWORD,
+    'admin_bar.border_radius_top_left': FIELD_TYPES.PERCENTAGE,
+    'admin_bar.border_radius_top_right': FIELD_TYPES.PERCENTAGE,
+    'admin_bar.border_radius_bottom_right': FIELD_TYPES.PERCENTAGE,
+    'admin_bar.border_radius_bottom_left': FIELD_TYPES.PERCENTAGE,
     
     // Size fields (need unit)
     'height': FIELD_TYPES.SIZE,
@@ -129,6 +176,7 @@ const VALID_KEYWORDS = {
     'width_unit': ['%', 'px'],
     'spacing_mode': ['all', 'individual'],
     'margin_mode': ['all', 'individual'],
+    'border_radius_mode': ['all', 'individual'],
 };
 
 /**
