@@ -919,12 +919,19 @@ class WOOW_CSS_Generator {
         $this->css .= "    border: none !important;\n";
         $this->css .= "}\n\n";
         
-        // Hover submenu (flyout) - positioned to the right
-        $submenu_left = (int)$width + (int)$margin_left + 8;
+        // Hover submenu (flyout) - positioned to the right like WordPress default
+        // Position: margin_left + width (no gap, directly next to menu)
+        $submenu_left = (int)$width + (int)$margin_left;
+        // Align top with parent item (negative margin = item height + padding + adjustment)
+        // Get padding top value
+        $padding_top = $spacing_mode === 'all' ? (int)$spacing_all : (int)$spacing_top;
+        $submenu_margin_top = -((int)$item_height + $padding_top + 8);
         $this->css .= "#adminmenu li.wp-has-submenu:not(.wp-has-current-submenu):not(.wp-menu-open):hover > .wp-submenu {\n";
         $this->css .= "    display: block !important;\n";
         $this->css .= "    position: fixed !important;\n";
         $this->css .= "    left: {$submenu_left}px !important;\n";
+        $this->css .= "    top: auto !important;\n";
+        $this->css .= "    margin-top: {$submenu_margin_top}px !important;\n";
         $this->css .= "    margin-left: 0 !important;\n";
         $this->css .= "    padding: 8px !important;\n";
         $this->css .= "    min-width: 200px !important;\n";
@@ -937,15 +944,22 @@ class WOOW_CSS_Generator {
         $this->css .= "    z-index: 99999 !important;\n";
         $this->css .= "}\n\n";
         
+        // Keep submenu visible when hovering over it
+        $this->css .= "#adminmenu li.wp-has-submenu .wp-submenu:hover {\n";
+        $this->css .= "    display: block !important;\n";
+        $this->css .= "}\n\n";
+        
         // Position submenu relative to parent item
         $this->css .= "#adminmenu li.wp-has-submenu {\n";
         $this->css .= "    position: relative !important;\n";
         $this->css .= "}\n\n";
         
-        // Submenu items styling
+        // Submenu items styling - override parent item height
         $this->css .= "#adminmenu .wp-submenu li {\n";
         $this->css .= "    margin: 0 !important;\n";
         $this->css .= "    padding: 0 !important;\n";
+        $this->css .= "    min-height: auto !important;\n";
+        $this->css .= "    height: auto !important;\n";
         $this->css .= "}\n\n";
         
         $this->css .= "#adminmenu .wp-submenu a {\n";
