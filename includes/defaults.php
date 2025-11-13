@@ -97,14 +97,14 @@ function woow_get_default_settings() {
             'glass_base_color' => '#ffffff',
             'gradient_start' => '#ffffff',
             'gradient_end' => '#f8fafc',
-            'border_color' => 'rgba(226, 232, 240, 0.5)',
+            'border_color' => '#e2e8f0',
             
             // Text
-            'text_color' => '#64748b',
-            'hover_text_color' => '#0f172a',
+            'text_color' => '#0f172a',
+            'hover_text_color' => '#6366f1',
             
             // Hover
-            'hover_bg_color' => 'rgba(248, 250, 252, 0.8)',
+            'hover_bg_color' => '#f8fafc',
             'hover_style' => 'normal',
             
             // Active (Gradient or Solid)
@@ -120,11 +120,11 @@ function woow_get_default_settings() {
             
             // Border Radius
             'border_radius_mode' => 'all',
-            'border_radius_all' => '24',
-            'border_radius_top_left' => '24',
-            'border_radius_top_right' => '24',
-            'border_radius_bottom_right' => '24',
-            'border_radius_bottom_left' => '24',
+            'border_radius_all' => '12',
+            'border_radius_top_left' => '12',
+            'border_radius_top_right' => '12',
+            'border_radius_bottom_right' => '12',
+            'border_radius_bottom_left' => '12',
             
             // Item Border Radius (for menu items)
             'item_border_radius' => '12',
@@ -135,11 +135,11 @@ function woow_get_default_settings() {
             
             // Glassmorphism
             'glassmorphism' => true,
-            'opacity' => 0.8,
+            'opacity' => 0.9,
             'blur_strength' => '12',
             
             // Shadow
-            'shadow_style' => 'lg',
+            'shadow_style' => 'sm',
             
             // Spacing/Padding (internal - for menu items)
             'spacing_mode' => 'all',

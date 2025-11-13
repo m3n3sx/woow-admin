@@ -2,6 +2,18 @@
 
 All notable changes to WOOW! Admin will be documented in this file.
 
+## [2.0.0-beta] - 2025-11-12
+
+### Fixed
+- 🐛 **Template Application Bug** - Fixed critical issue where applying template only saved partial settings (backgrounds + login_page), missing admin_menu and other sections. Now templates merge with full defaults ensuring all sections are saved.
+- 🐛 **AdminMenu Default Styling** - Fixed defaults to match commit 4de3336 and "Modern Minimal" template:
+  - Text color: Changed from gray (#64748b) to dark slate (#0f172a) for better readability
+  - Hover text: Changed from dark (#0f172a) to indigo (#6366f1) for modern look
+  - Border radius: Reduced from 24px to 12px for more professional appearance
+  - Opacity: Increased from 0.8 to 0.9 for better visibility
+  - Shadow: Changed from 'lg' to 'sm' for subtler effect
+  - Border/hover colors: Changed from rgba to solid colors for consistency
+
 ## [2.0.0-beta] - 2025-11-11
 
 ### Added

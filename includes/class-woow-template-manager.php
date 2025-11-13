@@ -99,11 +99,15 @@ class WOOW_Template_Manager {
 			$backup_manager = new WOOW_Backup_Manager( $this->settings );
 			$backup_manager->create_backup( 'before_template_' . $template_id );
 
+			// Get defaults first (ensures all sections exist)
+			$defaults = woow_get_default_settings();
+			
 			// Get current settings
 			$current_settings = $this->settings->get_all_settings();
-
-			// Merge template settings with current settings
-			$new_settings = array_replace_recursive( $current_settings, $template['settings'] );
+			
+			// Merge: defaults -> current -> template
+			// This ensures all sections exist even if template only has partial settings
+			$new_settings = array_replace_recursive( $defaults, $current_settings, $template['settings'] );
 
 			// Update settings
 			$result = $this->settings->update_all_settings( $new_settings );

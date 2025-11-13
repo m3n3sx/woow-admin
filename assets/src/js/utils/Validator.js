@@ -10,6 +10,7 @@ const FIELD_TYPES = {
     LINE_HEIGHT: 'lineheight',    // Unitless number (1.0-3.0)
     SIZE: 'size',                 // With unit (px, %, em, rem)
     PERCENTAGE: 'percentage',     // 0-100
+    NUMBER: 'number',             // Any positive number (unitless)
     
     // Keywords
     KEYWORD: 'keyword',           // cover, contain, auto, etc.
@@ -100,8 +101,8 @@ const FIELD_TYPE_MAP = {
     'admin_bar.border_radius_all': FIELD_TYPES.PERCENTAGE,
     
     // Admin Menu fields (unitless, unit added in CSS)
-    'admin_menu.width': FIELD_TYPES.PERCENTAGE,
-    'admin_menu.item_height': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.width': FIELD_TYPES.NUMBER, // Unitless number (px added in CSS)
+    'admin_menu.item_height': FIELD_TYPES.NUMBER, // Unitless number (px added in CSS)
     'admin_menu.border_radius_mode': FIELD_TYPES.KEYWORD,
     'admin_menu.border_radius_all': FIELD_TYPES.PERCENTAGE,
     'admin_menu.border_radius_top_left': FIELD_TYPES.PERCENTAGE,
@@ -206,6 +207,9 @@ class Validator {
                 
             case FIELD_TYPES.PERCENTAGE:
                 return this.validatePercentage(value, key);
+                
+            case FIELD_TYPES.NUMBER:
+                return this.validateNumber(value, key);
                 
             case FIELD_TYPES.KEYWORD:
                 return this.validateKeyword(value, key);
@@ -323,6 +327,23 @@ class Validator {
         }
         
         return percent;
+    }
+    
+    /**
+     * Validate number (any positive number, unitless)
+     */
+    static validateNumber(value, key) {
+        const num = parseFloat(value);
+        
+        if (isNaN(num)) {
+            throw new Error(`Value for '${key}' must be a number. Got: ${value}`);
+        }
+        
+        if (num < 0) {
+            throw new Error(`Number for '${key}' must be positive. Got: ${num}`);
+        }
+        
+        return num.toString();
     }
     
     /**

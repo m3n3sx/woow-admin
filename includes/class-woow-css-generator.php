@@ -612,18 +612,25 @@ class WOOW_CSS_Generator {
         }
         
         // Margin (external - menu container)
-        $margin_mode = $menu['margin_mode'] ?? 'all';
+        // Calculate top margin to align with wp-content (below adminbar)
+        $bar = $this->settings->get_section( 'admin_bar' );
+        $adminbar_height = intval( $bar['height'] ?? '48' );
+        $adminbar_margin_top = intval( $bar['margin_top'] ?? '16' );
+        $spacing_between = 16; // Space between adminbar and adminmenu
+        $calculated_top = $adminbar_margin_top + $adminbar_height + $spacing_between;
+        
+        $margin_mode = $menu['margin_mode'] ?? 'individual';
         if ( $margin_mode === 'all' ) {
-            $margin_all = $menu['margin_all'] ?? '0';
-            $margin_top = $margin_all;
+            $margin_all = $menu['margin_all'] ?? '16';
+            $margin_top = $calculated_top; // Use calculated top instead
             $margin_right = $margin_all;
             $margin_bottom = $margin_all;
             $margin_left = $margin_all;
         } else {
-            $margin_top = $menu['margin_top'] ?? '0';
+            $margin_top = $calculated_top; // Use calculated top instead
             $margin_right = $menu['margin_right'] ?? '0';
-            $margin_bottom = $menu['margin_bottom'] ?? '0';
-            $margin_left = $menu['margin_left'] ?? '0';
+            $margin_bottom = $menu['margin_bottom'] ?? '16';
+            $margin_left = $menu['margin_left'] ?? '16';
         }
         
         // Icons
@@ -692,9 +699,9 @@ class WOOW_CSS_Generator {
         $this->css .= "    font-weight: {$font_weight} !important;\n";
         $this->css .= "}\n\n";
         
-        // Fix menu items to stay within bounds
-        $this->css .= "#adminmenu li,\n";
-        $this->css .= "#adminmenu li.menu-top {\n";
+        // Fix menu items to stay within bounds (exclude separators)
+        $this->css .= "#adminmenu li:not(.wp-menu-separator),\n";
+        $this->css .= "#adminmenu li.menu-top:not(.wp-menu-separator) {\n";
         $this->css .= "    width: 100% !important;\n";
         $this->css .= "    box-sizing: border-box !important;\n";
         $this->css .= "    min-height: {$item_height}px !important;\n";
@@ -749,6 +756,11 @@ class WOOW_CSS_Generator {
         $this->css .= "    font-weight: {$font_weight} !important;\n";
         $this->css .= "}\n\n";
         
+        // Menu item text padding override
+        $this->css .= "#adminmenu div.wp-menu-name {\n";
+        $this->css .= "    padding-left: 8px !important;\n";
+        $this->css .= "}\n\n";
+        
         // Active menu item text (more specific)
         $this->css .= "#adminmenu li.wp-has-current-submenu a.wp-has-current-submenu .wp-menu-name,\n";
         $this->css .= "#adminmenu li.current a.menu-top .wp-menu-name {\n";
@@ -774,6 +786,13 @@ class WOOW_CSS_Generator {
         $this->css .= "    background: {$hover_bg_color} !important;\n";
         $this->css .= "    border-radius: {$item_border_radius}px !important;\n";
         $this->css .= "    color: {$hover_text_color} !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Override WordPress default hover background
+        $this->css .= "#adminmenu li.menu-top:hover,\n";
+        $this->css .= "#adminmenu li.opensub > a.menu-top,\n";
+        $this->css .= "#adminmenu li > a.menu-top:focus {\n";
+        $this->css .= "    background-color: transparent !important;\n";
         $this->css .= "}\n\n";
         
         // Hover state for menu item text (more specific)
@@ -893,7 +912,7 @@ class WOOW_CSS_Generator {
         $this->css .= "    left: 0 !important;\n";
         $this->css .= "    top: 0 !important;\n";
         $this->css .= "    margin: 0 !important;\n";
-        $this->css .= "    padding: 4px 8px 8px 8px !important;\n";
+        $this->css .= "    padding: 8px !important;\n";
         $this->css .= "    background: {$submenu_bg_color} !important;\n";
         $this->css .= "    border-radius: {$submenu_border_radius}px !important;\n";
         $this->css .= "    box-shadow: none !important;\n";
@@ -951,6 +970,59 @@ class WOOW_CSS_Generator {
         $this->css .= "    color: {$active_bg_start} !important;\n";
         $this->css .= "    font-weight: 600 !important;\n";
         $this->css .= "    background: {$submenu_hover_bg_color} !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Collapsed menu state (.folded class on body)
+        $collapsed_width = 80; // Collapsed width in pixels
+        $this->css .= "/* Collapsed Menu State */\n";
+        $this->css .= ".folded #adminmenuwrap {\n";
+        $this->css .= "    width: {$collapsed_width}px !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".folded #adminmenu {\n";
+        $this->css .= "    width: {$collapsed_width}px !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Hide text in collapsed state
+        $this->css .= ".folded #adminmenu .wp-menu-name,\n";
+        $this->css .= ".folded #adminmenu .wp-menu-arrow {\n";
+        $this->css .= "    display: none !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Center icons in collapsed state
+        $this->css .= ".folded #adminmenu li a {\n";
+        $this->css .= "    justify-content: center !important;\n";
+        $this->css .= "    padding: 12px !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Adjust content margin for collapsed state
+        $collapsed_content_margin = $collapsed_width + $margin_left + 16;
+        $this->css .= ".folded #wpcontent {\n";
+        $this->css .= "    margin-left: {$collapsed_content_margin}px !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Collapsed submenu - flyout style (ALL submenus including active)
+        // Position: margin_left + collapsed_width + small gap
+        $submenu_left = $margin_left + $collapsed_width + 4;
+        $this->css .= ".folded #adminmenu .wp-submenu,\n";
+        $this->css .= ".folded #adminmenu li.wp-has-current-submenu > .wp-submenu,\n";
+        $this->css .= ".folded #adminmenu li.wp-menu-open > .wp-submenu {\n";
+        $this->css .= "    position: fixed !important;\n";
+        $this->css .= "    left: {$submenu_left}px !important;\n";
+        $this->css .= "    top: auto !important;\n";
+        $this->css .= "    margin-top: 0 !important;\n";
+        $this->css .= "    z-index: 99999 !important;\n";
+        $this->css .= "    display: none !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Show submenu on hover in collapsed state
+        $this->css .= ".folded #adminmenu li:hover > .wp-submenu {\n";
+        $this->css .= "    display: block !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Override hover submenu position for collapsed state (more specific selector)
+        $this->css .= ".folded #adminmenu li.wp-has-submenu:not(.wp-has-current-submenu):not(.wp-menu-open):hover > .wp-submenu {\n";
+        $this->css .= "    left: {$submenu_left}px !important;\n";
         $this->css .= "}\n\n";
         
         // Only add custom CSS if provided by user
