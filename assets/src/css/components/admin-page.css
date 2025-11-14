@@ -199,49 +199,6 @@
 }
 
 /* ===========================
-   FOOTER
-   =========================== */
-.woow-footer {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 16px;
-  padding: 16px 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  
-  margin-top: 24px;
-}
-
-.woow-stats {
-  display: flex;
-  gap: 32px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.woow-stat {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.woow-stat-label {
-  font-size: 13px;
-  color: #64748b;
-  font-weight: 500;
-}
-
-.woow-stat-value {
-  font-size: 13px;
-  color: #0f172a;
-  font-weight: 600;
-  padding: 4px 10px;
-  background: rgba(99, 102, 241, 0.1);
-  border-radius: 6px;
-}
-
-/* ===========================
    RESPONSIVE
    =========================== */
 @media (max-width: 1024px) {

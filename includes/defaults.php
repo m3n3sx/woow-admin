@@ -68,8 +68,14 @@ function woow_get_default_settings() {
             'submenu_inherit_styles' => false,
             'submenu_bg_color' => 'rgba(255, 255, 255, 0.98)',
             'submenu_text_color' => '#0f172a',
-            'submenu_border_radius' => '12px',
-            'submenu_font_size' => '14px',
+            'submenu_hover_bg_color' => '#f1f5f9',
+            'submenu_hover_text_color' => '#6366f1',
+            'submenu_border_radius' => '12',
+            'submenu_font_size' => '14',
+            'submenu_font_weight' => '400',
+            'submenu_item_height' => '36',
+            'submenu_item_border_radius' => '8',
+            'submenu_distance_from_menu' => '5',
             
             // Spacing/Padding (internal)
             'spacing_mode' => 'all', // all or individual
@@ -260,19 +266,20 @@ function woow_get_default_settings() {
         
         'backgrounds' => array(
             'enabled' => true,
-            
-            // Main Background
-            'main_bg_color_start' => '#f8fafc',
-            'main_bg_color_middle' => '#eff6ff',
-            'main_bg_color_end' => '#eef2ff',
-            'use_gradient' => true,
-            
-            // Image
+            'background_color' => '#dbeafe',
+            'background_opacity' => '1',
+            'type' => 'gradient',
+            'gradient_type' => 'linear',
+            'gradient_start' => '#dbeafe',
+            'gradient_end' => '#e0e7ff',
+            'gradient_angle' => '135',
             'image_url' => '',
+            'image_position' => 'center',
             'image_size' => 'cover',
             'image_repeat' => 'no-repeat',
-            'image_position' => 'center',
-            'image_attachment' => 'fixed',
+            'wpbody_content_color' => 'transparent',
+            'wpbody_content_opacity' => '1',
+            'custom_css' => '',
         ),
         
         'typography' => array(

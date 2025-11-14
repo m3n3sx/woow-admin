@@ -158,8 +158,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                 </label>
                 <select 
                     name="admin_menu[background_type]" 
-                    class="woow-select woow-condition-trigger"
-                    data-target="menu_background_type"
+                    class="woow-select"
                 >
                     <option value="solid" <?php selected( $admin_menu['background_type'], 'solid' ); ?>>
                         <?php esc_html_e( 'Solid Color', 'woow-admin' ); ?>
@@ -174,7 +173,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
             </div>
 
             <!-- Solid Color Option -->
-            <div class="woow-form-group woow-conditional-field" data-condition="menu_background_type" data-value="solid">
+            <div class="woow-form-group woow-conditional" data-show-when="background_type=solid">
                 <label class="woow-label">
                     <?php esc_html_e( 'Background Color', 'woow-admin' ); ?>
                 </label>
@@ -203,7 +202,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
             </div>
 
             <!-- Gradient Options -->
-            <div class="woow-form-group woow-conditional-field" data-condition="menu_background_type" data-value="gradient">
+            <div class="woow-form-group woow-conditional" data-show-when="background_type=gradient">
                 <label class="woow-label">
                     <?php esc_html_e( 'Gradient Start Color', 'woow-admin' ); ?>
                 </label>
@@ -224,7 +223,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                 </div>
             </div>
 
-            <div class="woow-form-group woow-conditional-field" data-condition="menu_background_type" data-value="gradient">
+            <div class="woow-form-group woow-conditional" data-show-when="background_type=gradient">
                 <label class="woow-label">
                     <?php esc_html_e( 'Gradient End Color', 'woow-admin' ); ?>
                 </label>
@@ -246,7 +245,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
             </div>
 
             <!-- Glassmorphism Options -->
-            <div class="woow-form-group woow-conditional-field" data-condition="menu_background_type" data-value="glass">
+            <div class="woow-form-group woow-conditional" data-show-when="background_type=glass">
                 <label class="woow-label">
                     <?php esc_html_e( 'Base Color', 'woow-admin' ); ?>
                 </label>
@@ -271,7 +270,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                 </p>
             </div>
 
-            <div class="woow-form-row woow-conditional-field" data-condition="menu_background_type" data-value="glass">
+            <div class="woow-form-row woow-conditional" data-show-when="background_type=glass">
                 <div class="woow-form-group">
                     <label class="woow-label">
                         <?php esc_html_e( 'Opacity', 'woow-admin' ); ?>
@@ -318,7 +317,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                 </div>
             </div>
 
-            <!-- Text Color -->
+            <!-- Text Color - Always visible -->
             <div class="woow-form-group">
                 <label class="woow-label">
                     <?php esc_html_e( 'Text Color', 'woow-admin' ); ?>
@@ -421,8 +420,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                 </label>
                 <select 
                     name="admin_menu[active_bg_type]" 
-                    class="woow-select woow-condition-trigger"
-                    data-target="menu_active_bg_type"
+                    class="woow-select"
                 >
                     <option value="gradient" <?php selected( $admin_menu['active_bg_type'] ?? 'gradient', 'gradient' ); ?>>
                         <?php esc_html_e( 'Gradient', 'woow-admin' ); ?>
@@ -433,8 +431,8 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                 </select>
             </div>
 
-            <!-- Solid Color Option -->
-            <div class="woow-form-group woow-conditional-field" data-condition="menu_active_bg_type" data-value="solid">
+            <!-- Solid Color Option - Only visible when solid -->
+            <div class="woow-form-group woow-conditional" data-show-when="active_bg_type=solid">
                 <label class="woow-label">
                     <?php esc_html_e( 'Active Background Color', 'woow-admin' ); ?>
                 </label>
@@ -458,8 +456,8 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                 </p>
             </div>
 
-            <!-- Gradient Options -->
-            <div class="woow-form-row woow-conditional-field" data-condition="menu_active_bg_type" data-value="gradient">
+            <!-- Gradient Options - Only visible when gradient -->
+            <div class="woow-form-row woow-conditional" data-show-when="active_bg_type=gradient">
                 <div class="woow-form-group">
                     <label class="woow-label">
                         <?php esc_html_e( 'Active Gradient Start', 'woow-admin' ); ?>
@@ -509,6 +507,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                 </div>
             </div>
 
+            <!-- Active Text Color - Always visible -->
             <div class="woow-form-group">
                 <label class="woow-label">
                     <?php esc_html_e( 'Active Text Color', 'woow-admin' ); ?>
@@ -540,7 +539,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
         <div class="woow-card-body">
             <!-- Inherit Styles Toggle -->
             <div class="woow-form-group">
-                <label class="woow-toggle-label">
+                <label class="woow-toggle">
                     <input 
                         type="checkbox" 
                         name="admin_menu[submenu_inherit_styles]" 
@@ -549,7 +548,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                         class="woow-toggle-input"
                     />
                     <span class="woow-toggle-slider"></span>
-                    <span class="woow-toggle-text">
+                    <span class="woow-toggle-label">
                         <?php esc_html_e( 'Inherit styles from main menu', 'woow-admin' ); ?>
                     </span>
                 </label>
@@ -558,7 +557,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                 </p>
             </div>
 
-            <!-- Submenu Offset -->
+            <!-- Submenu Offset - Always visible -->
             <div class="woow-form-group">
                 <label class="woow-label">
                     <?php esc_html_e( 'Distance from Menu', 'woow-admin' ); ?>
@@ -584,6 +583,8 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                 </p>
             </div>
 
+            <!-- Custom Submenu Styles - Hidden when inherit is enabled -->
+            <div class="woow-conditional" data-show-when="submenu_inherit_styles=0">
             <div class="woow-form-row">
                 <div class="woow-form-group">
                     <label class="woow-label">
@@ -770,6 +771,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                     </div>
                 </div>
             </div>
+            </div><!-- End conditional submenu styles -->
         </div>
     </div>
 
@@ -832,22 +834,34 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                 <label class="woow-label">
                     <?php esc_html_e( 'Border Radius Mode', 'woow-admin' ); ?>
                 </label>
-                <select 
-                    name="admin_menu[border_radius_mode]" 
-                    class="woow-select woow-condition-trigger"
-                    data-target="menu_border_radius_mode"
-                >
-                    <option value="all" <?php selected( $admin_menu['border_radius_mode'], 'all' ); ?>>
-                        <?php esc_html_e( 'All Corners (Uniform)', 'woow-admin' ); ?>
-                    </option>
-                    <option value="individual" <?php selected( $admin_menu['border_radius_mode'], 'individual' ); ?>>
-                        <?php esc_html_e( 'Individual Corners', 'woow-admin' ); ?>
-                    </option>
-                </select>
+                <div class="woow-radio-group">
+                    <label class="woow-radio-label">
+                        <input 
+                            type="radio" 
+                            name="admin_menu[border_radius_mode]" 
+                            value="all" 
+                            <?php checked( $admin_menu['border_radius_mode'] ?? 'all', 'all' ); ?>
+                            class="woow-radio woow-condition-trigger"
+                            data-target="border_radius_mode"
+                        />
+                        <span><?php esc_html_e( 'All Corners (Uniform)', 'woow-admin' ); ?></span>
+                    </label>
+                    <label class="woow-radio-label">
+                        <input 
+                            type="radio" 
+                            name="admin_menu[border_radius_mode]" 
+                            value="individual" 
+                            <?php checked( $admin_menu['border_radius_mode'] ?? 'all', 'individual' ); ?>
+                            class="woow-radio woow-condition-trigger"
+                            data-target="border_radius_mode"
+                        />
+                        <span><?php esc_html_e( 'Individual Corners', 'woow-admin' ); ?></span>
+                    </label>
+                </div>
             </div>
 
             <!-- All Corners (Uniform) -->
-            <div class="woow-form-group woow-conditional-field" data-condition="menu_border_radius_mode" data-value="all">
+            <div class="woow-form-group woow-conditional-field" data-condition="border_radius_mode" data-value="all">
                 <label class="woow-label">
                     <?php esc_html_e( 'Border Radius (All Corners)', 'woow-admin' ); ?>
                 </label>
@@ -871,7 +885,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
             </div>
 
             <!-- Individual Corners -->
-            <div class="woow-conditional-field" data-condition="menu_border_radius_mode" data-value="individual">
+            <div class="woow-conditional-field" data-condition="border_radius_mode" data-value="individual">
                 <div class="woow-form-row">
                     <div class="woow-form-group">
                         <label class="woow-label">
@@ -957,8 +971,8 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                 </div>
             </div>
 
-            <!-- Item Border Radius -->
-            <div class="woow-form-group">
+            <!-- Item Border Radius - Visible only when All Corners mode -->
+            <div class="woow-form-group woow-conditional-field" data-condition="border_radius_mode" data-value="all">
                 <label class="woow-label">
                     <?php esc_html_e( 'Menu Item Border Radius', 'woow-admin' ); ?>
                 </label>
@@ -1053,22 +1067,34 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                 <label class="woow-label">
                     <?php esc_html_e( 'Spacing Mode', 'woow-admin' ); ?>
                 </label>
-                <select 
-                    name="admin_menu[spacing_mode]" 
-                    class="woow-select woow-condition-trigger"
-                    data-target="menu_spacing_mode"
-                >
-                    <option value="all" <?php selected( $admin_menu['spacing_mode'], 'all' ); ?>>
-                        <?php esc_html_e( 'All Sides (Uniform)', 'woow-admin' ); ?>
-                    </option>
-                    <option value="individual" <?php selected( $admin_menu['spacing_mode'], 'individual' ); ?>>
-                        <?php esc_html_e( 'Individual Sides', 'woow-admin' ); ?>
-                    </option>
-                </select>
+                <div class="woow-radio-group">
+                    <label class="woow-radio-label">
+                        <input 
+                            type="radio" 
+                            name="admin_menu[spacing_mode]" 
+                            value="all" 
+                            <?php checked( $admin_menu['spacing_mode'] ?? 'all', 'all' ); ?>
+                            class="woow-radio woow-condition-trigger"
+                            data-target="spacing_mode"
+                        />
+                        <span><?php esc_html_e( 'All Sides (Uniform)', 'woow-admin' ); ?></span>
+                    </label>
+                    <label class="woow-radio-label">
+                        <input 
+                            type="radio" 
+                            name="admin_menu[spacing_mode]" 
+                            value="individual" 
+                            <?php checked( $admin_menu['spacing_mode'] ?? 'all', 'individual' ); ?>
+                            class="woow-radio woow-condition-trigger"
+                            data-target="spacing_mode"
+                        />
+                        <span><?php esc_html_e( 'Individual Sides', 'woow-admin' ); ?></span>
+                    </label>
+                </div>
             </div>
 
             <!-- All Sides (Uniform) -->
-            <div class="woow-form-group woow-conditional-field" data-condition="menu_spacing_mode" data-value="all">
+            <div class="woow-form-group woow-conditional-field" data-condition="spacing_mode" data-value="all">
                 <label class="woow-label">
                     <?php esc_html_e( 'Padding (All Sides)', 'woow-admin' ); ?>
                 </label>
@@ -1092,7 +1118,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
             </div>
 
             <!-- Individual Sides -->
-            <div class="woow-conditional-field" data-condition="menu_spacing_mode" data-value="individual">
+            <div class="woow-conditional-field" data-condition="spacing_mode" data-value="individual">
                 <div class="woow-form-row">
                     <div class="woow-form-group">
                         <label class="woow-label">
@@ -1194,22 +1220,34 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                 <label class="woow-label">
                     <?php esc_html_e( 'Margin Mode', 'woow-admin' ); ?>
                 </label>
-                <select 
-                    name="admin_menu[margin_mode]" 
-                    class="woow-select woow-condition-trigger"
-                    data-target="menu_margin_mode"
-                >
-                    <option value="all" <?php selected( $admin_menu['margin_mode'], 'all' ); ?>>
-                        <?php esc_html_e( 'All Sides (Uniform)', 'woow-admin' ); ?>
-                    </option>
-                    <option value="individual" <?php selected( $admin_menu['margin_mode'], 'individual' ); ?>>
-                        <?php esc_html_e( 'Individual Sides', 'woow-admin' ); ?>
-                    </option>
-                </select>
+                <div class="woow-radio-group">
+                    <label class="woow-radio-label">
+                        <input 
+                            type="radio" 
+                            name="admin_menu[margin_mode]" 
+                            value="all" 
+                            <?php checked( $admin_menu['margin_mode'] ?? 'individual', 'all' ); ?>
+                            class="woow-radio woow-condition-trigger"
+                            data-target="margin_mode"
+                        />
+                        <span><?php esc_html_e( 'All Sides (Uniform)', 'woow-admin' ); ?></span>
+                    </label>
+                    <label class="woow-radio-label">
+                        <input 
+                            type="radio" 
+                            name="admin_menu[margin_mode]" 
+                            value="individual" 
+                            <?php checked( $admin_menu['margin_mode'] ?? 'individual', 'individual' ); ?>
+                            class="woow-radio woow-condition-trigger"
+                            data-target="margin_mode"
+                        />
+                        <span><?php esc_html_e( 'Individual Sides', 'woow-admin' ); ?></span>
+                    </label>
+                </div>
             </div>
 
             <!-- All Sides (Uniform) -->
-            <div class="woow-form-group woow-conditional-field" data-condition="menu_margin_mode" data-value="all">
+            <div class="woow-form-group woow-conditional-field" data-condition="margin_mode" data-value="all">
                 <label class="woow-label">
                     <?php esc_html_e( 'Margin (All Sides)', 'woow-admin' ); ?>
                 </label>
@@ -1233,7 +1271,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
             </div>
 
             <!-- Individual Sides -->
-            <div class="woow-conditional-field" data-condition="menu_margin_mode" data-value="individual">
+            <div class="woow-conditional-field" data-condition="margin_mode" data-value="individual">
                 <div class="woow-form-row">
                     <div class="woow-form-group">
                         <label class="woow-label">

@@ -16,6 +16,7 @@ import { TabManager } from './components/TabManager.js';
 import { KeyboardShortcuts } from './components/KeyboardShortcuts.js';
 import { HeaderController } from './components/HeaderController.js';
 import { LayoutController } from './components/LayoutController.js';
+import { ConditionalFields } from './components/ConditionalFields.js';
 import { Validator } from './utils/Validator.js';
 
 /**
@@ -80,6 +81,7 @@ class WoowAdmin {
             this.components.importExport = new ImportExport(this);
             this.components.tabManager = new TabManager(this);
             this.components.keyboardShortcuts = new KeyboardShortcuts(this);
+            this.components.conditionalFields = new ConditionalFields(this);
 
             // Check for unsaved data and offer to restore
             this.checkUnsavedData();
@@ -179,6 +181,9 @@ class WoowAdmin {
         
         // Handle admin menu submenu hover persistence
         this.setupSubmenuHoverHandler();
+        
+        // Handle simple image upload
+        this.setupSimpleImageUpload();
     }
     
     /**
@@ -315,23 +320,28 @@ class WoowAdmin {
         
         conditionalFields.forEach(field => {
             // Support both data-show-when and data-condition/data-value formats
-            let fieldName, expectedValue;
+            let fieldName, expectedValue, controllerField;
             
             if (field.dataset.showWhen) {
-                // Old format: data-show-when="background_type=gradient"
+                // Format: data-show-when="#bg-type-select=gradient" or "background_type=gradient"
                 const condition = field.dataset.showWhen;
                 [fieldName, expectedValue] = condition.split('=');
+                
+                // Check if fieldName is a selector (starts with # or .)
+                if (fieldName.startsWith('#') || fieldName.startsWith('.')) {
+                    controllerField = document.querySelector(fieldName);
+                } else {
+                    // Find by name attribute
+                    controllerField = document.querySelector(`[name*="[${fieldName}]"]`);
+                }
             } else if (field.dataset.condition && field.dataset.value) {
                 // New format: data-condition="background_type" data-value="gradient"
                 fieldName = field.dataset.condition;
                 expectedValue = field.dataset.value;
+                controllerField = document.querySelector(`[name*="[${fieldName}]"]`);
             }
             
-            if (!fieldName || !expectedValue) return;
-            
-            // Find controller field (select, radio, checkbox)
-            const controllerField = document.querySelector(`[name*="[${fieldName}]"]`);
-            if (!controllerField) return;
+            if (!controllerField || !expectedValue) return;
             
             // Store condition
             if (!conditions.has(controllerField)) {
@@ -389,6 +399,108 @@ class WoowAdmin {
     }
 
     /**
+     * Setup simple image upload without WordPress Media Library
+     */
+    setupSimpleImageUpload() {
+        const uploadBtn = document.getElementById('bg-upload-btn');
+        const fileInput = document.getElementById('bg-image-file');
+        const urlInput = document.getElementById('bg-image-url-display');
+        const hiddenInput = document.getElementById('bg-image-url');
+        const preview = document.getElementById('bg-image-preview');
+        const status = document.getElementById('bg-upload-status');
+        
+        if (!uploadBtn || !fileInput) return;
+        
+        // Click upload button triggers file input
+        uploadBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        // Handle file selection
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file.');
+                return;
+            }
+            
+            // Show uploading status
+            status.textContent = 'Uploading...';
+            uploadBtn.disabled = true;
+            
+            // Create FormData
+            const formData = new FormData();
+            formData.append('action', 'woow_upload_image');
+            formData.append('nonce', this.nonce);
+            formData.append('image', file);
+            
+            try {
+                // Upload via AJAX
+                const response = await fetch(this.ajaxUrl, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.data.url) {
+                    // Update inputs
+                    hiddenInput.value = data.data.url;
+                    urlInput.value = data.data.url;
+                    
+                    // Show preview
+                    preview.src = data.data.url;
+                    preview.style.display = 'block';
+                    
+                    // Update status
+                    status.textContent = 'Uploaded!';
+                    status.style.color = '#46b450';
+                    
+                    // Trigger change for live preview
+                    hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    
+                    console.log('[WOOW Admin] Image uploaded:', data.data.url);
+                } else {
+                    throw new Error(data.data?.message || 'Upload failed');
+                }
+            } catch (error) {
+                console.error('[WOOW Admin] Upload error:', error);
+                status.textContent = 'Upload failed: ' + error.message;
+                status.style.color = '#dc3232';
+                alert('Upload failed: ' + error.message);
+            } finally {
+                uploadBtn.disabled = false;
+                setTimeout(() => {
+                    status.textContent = '';
+                }, 3000);
+            }
+        });
+        
+        // Handle manual URL input
+        if (urlInput) {
+            urlInput.addEventListener('input', (e) => {
+                const url = e.target.value.trim();
+                hiddenInput.value = url;
+                
+                if (url) {
+                    preview.src = url;
+                    preview.style.display = 'block';
+                } else {
+                    preview.style.display = 'none';
+                }
+                
+                // Trigger change for live preview
+                hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+        }
+        
+        console.log('[WOOW Admin] Simple image upload initialized');
+    }
+
+    /**
      * Update save button state based on unsaved changes
      */
     updateSaveButtonState() {
@@ -426,24 +538,28 @@ class WoowAdmin {
             const name = input.name;
             if (!name) return;
 
-            // ✅ FIX: Skip hidden/invisible inputs (conditional fields)
-            // This prevents duplicate field names from overwriting visible values
-            if (input.type !== 'hidden') {
-                const isVisible = input.offsetParent !== null;
-                const parentHidden = input.closest('[style*="display: none"]') || 
-                                   input.closest('.woow-conditional:not(.woow-conditional-visible)');
-                
-                if (!isVisible || parentHidden) {
-                    console.log(`[collectFormData] Skipping non-visible input: ${name} (value: ${input.value})`);
-                    return;
-                }
-            }
-
             // Parse name to get section and key (e.g., "admin_bar[height]")
             const match = name.match(/^([^\[]+)\[([^\]]+)\]$/);
             if (!match) return;
 
             const [, section, key] = match;
+
+            // ✅ FIX: Skip hidden/invisible inputs (conditional fields)
+            // EXCEPT for backgrounds section - always collect those values
+            // This prevents duplicate field names from overwriting visible values
+            if (input.type !== 'hidden') {
+                // Always collect backgrounds fields, even if hidden
+                if (section !== 'backgrounds') {
+                    const isVisible = input.offsetParent !== null;
+                    const parentHidden = input.closest('[style*="display: none"]') || 
+                                       input.closest('.woow-conditional:not(.woow-conditional-visible)');
+                    
+                    if (!isVisible || parentHidden) {
+                        console.log(`[collectFormData] Skipping non-visible input: ${name} (value: ${input.value})`);
+                        return;
+                    }
+                }
+            }
             
             // Debug: log background_color (only visible ones now)
             if (key === 'background_color') {

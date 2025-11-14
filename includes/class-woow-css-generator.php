@@ -443,7 +443,8 @@ class WOOW_CSS_Generator {
             // Inherit from admin bar
             $submenu_bg = $glassmorphism_enabled ? $this->hex_to_rgba( $bar['background_color'], $opacity ) : $bar['background_color'];
             $submenu_text = $bar['text_color'];
-            $submenu_hover = $bar['hover_bg_color'];
+            $submenu_hover_bg = $bar['hover_bg_color'];
+            $submenu_hover_text = $bar['hover_text_color'];
             
             // Get border radius from admin bar (handle mode)
             $border_radius_mode = $bar['border_radius_mode'] ?? 'all';
@@ -454,21 +455,31 @@ class WOOW_CSS_Generator {
                 $submenu_radius = $bar['border_radius_top_left'] ?? '24';
             }
             
-            $submenu_font_size = $bar['font_size'] ?? '14px';
+            $submenu_font_size = $bar['font_size'] ?? '14';
+            $submenu_font_weight = $bar['font_weight'] ?? '600';
+            $submenu_item_height = $bar['height'] ?? '48';
+            $submenu_item_border_radius = $submenu_radius;
         } else {
             // Custom submenu styles
             $submenu_bg = $bar['submenu_bg_color'] ?? 'rgba(255, 255, 255, 0.98)';
             $submenu_text = $bar['submenu_text_color'] ?? '#0f172a';
-            $submenu_hover = 'rgba(99, 102, 241, 0.08)';
+            $submenu_hover_bg = $bar['submenu_hover_bg_color'] ?? '#f1f5f9';
+            $submenu_hover_text = $bar['submenu_hover_text_color'] ?? '#6366f1';
             $submenu_radius = $bar['submenu_border_radius'] ?? '12';
-            $submenu_font_size = ( $bar['submenu_font_size'] ?? '14' ) . 'px';
+            $submenu_font_size = $bar['submenu_font_size'] ?? '14';
+            $submenu_font_weight = $bar['submenu_font_weight'] ?? '400';
+            $submenu_item_height = $bar['submenu_item_height'] ?? '36';
+            $submenu_item_border_radius = $bar['submenu_item_border_radius'] ?? '8';
         }
+        
+        // Distance from menu
+        $submenu_distance = $bar['submenu_distance_from_menu'] ?? '5';
         
         // Override WordPress default submenu wrapper background
         $this->css .= "#wpadminbar .menupop .ab-sub-wrapper {\n";
         $this->css .= "    position: absolute !important;\n";
         $this->css .= "    top: 100% !important;\n";
-        $this->css .= "    margin-top: 3px !important;\n";
+        $this->css .= "    margin-top: {$submenu_distance}px !important;\n";
         $this->css .= "    background: {$submenu_bg} !important;\n";
         
         if ( $submenu_inherit && $glassmorphism_enabled ) {
@@ -496,7 +507,10 @@ class WOOW_CSS_Generator {
         
         $this->css .= "#wpadminbar .ab-submenu .ab-item {\n";
         $this->css .= "    color: {$submenu_text} !important;\n";
-        $this->css .= "    border-radius: 8px !important;\n";
+        $this->css .= "    font-size: {$submenu_font_size}px !important;\n";
+        $this->css .= "    font-weight: {$submenu_font_weight} !important;\n";
+        $this->css .= "    height: {$submenu_item_height}px !important;\n";
+        $this->css .= "    border-radius: {$submenu_item_border_radius}px !important;\n";
         $this->css .= "    padding: 8px 12px !important;\n";
         $this->css .= "    font-size: {$submenu_font_size} !important;\n";
         $this->css .= "    transition: all 200ms var(--woow-easing) !important;\n";
@@ -504,8 +518,8 @@ class WOOW_CSS_Generator {
         
         $this->css .= "#wpadminbar .ab-submenu .ab-item:hover,\n";
         $this->css .= "#wpadminbar .ab-submenu .ab-item:focus {\n";
-        $this->css .= "    background: {$submenu_hover} !important;\n";
-        $this->css .= "    color: {$submenu_text} !important;\n";
+        $this->css .= "    background: {$submenu_hover_bg} !important;\n";
+        $this->css .= "    color: {$submenu_hover_text} !important;\n";
         $this->css .= "}\n\n";
         
         // Submenu icons color
@@ -535,8 +549,14 @@ class WOOW_CSS_Generator {
         // Submenu hover consistency
         $this->css .= "#wpadminbar .ab-submenu a:hover,\n";
         $this->css .= "#wpadminbar .menupop .ab-sub-wrapper a:hover {\n";
-        $this->css .= "    background: {$submenu_hover} !important;\n";
-        $this->css .= "    color: {$submenu_text} !important;\n";
+        $this->css .= "    background: {$submenu_hover_bg} !important;\n";
+        $this->css .= "    color: {$submenu_hover_text} !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Submenu hover icon colors
+        $this->css .= "#wpadminbar .ab-submenu .ab-item:hover .ab-icon:before,\n";
+        $this->css .= "#wpadminbar .ab-submenu .ab-item:hover:before {\n";
+        $this->css .= "    color: {$submenu_hover_text} !important;\n";
         $this->css .= "}\n\n";
         
         // Custom CSS
@@ -1643,42 +1663,64 @@ class WOOW_CSS_Generator {
         $this->css .= "/* Background Styling */\n";
         
         // Get background settings
-        $use_gradient = $bg['use_gradient'] ?? true;
-        $main_bg_start = $bg['main_bg_color_start'] ?? '#f8fafc';
-        $main_bg_middle = $bg['main_bg_color_middle'] ?? '#eff6ff';
-        $main_bg_end = $bg['main_bg_color_end'] ?? '#eef2ff';
+        $background_color = $bg['background_color'] ?? '#dbeafe';
+        $background_opacity = $bg['background_opacity'] ?? '1';
+        $type = $bg['type'] ?? 'none';
+        $gradient_type = $bg['gradient_type'] ?? 'linear';
+        $gradient_start = $bg['gradient_start'] ?? '#dbeafe';
+        $gradient_end = $bg['gradient_end'] ?? '#e0e7ff';
+        $gradient_angle = $bg['gradient_angle'] ?? '135';
         $image_url = $bg['image_url'] ?? '';
         $image_size = $bg['image_size'] ?? 'cover';
         $image_repeat = $bg['image_repeat'] ?? 'no-repeat';
         $image_position = $bg['image_position'] ?? 'center';
-        $image_attachment = $bg['image_attachment'] ?? 'fixed';
+        $wpbody_content_color = $bg['wpbody_content_color'] ?? 'transparent';
+        $wpbody_content_opacity = $bg['wpbody_content_opacity'] ?? '1';
         
-        // Style #wpwrap (main WordPress wrapper)
-        $this->css .= "#wpwrap {\n";
+        // Convert hex to rgba with opacity
+        $background_rgba = $this->hex_to_rgba( $background_color, floatval( $background_opacity ) );
         
-        if ( ! empty( $image_url ) ) {
-            // Image background
+        // Style body (main background) - ALWAYS apply background_color with opacity
+        $this->css .= "body.wp-admin {\n";
+        $this->css .= "    background-color: {$background_rgba} !important;\n";
+        
+        // Add additional effects based on type
+        if ( $type === 'image' && ! empty( $image_url ) ) {
+            // Image background (on top of background_color)
             $this->css .= "    background-image: url('{$image_url}') !important;\n";
             $this->css .= "    background-position: {$image_position} !important;\n";
             $this->css .= "    background-size: {$image_size} !important;\n";
             $this->css .= "    background-repeat: {$image_repeat} !important;\n";
-            $this->css .= "    background-attachment: {$image_attachment} !important;\n";
-        } elseif ( $use_gradient ) {
-            // Gradient background
-            $this->css .= "    background: linear-gradient(to bottom right, {$main_bg_start}, {$main_bg_middle}, {$main_bg_end}) !important;\n";
-        } else {
-            // Solid background (use start color)
-            $this->css .= "    background: {$main_bg_start} !important;\n";
+            $this->css .= "    background-attachment: fixed !important;\n";
+        } elseif ( $type === 'gradient' ) {
+            // Gradient background (replaces background_color)
+            if ( $gradient_type === 'linear' ) {
+                $this->css .= "    background: linear-gradient({$gradient_angle}deg, {$gradient_start}, {$gradient_end}) !important;\n";
+            } elseif ( $gradient_type === 'radial' ) {
+                $this->css .= "    background: radial-gradient(circle, {$gradient_start}, {$gradient_end}) !important;\n";
+            } elseif ( $gradient_type === 'conic' ) {
+                $this->css .= "    background: conic-gradient(from {$gradient_angle}deg, {$gradient_start}, {$gradient_end}) !important;\n";
+            }
         }
+        // else: type === 'none' - just use background_color with opacity (already set above)
         
         $this->css .= "    min-height: 100vh !important;\n";
         $this->css .= "}\n\n";
         
-        // Style #wpbody-content
+        // Style #wpwrap to be transparent (let body background show through)
+        $this->css .= "#wpwrap {\n";
+        $this->css .= "    background: transparent !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Style #wpbody-content with opacity
+        $wpbody_rgba = ( $wpbody_content_color === 'transparent' ) 
+            ? 'transparent' 
+            : $this->hex_to_rgba( $wpbody_content_color, floatval( $wpbody_content_opacity ) );
+        
         $this->css .= "#wpbody-content {\n";
         $this->css .= "    padding: 16px !important;\n";
         $this->css .= "    margin-left: 0 !important;\n";
-        $this->css .= "    background: transparent !important;\n";
+        $this->css .= "    background: {$wpbody_rgba} !important;\n";
         $this->css .= "}\n\n";
         
         // Custom CSS

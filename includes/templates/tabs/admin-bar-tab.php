@@ -53,8 +53,14 @@ $defaults = array(
     'submenu_inherit_styles' => false,
     'submenu_bg_color'  => 'rgba(255, 255, 255, 0.98)',
     'submenu_text_color' => '#0f172a',
+    'submenu_hover_bg_color' => '#f1f5f9',
+    'submenu_hover_text_color' => '#6366f1',
     'submenu_border_radius' => '12',
     'submenu_font_size' => '14',
+    'submenu_font_weight' => '400',
+    'submenu_item_height' => '36',
+    'submenu_item_border_radius' => '8',
+    'submenu_distance_from_menu' => '5',
     'custom_css'        => '',
 );
 
@@ -429,6 +435,145 @@ $admin_bar = array_merge( $defaults, $this->settings->get_section( 'admin_bar' )
                     </div>
                 </div>
 
+                <!-- Hover Colors -->
+                <div class="woow-form-row">
+                    <div class="woow-form-group">
+                        <label class="woow-label">
+                            <?php esc_html_e( 'Submenu Hover Background', 'woow-admin' ); ?>
+                        </label>
+                        <div class="woow-color-picker-group">
+                            <input 
+                                type="color" 
+                                name="admin_bar[submenu_hover_bg_color]" 
+                                value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_bar['submenu_hover_bg_color'] ?? '', '#f1f5f9' ) ); ?>"
+                                data-default="#f1f5f9"
+                                class="woow-color-input"
+                            />
+                            <input 
+                                type="text" 
+                                value="<?php echo esc_attr( $admin_bar['submenu_hover_bg_color'] ?? '#f1f5f9' ); ?>"
+                                class="woow-color-text"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="woow-form-group">
+                        <label class="woow-label">
+                            <?php esc_html_e( 'Submenu Hover Text Color', 'woow-admin' ); ?>
+                        </label>
+                        <div class="woow-color-picker-group">
+                            <input 
+                                type="color" 
+                                name="admin_bar[submenu_hover_text_color]" 
+                                value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_bar['submenu_hover_text_color'] ?? '', '#6366f1' ) ); ?>"
+                                data-default="#6366f1"
+                                class="woow-color-input"
+                            />
+                            <input 
+                                type="text" 
+                                value="<?php echo esc_attr( $admin_bar['submenu_hover_text_color'] ); ?>"
+                                class="woow-color-text"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Typography -->
+                <div class="woow-form-row">
+                    <div class="woow-form-group">
+                        <label class="woow-label">
+                            <?php esc_html_e( 'Submenu Font Size', 'woow-admin' ); ?>
+                        </label>
+                        <div class="woow-slider-group">
+                            <input 
+                                type="range" 
+                                name="admin_bar[submenu_font_size]" 
+                                value="<?php echo esc_attr( intval( $admin_bar['submenu_font_size'] ?? 14 ) ); ?>"
+                                min="12" 
+                                max="18" 
+                                step="1"
+                                class="woow-slider"
+                                data-type="unitless"
+                                data-unit="px"
+                            />
+                            <span class="woow-slider-value"><?php echo esc_html( $admin_bar['submenu_font_size'] ?? '14' ); ?>px</span>
+                        </div>
+                    </div>
+
+                    <div class="woow-form-group">
+                        <label class="woow-label">
+                            <?php esc_html_e( 'Submenu Font Weight', 'woow-admin' ); ?>
+                        </label>
+                        <select name="admin_bar[submenu_font_weight]" class="woow-select">
+                            <option value="300" <?php selected( $admin_bar['submenu_font_weight'] ?? '400', '300' ); ?>>
+                                <?php esc_html_e( 'Light (300)', 'woow-admin' ); ?>
+                            </option>
+                            <option value="400" <?php selected( $admin_bar['submenu_font_weight'] ?? '400', '400' ); ?>>
+                                <?php esc_html_e( 'Normal (400)', 'woow-admin' ); ?>
+                            </option>
+                            <option value="500" <?php selected( $admin_bar['submenu_font_weight'] ?? '400', '500' ); ?>>
+                                <?php esc_html_e( 'Medium (500)', 'woow-admin' ); ?>
+                            </option>
+                            <option value="600" <?php selected( $admin_bar['submenu_font_weight'] ?? '400', '600' ); ?>>
+                                <?php esc_html_e( 'Semibold (600)', 'woow-admin' ); ?>
+                            </option>
+                            <option value="700" <?php selected( $admin_bar['submenu_font_weight'] ?? '400', '700' ); ?>>
+                                <?php esc_html_e( 'Bold (700)', 'woow-admin' ); ?>
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Dimensions -->
+                <div class="woow-form-row">
+                    <div class="woow-form-group">
+                        <label class="woow-label">
+                            <?php esc_html_e( 'Submenu Item Height', 'woow-admin' ); ?>
+                        </label>
+                        <div class="woow-slider-group">
+                            <input 
+                                type="range" 
+                                name="admin_bar[submenu_item_height]" 
+                                value="<?php echo esc_attr( intval( $admin_bar['submenu_item_height'] ?? 36 ) ); ?>"
+                                min="28" 
+                                max="56" 
+                                step="2"
+                                class="woow-slider"
+                                data-type="unitless"
+                                data-unit="px"
+                            />
+                            <span class="woow-slider-value"><?php echo esc_html( $admin_bar['submenu_item_height'] ?? '36' ); ?>px</span>
+                        </div>
+                        <p class="woow-field-description">
+                            <?php esc_html_e( 'Default: 36px. Height of each submenu item', 'woow-admin' ); ?>
+                        </p>
+                    </div>
+
+                    <div class="woow-form-group">
+                        <label class="woow-label">
+                            <?php esc_html_e( 'Distance from Menu', 'woow-admin' ); ?>
+                        </label>
+                        <div class="woow-slider-group">
+                            <input 
+                                type="range" 
+                                name="admin_bar[submenu_distance_from_menu]" 
+                                value="<?php echo esc_attr( intval( $admin_bar['submenu_distance_from_menu'] ?? 5 ) ); ?>"
+                                min="0" 
+                                max="20" 
+                                step="1"
+                                class="woow-slider"
+                                data-type="unitless"
+                                data-unit="px"
+                            />
+                            <span class="woow-slider-value"><?php echo esc_html( $admin_bar['submenu_distance_from_menu'] ?? '5' ); ?>px</span>
+                        </div>
+                        <p class="woow-field-description">
+                            <?php esc_html_e( 'Default: 5px. Gap between admin bar and submenu dropdown', 'woow-admin' ); ?>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Border Radius -->
                 <div class="woow-form-row">
                     <div class="woow-form-group">
                         <label class="woow-label">
@@ -443,29 +588,37 @@ $admin_bar = array_merge( $defaults, $this->settings->get_section( 'admin_bar' )
                                 max="24" 
                                 step="2"
                                 class="woow-slider"
+                                data-type="unitless"
                                 data-unit="px"
                             />
                             <span class="woow-slider-value"><?php echo esc_html( $admin_bar['submenu_border_radius'] ?? '12' ); ?>px</span>
                         </div>
+                        <p class="woow-field-description">
+                            <?php esc_html_e( 'Default: 12px. Rounded corners of submenu container', 'woow-admin' ); ?>
+                        </p>
                     </div>
 
                     <div class="woow-form-group">
                         <label class="woow-label">
-                            <?php esc_html_e( 'Submenu Font Size', 'woow-admin' ); ?>
+                            <?php esc_html_e( 'Submenu Item Border Radius', 'woow-admin' ); ?>
                         </label>
                         <div class="woow-slider-group">
                             <input 
                                 type="range" 
-                                name="admin_bar[submenu_font_size]" 
-                                value="<?php echo esc_attr( intval( $admin_bar['submenu_font_size'] ?? 14 ) ); ?>"
-                                min="12" 
-                                max="18" 
-                                step="1"
+                                name="admin_bar[submenu_item_border_radius]" 
+                                value="<?php echo esc_attr( intval( $admin_bar['submenu_item_border_radius'] ?? 8 ) ); ?>"
+                                min="0" 
+                                max="16" 
+                                step="2"
                                 class="woow-slider"
+                                data-type="unitless"
                                 data-unit="px"
                             />
-                            <span class="woow-slider-value"><?php echo esc_html( $admin_bar['submenu_font_size'] ?? '14' ); ?>px</span>
+                            <span class="woow-slider-value"><?php echo esc_html( $admin_bar['submenu_item_border_radius'] ?? '8' ); ?>px</span>
                         </div>
+                        <p class="woow-field-description">
+                            <?php esc_html_e( 'Default: 8px. Rounded corners of individual submenu items', 'woow-admin' ); ?>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -758,14 +911,30 @@ $admin_bar = array_merge( $defaults, $this->settings->get_section( 'admin_bar' )
                 <label class="woow-label">
                     <?php esc_html_e( 'Spacing Mode', 'woow-admin' ); ?>
                 </label>
-                <select name="admin_bar[spacing_mode]" class="woow-select">
-                    <option value="all" <?php selected( $admin_bar['spacing_mode'] ?? 'all', 'all' ); ?>>
-                        <?php esc_html_e( 'All Sides (Uniform)', 'woow-admin' ); ?>
-                    </option>
-                    <option value="individual" <?php selected( $admin_bar['spacing_mode'] ?? 'all', 'individual' ); ?>>
-                        <?php esc_html_e( 'Individual Sides', 'woow-admin' ); ?>
-                    </option>
-                </select>
+                <div class="woow-radio-group">
+                    <label class="woow-radio-label">
+                        <input 
+                            type="radio" 
+                            name="admin_bar[spacing_mode]" 
+                            value="all" 
+                            <?php checked( $admin_bar['spacing_mode'] ?? 'all', 'all' ); ?>
+                            class="woow-radio woow-condition-trigger"
+                            data-target="spacing_mode"
+                        />
+                        <span><?php esc_html_e( 'All Sides (Uniform)', 'woow-admin' ); ?></span>
+                    </label>
+                    <label class="woow-radio-label">
+                        <input 
+                            type="radio" 
+                            name="admin_bar[spacing_mode]" 
+                            value="individual" 
+                            <?php checked( $admin_bar['spacing_mode'] ?? 'all', 'individual' ); ?>
+                            class="woow-radio woow-condition-trigger"
+                            data-target="spacing_mode"
+                        />
+                        <span><?php esc_html_e( 'Individual Sides', 'woow-admin' ); ?></span>
+                    </label>
+                </div>
                 <p class="woow-field-description">
                     <?php esc_html_e( 'Choose uniform spacing for all sides or set each side individually', 'woow-admin' ); ?>
                 </p>
@@ -895,14 +1064,30 @@ $admin_bar = array_merge( $defaults, $this->settings->get_section( 'admin_bar' )
                 <label class="woow-label">
                     <?php esc_html_e( 'Margin Mode', 'woow-admin' ); ?>
                 </label>
-                <select name="admin_bar[margin_mode]" class="woow-select">
-                    <option value="all" <?php selected( $admin_bar['margin_mode'] ?? 'all', 'all' ); ?>>
-                        <?php esc_html_e( 'All Sides (Uniform)', 'woow-admin' ); ?>
-                    </option>
-                    <option value="individual" <?php selected( $admin_bar['margin_mode'] ?? 'all', 'individual' ); ?>>
-                        <?php esc_html_e( 'Individual Sides', 'woow-admin' ); ?>
-                    </option>
-                </select>
+                <div class="woow-radio-group">
+                    <label class="woow-radio-label">
+                        <input 
+                            type="radio" 
+                            name="admin_bar[margin_mode]" 
+                            value="all" 
+                            <?php checked( $admin_bar['margin_mode'] ?? 'all', 'all' ); ?>
+                            class="woow-radio woow-condition-trigger"
+                            data-target="margin_mode"
+                        />
+                        <span><?php esc_html_e( 'All Sides (Uniform)', 'woow-admin' ); ?></span>
+                    </label>
+                    <label class="woow-radio-label">
+                        <input 
+                            type="radio" 
+                            name="admin_bar[margin_mode]" 
+                            value="individual" 
+                            <?php checked( $admin_bar['margin_mode'] ?? 'all', 'individual' ); ?>
+                            class="woow-radio woow-condition-trigger"
+                            data-target="margin_mode"
+                        />
+                        <span><?php esc_html_e( 'Individual Sides', 'woow-admin' ); ?></span>
+                    </label>
+                </div>
                 <p class="woow-field-description">
                     <?php esc_html_e( 'Distance from browser edges. Uniform applies to all sides equally.', 'woow-admin' ); ?>
                 </p>
@@ -1200,6 +1385,7 @@ $admin_bar = array_merge( $defaults, $this->settings->get_section( 'admin_bar' )
                     rows="8"
                     placeholder="/* Your custom CSS here */"
                     spellcheck="false"
+                    style="width: 100%; min-width: 100%;"
                 ><?php echo esc_textarea( $admin_bar['custom_css'] ); ?></textarea>
                 <p class="woow-field-description">
                     <?php esc_html_e( 'Advanced users: Add custom CSS rules for #wpadminbar', 'woow-admin' ); ?>

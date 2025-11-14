@@ -162,6 +162,7 @@ class WOOW_Admin {
 		add_action( 'wp_ajax_woow_preview_css', array( $this, 'ajax_preview_css' ) );
 		add_action( 'wp_ajax_woow_export_settings', array( $this, 'ajax_export_settings' ) );
 		add_action( 'wp_ajax_woow_import_settings', array( $this, 'ajax_import_settings' ) );
+		add_action( 'wp_ajax_woow_upload_image', array( $this, 'ajax_upload_image' ) );
 	}
 
 	/**
@@ -226,7 +227,7 @@ class WOOW_Admin {
 		wp_enqueue_script(
 			'woow-admin-scripts',
 			WOOW_ASSETS_URL . 'main.js',
-			array(),
+			array( 'jquery' ),
 			WOOW_VERSION,
 			true
 		);
@@ -1030,5 +1031,69 @@ class WOOW_Admin {
 		}
 		
 		return $indexed;
+	}
+
+	/**
+	 * AJAX handler for image upload
+	 *
+	 * @return void
+	 */
+	public function ajax_upload_image(): void {
+		// Verify nonce
+		if ( ! check_ajax_referer( 'woow_admin_nonce', 'nonce', false ) ) {
+			wp_send_json_error( array( 'message' => 'Invalid nonce' ) );
+			return;
+		}
+
+		// Check user capabilities
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => 'Insufficient permissions' ) );
+			return;
+		}
+
+		// Check if file was uploaded
+		if ( empty( $_FILES['image'] ) ) {
+			wp_send_json_error( array( 'message' => 'No file uploaded' ) );
+			return;
+		}
+
+		// Handle the upload
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+		require_once ABSPATH . 'wp-admin/includes/media.php';
+
+		// Upload file
+		$file = $_FILES['image'];
+		$upload = wp_handle_upload( $file, array( 'test_form' => false ) );
+
+		if ( isset( $upload['error'] ) ) {
+			wp_send_json_error( array( 'message' => $upload['error'] ) );
+			return;
+		}
+
+		// Create attachment
+		$attachment = array(
+			'post_mime_type' => $upload['type'],
+			'post_title'     => sanitize_file_name( basename( $upload['file'] ) ),
+			'post_content'   => '',
+			'post_status'    => 'inherit',
+		);
+
+		$attach_id = wp_insert_attachment( $attachment, $upload['file'] );
+
+		if ( is_wp_error( $attach_id ) ) {
+			wp_send_json_error( array( 'message' => $attach_id->get_error_message() ) );
+			return;
+		}
+
+		// Generate metadata
+		$attach_data = wp_generate_attachment_metadata( $attach_id, $upload['file'] );
+		wp_update_attachment_metadata( $attach_id, $attach_data );
+
+		// Return success with URL
+		wp_send_json_success( array(
+			'url' => $upload['url'],
+			'id'  => $attach_id,
+		) );
 	}
 }

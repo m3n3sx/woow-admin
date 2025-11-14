@@ -142,15 +142,19 @@ class WOOW_Settings {
             ],
             'backgrounds' => [
                 'enabled' => true,
+                'background_color' => '#dbeafe',
+                'background_opacity' => '1',
                 'type' => 'gradient',
-                'solid_color' => '#fafafa',
                 'gradient_type' => 'linear',
+                'gradient_start' => '#dbeafe',
+                'gradient_end' => '#e0e7ff',
                 'gradient_angle' => '135',
-                'gradient_colors' => ['#f8fafc', '#eff6ff', '#eef2ff'],
-                'pattern' => 'none',
                 'image_url' => '',
                 'image_position' => 'center',
                 'image_size' => 'cover',
+                'image_repeat' => 'no-repeat',
+                'wpbody_content_color' => 'transparent',
+                'wpbody_content_opacity' => '1',
                 'custom_css' => '',
             ],
             'typography' => [
@@ -638,8 +642,8 @@ class WOOW_Settings {
                         'header_text_color' => '#f1f5f9',
                     ],
                     'backgrounds' => [
-                        'solid_color' => '#0f172a',
-                        'type' => 'solid',
+                        'background_color' => '#0f172a',
+                        'type' => 'none',
                     ],
                     'form_controls' => [
                         'background_color' => 'rgba(30,41,59,0.6)',
@@ -668,7 +672,8 @@ class WOOW_Settings {
                     ],
                     'backgrounds' => [
                         'type' => 'gradient',
-                        'gradient_colors' => ['#fce7f3', '#e0e7ff', '#fef3c7'],
+                        'gradient_start' => '#fce7f3',
+                        'gradient_end' => '#e0e7ff',
                     ],
                 ],
             ],
@@ -724,8 +729,8 @@ class WOOW_Settings {
                         'shadow_style' => 'sm',
                     ],
                     'backgrounds' => [
-                        'type' => 'solid',
-                        'solid_color' => '#ffffff',
+                        'background_color' => '#ffffff',
+                        'type' => 'none',
                     ],
                 ],
             ],
@@ -864,7 +869,7 @@ class WOOW_Settings {
         $this->settings['buttons']['destructive_bg'] = $colors['destructive'];
 
         // Update background colors
-        $this->settings['backgrounds']['solid_color'] = $colors['background'];
+        $this->settings['backgrounds']['background_color'] = $colors['background'];
 
         // Clear CSS cache after applying palette
         if ( function_exists( 'delete_transient' ) ) {
@@ -961,6 +966,13 @@ class WOOW_Settings {
                         $error_message = "Line height must be between 1.0 and 3.0";
                     }
                 }
+                // Check gradient_angle (0-360 degrees)
+                elseif ( $key === 'gradient_angle' ) {
+                    if ( ! is_numeric( $value ) || $value < 0 || $value > 360 ) {
+                        $is_valid = false;
+                        $error_message = "Gradient angle must be between 0 and 360";
+                    }
+                }
                 // Check image_size, image_position, image_repeat (keywords, not units)
                 elseif ( $key === 'image_size' || $key === 'image_position' || $key === 'image_repeat' || $key === 'pattern' ) {
                     // These are keyword values, always valid if string
@@ -1004,6 +1016,30 @@ class WOOW_Settings {
                     if ( ! in_array( $value, array( 'all', 'individual' ), true ) ) {
                         $is_valid = false;
                         $error_message = "Invalid mode (expected 'all' or 'individual')";
+                    }
+                }
+                // Admin Bar specific unitless fields (BEFORE general patterns!)
+                elseif ( $section === 'admin_bar' && ( 
+                    $key === 'submenu_border_radius' || 
+                    $key === 'submenu_font_size' ||
+                    $key === 'submenu_item_height' ||
+                    $key === 'submenu_item_border_radius' ||
+                    $key === 'submenu_distance_from_menu'
+                ) ) {
+                    // These are unitless numbers (unit added in CSS generation)
+                    if ( ! is_numeric( $value ) || $value < 0 ) {
+                        $is_valid = false;
+                        $error_message = "Value must be a positive number";
+                    }
+                }
+                // Admin Bar keyword fields
+                elseif ( $section === 'admin_bar' && ( 
+                    $key === 'submenu_font_weight'
+                ) ) {
+                    // These are keyword values
+                    if ( ! is_string( $value ) ) {
+                        $is_valid = false;
+                        $error_message = "Value must be a string";
                     }
                 }
                 // Spacing, margin, and border_radius values (unitless numbers, unit added in CSS)

@@ -325,36 +325,6 @@ $current_template = $settings['general']['current_template'] ?? 'default';
             </div>
         </div>
     </div> <!-- .woow-layout-container -->
-
-    <!-- Footer with Performance Stats -->
-    <div class="woow-footer woow-glass-strong">
-        <div class="woow-stats">
-            <div class="woow-stat">
-                <span class="woow-stat-label"><?php esc_html_e( 'CSS Size:', 'woow-admin' ); ?></span>
-                <span class="woow-stat-value" id="woow-stat-css-size">--</span>
-            </div>
-            
-            <div class="woow-stat">
-                <span class="woow-stat-label"><?php esc_html_e( 'Generation Time:', 'woow-admin' ); ?></span>
-                <span class="woow-stat-value" id="woow-stat-gen-time">--</span>
-            </div>
-            
-            <div class="woow-stat">
-                <span class="woow-stat-label"><?php esc_html_e( 'Cache Hit Rate:', 'woow-admin' ); ?></span>
-                <span class="woow-stat-value" id="woow-stat-cache-rate">--</span>
-            </div>
-            
-            <div class="woow-stat">
-                <span class="woow-stat-label"><?php esc_html_e( 'Current Palette:', 'woow-admin' ); ?></span>
-                <span class="woow-stat-value" id="woow-stat-palette"><?php echo esc_html( ucwords( str_replace( '_', ' ', $current_palette ) ) ); ?></span>
-            </div>
-            
-            <div class="woow-stat">
-                <span class="woow-stat-label"><?php esc_html_e( 'Current Template:', 'woow-admin' ); ?></span>
-                <span class="woow-stat-value" id="woow-stat-template"><?php echo esc_html( ucwords( str_replace( '_', ' ', $current_template ) ) ); ?></span>
-            </div>
-        </div>
-    </div>
 </div>
 
 <!-- Toast Notification Container -->
