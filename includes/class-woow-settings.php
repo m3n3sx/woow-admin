@@ -1022,7 +1022,11 @@ class WOOW_Settings {
                     $key === 'font_size' || 
                     $key === 'blur_strength' || 
                     $key === 'icon_size' || 
-                    $key === 'submenu_border_radius' 
+                    $key === 'submenu_border_radius' || 
+                    $key === 'submenu_item_height' || 
+                    $key === 'submenu_font_size' || 
+                    $key === 'submenu_item_border_radius' || 
+                    $key === 'inline_submenu_font_size' 
                 ) ) {
                     // These are unitless numbers (unit added in CSS generation)
                     if ( ! is_numeric( $value ) || $value < 0 ) {
@@ -1035,7 +1039,9 @@ class WOOW_Settings {
                     $key === 'font_weight' || 
                     $key === 'shadow_style' || 
                     $key === 'background_type' || 
-                    $key === 'hover_style' 
+                    $key === 'hover_style' || 
+                    $key === 'submenu_font_weight' || 
+                    $key === 'inline_submenu_font_weight' 
                 ) ) {
                     // These are keyword values
                     if ( ! is_string( $value ) ) {

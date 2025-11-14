@@ -87,10 +87,10 @@ const FIELD_TYPE_MAP = {
     'admin_bar.border_radius_mode': FIELD_TYPES.KEYWORD,
     
     // Submenu fields (unitless, unit added in CSS)
-    'submenu_border_radius': FIELD_TYPES.PERCENTAGE,
-    'submenu_font_size': FIELD_TYPES.PERCENTAGE,
-    'admin_bar.submenu_border_radius': FIELD_TYPES.PERCENTAGE,
-    'admin_bar.submenu_font_size': FIELD_TYPES.PERCENTAGE,
+    'submenu_border_radius': FIELD_TYPES.NUMBER,
+    'submenu_font_size': FIELD_TYPES.NUMBER,
+    'admin_bar.submenu_border_radius': FIELD_TYPES.NUMBER,
+    'admin_bar.submenu_font_size': FIELD_TYPES.NUMBER,
     
     // Border radius fields (unitless, unit added in CSS)
     'border_radius_all': FIELD_TYPES.PERCENTAGE,
@@ -128,7 +128,19 @@ const FIELD_TYPE_MAP = {
     'admin_menu.margin_bottom': FIELD_TYPES.PERCENTAGE,
     'admin_menu.margin_left': FIELD_TYPES.PERCENTAGE,
     'admin_menu.icon_size': FIELD_TYPES.PERCENTAGE,
-    'admin_menu.submenu_border_radius': FIELD_TYPES.PERCENTAGE,
+    'admin_menu.submenu_inherit_styles': FIELD_TYPES.BOOLEAN,
+    'admin_menu.submenu_border_radius': FIELD_TYPES.NUMBER,
+    'admin_menu.submenu_item_height': FIELD_TYPES.NUMBER,
+    'admin_menu.submenu_font_size': FIELD_TYPES.NUMBER,
+    'admin_menu.submenu_font_weight': FIELD_TYPES.KEYWORD,
+    'admin_menu.submenu_item_border_radius': FIELD_TYPES.NUMBER,
+    'admin_menu.inline_submenu_visible': FIELD_TYPES.BOOLEAN,
+    'admin_menu.inline_submenu_inherit_styles': FIELD_TYPES.BOOLEAN,
+    'admin_menu.inline_submenu_bg_color': FIELD_TYPES.COLOR,
+    'admin_menu.inline_submenu_text_color': FIELD_TYPES.COLOR,
+    'admin_menu.inline_submenu_font_size': FIELD_TYPES.NUMBER,
+    'admin_menu.inline_submenu_font_weight': FIELD_TYPES.KEYWORD,
+    'admin_menu.inline_submenu_item_bg_color': FIELD_TYPES.COLOR,
     'admin_menu.background_type': FIELD_TYPES.KEYWORD,
     'admin_menu.hover_style': FIELD_TYPES.KEYWORD,
     'admin_menu.active_bg_type': FIELD_TYPES.KEYWORD,
@@ -178,6 +190,9 @@ const VALID_KEYWORDS = {
     'spacing_mode': ['all', 'individual'],
     'margin_mode': ['all', 'individual'],
     'border_radius_mode': ['all', 'individual'],
+    'font_weight': ['300', '400', '500', '600', '700'],
+    'submenu_font_weight': ['300', '400', '500', '600', '700'],
+    'inline_submenu_font_weight': ['300', '400', '500', '600', '700'],
 };
 
 /**

@@ -163,11 +163,26 @@ function woow_get_default_settings() {
             'icon_hover_color' => '#6366f1',
             'icon_active_color' => '#ffffff',
             
-            // Submenu
+            // Submenu (Flyout - hover)
+            'submenu_inherit_styles' => false,
             'submenu_bg_color' => 'rgba(255, 255, 255, 0.98)',
             'submenu_text_color' => '#0f172a',
+            'submenu_hover_text_color' => '#6366f1',
             'submenu_hover_bg_color' => '#f1f5f9',
+            'submenu_item_height' => '36',
+            'submenu_font_size' => '13',
+            'submenu_font_weight' => '400',
+            'submenu_item_border_radius' => '8',
             'submenu_border_radius' => '12',
+            
+            // Inline Submenu (Active/Current)
+            'inline_submenu_visible' => true,
+            'inline_submenu_inherit_styles' => true,
+            'inline_submenu_bg_color' => '#f8fafc',
+            'inline_submenu_text_color' => '#0f172a',
+            'inline_submenu_font_size' => '13',
+            'inline_submenu_font_weight' => '400',
+            'inline_submenu_item_bg_color' => '#f1f5f9',
         ),
         
         'dashboard_widgets' => array(

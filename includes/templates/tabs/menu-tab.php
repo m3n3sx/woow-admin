@@ -85,13 +85,26 @@ $defaults = array(
     'icon_hover_color'      => '#6366f1',
     'icon_active_color'     => '#ffffff',
     
-    // Submenu
+    // Submenu (Flyout - hover)
+    'submenu_inherit_styles' => false,
     'submenu_bg_color'      => 'rgba(255, 255, 255, 0.98)',
     'submenu_text_color'    => '#0f172a',
+    'submenu_hover_text_color' => '#6366f1',
     'submenu_hover_bg_color' => '#f1f5f9',
-    'submenu_border_radius' => '8',
-    'submenu_hover_bg_color' => '#f1f5f9',
-    'submenu_border_radius' => '8',
+    'submenu_item_height'   => '36',
+    'submenu_font_size'     => '13',
+    'submenu_font_weight'   => '400',
+    'submenu_item_border_radius' => '8',
+    'submenu_border_radius' => '12',
+    
+    // Inline Submenu (Active/Current)
+    'inline_submenu_visible' => true,
+    'inline_submenu_inherit_styles' => true,
+    'inline_submenu_bg_color' => '#f8fafc',
+    'inline_submenu_text_color' => '#0f172a',
+    'inline_submenu_font_size' => '13',
+    'inline_submenu_font_weight' => '400',
+    'inline_submenu_item_bg_color' => '#f1f5f9',
     
     'custom_css'            => '',
 );
@@ -525,6 +538,26 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
             <h3><?php esc_html_e( 'Submenu Styling', 'woow-admin' ); ?></h3>
         </div>
         <div class="woow-card-body">
+            <!-- Inherit Styles Toggle -->
+            <div class="woow-form-group">
+                <label class="woow-toggle-label">
+                    <input 
+                        type="checkbox" 
+                        name="admin_menu[submenu_inherit_styles]" 
+                        value="1"
+                        <?php checked( $admin_menu['submenu_inherit_styles'] ?? false, true ); ?>
+                        class="woow-toggle-input"
+                    />
+                    <span class="woow-toggle-slider"></span>
+                    <span class="woow-toggle-text">
+                        <?php esc_html_e( 'Inherit styles from main menu', 'woow-admin' ); ?>
+                    </span>
+                </label>
+                <p class="woow-field-description">
+                    <?php esc_html_e( 'When enabled, submenu will use the same colors and styling as main menu items', 'woow-admin' ); ?>
+                </p>
+            </div>
+
             <div class="woow-form-row">
                 <div class="woow-form-group">
                     <label class="woow-label">
@@ -591,6 +624,106 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                     </div>
                 </div>
 
+                <div class="woow-form-group">
+                    <label class="woow-label">
+                        <?php esc_html_e( 'Submenu Hover Text Color', 'woow-admin' ); ?>
+                    </label>
+                    <div class="woow-color-picker-group">
+                        <input 
+                            type="color" 
+                            name="admin_menu[submenu_hover_text_color]" 
+                            value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_menu['submenu_hover_text_color'] ?? '', '#6366f1' ) ); ?>"
+                            data-default="#6366f1"
+                            class="woow-color-input"
+                        />
+                        <input 
+                            type="text" 
+                            value="<?php echo esc_attr( $admin_menu['submenu_hover_text_color'] ?? '#6366f1' ); ?>"
+                            class="woow-color-text"
+                        />
+                        <button type="button" class="woow-color-reset button">↺</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="woow-form-row">
+                <div class="woow-form-group">
+                    <label class="woow-label">
+                        <?php esc_html_e( 'Submenu Item Height', 'woow-admin' ); ?>
+                    </label>
+                    <div class="woow-slider-group">
+                        <input 
+                            type="range" 
+                            name="admin_menu[submenu_item_height]" 
+                            value="<?php echo esc_attr( intval( $admin_menu['submenu_item_height'] ?? 36 ) ); ?>"
+                            min="28" 
+                            max="56" 
+                            step="2"
+                            class="woow-slider"
+                            data-type="unitless"
+                            data-unit="px"
+                        />
+                        <span class="woow-slider-value"><?php echo esc_html( $admin_menu['submenu_item_height'] ?? '36' ); ?>px</span>
+                    </div>
+                </div>
+
+                <div class="woow-form-group">
+                    <label class="woow-label">
+                        <?php esc_html_e( 'Submenu Font Size', 'woow-admin' ); ?>
+                    </label>
+                    <div class="woow-slider-group">
+                        <input 
+                            type="range" 
+                            name="admin_menu[submenu_font_size]" 
+                            value="<?php echo esc_attr( intval( $admin_menu['submenu_font_size'] ?? 13 ) ); ?>"
+                            min="11" 
+                            max="16" 
+                            step="1"
+                            class="woow-slider"
+                            data-type="unitless"
+                            data-unit="px"
+                        />
+                        <span class="woow-slider-value"><?php echo esc_html( $admin_menu['submenu_font_size'] ?? '13' ); ?>px</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="woow-form-row">
+                <div class="woow-form-group">
+                    <label class="woow-label">
+                        <?php esc_html_e( 'Submenu Font Weight', 'woow-admin' ); ?>
+                    </label>
+                    <select name="admin_menu[submenu_font_weight]" class="woow-select">
+                        <option value="300" <?php selected( $admin_menu['submenu_font_weight'] ?? '400', '300' ); ?>>300 (Light)</option>
+                        <option value="400" <?php selected( $admin_menu['submenu_font_weight'] ?? '400', '400' ); ?>>400 (Normal)</option>
+                        <option value="500" <?php selected( $admin_menu['submenu_font_weight'] ?? '400', '500' ); ?>>500 (Medium)</option>
+                        <option value="600" <?php selected( $admin_menu['submenu_font_weight'] ?? '400', '600' ); ?>>600 (Semibold)</option>
+                        <option value="700" <?php selected( $admin_menu['submenu_font_weight'] ?? '400', '700' ); ?>>700 (Bold)</option>
+                    </select>
+                </div>
+
+                <div class="woow-form-group">
+                    <label class="woow-label">
+                        <?php esc_html_e( 'Submenu Item Border Radius', 'woow-admin' ); ?>
+                    </label>
+                    <div class="woow-slider-group">
+                        <input 
+                            type="range" 
+                            name="admin_menu[submenu_item_border_radius]" 
+                            value="<?php echo esc_attr( intval( $admin_menu['submenu_item_border_radius'] ?? 8 ) ); ?>"
+                            min="0" 
+                            max="16" 
+                            step="2"
+                            class="woow-slider"
+                            data-type="unitless"
+                            data-unit="px"
+                        />
+                        <span class="woow-slider-value"><?php echo esc_html( $admin_menu['submenu_item_border_radius'] ?? '8' ); ?>px</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="woow-form-row">
                 <div class="woow-form-group">
                     <label class="woow-label">
                         <?php esc_html_e( 'Submenu Border Radius', 'woow-admin' ); ?>
@@ -1292,6 +1425,184 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                 <p class="woow-field-description">
                     <?php esc_html_e( 'Icon color for active/current menu item', 'woow-admin' ); ?>
                 </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inline Submenu Styling Card -->
+    <div class="woow-card">
+        <div class="woow-card-header">
+            <h3><?php esc_html_e( 'Inline Submenu Styling', 'woow-admin' ); ?></h3>
+            <p class="woow-card-description">
+                <?php esc_html_e( 'Style the submenu that appears inline below active menu items', 'woow-admin' ); ?>
+            </p>
+        </div>
+        <div class="woow-card-body">
+            <!-- Visibility Toggle -->
+            <div class="woow-form-group">
+                <label class="woow-toggle">
+                    <input 
+                        type="checkbox" 
+                        name="admin_menu[inline_submenu_visible]" 
+                        value="1"
+                        <?php checked( $admin_menu['inline_submenu_visible'] ?? true, true ); ?>
+                    />
+                    <span class="woow-toggle-slider"></span>
+                    <span class="woow-toggle-label"><?php esc_html_e( 'Show Inline Submenu', 'woow-admin' ); ?></span>
+                </label>
+                <p class="woow-field-description">
+                    <?php esc_html_e( 'Display submenu items inline below active parent item', 'woow-admin' ); ?>
+                </p>
+            </div>
+
+            <!-- Inherit Styles Toggle -->
+            <div class="woow-form-group">
+                <label class="woow-toggle">
+                    <input 
+                        type="checkbox" 
+                        name="admin_menu[inline_submenu_inherit_styles]" 
+                        value="1"
+                        <?php checked( $admin_menu['inline_submenu_inherit_styles'] ?? true, true ); ?>
+                        class="woow-condition-trigger"
+                        data-target="inline_submenu_inherit"
+                    />
+                    <span class="woow-toggle-slider"></span>
+                    <span class="woow-toggle-label"><?php esc_html_e( 'Inherit Parent Styles', 'woow-admin' ); ?></span>
+                </label>
+                <p class="woow-field-description">
+                    <?php esc_html_e( 'Use parent item colors with adjusted opacity (50% for background, 19% for items)', 'woow-admin' ); ?>
+                </p>
+            </div>
+
+            <!-- Custom Styles (shown when NOT inheriting) -->
+            <div class="woow-conditional-field" data-condition="inline_submenu_inherit" data-value="false">
+                <!-- Background Color -->
+                <div class="woow-form-group">
+                    <label class="woow-label">
+                        <?php esc_html_e( 'Background Color', 'woow-admin' ); ?>
+                    </label>
+                    <div class="woow-color-picker-group">
+                        <input 
+                            type="color" 
+                            name="admin_menu[inline_submenu_bg_color]" 
+                            value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_menu['inline_submenu_bg_color'] ?? '', '#f8fafc' ) ); ?>"
+                            data-default="#f8fafc"
+                            class="woow-color-input"
+                        />
+                        <input 
+                            type="text" 
+                            value="<?php echo esc_attr( $admin_menu['inline_submenu_bg_color'] ); ?>"
+                            class="woow-color-text"
+                        />
+                        <button type="button" class="woow-color-reset button">↺</button>
+                    </div>
+                    <p class="woow-field-description">
+                        <?php esc_html_e( 'Background color for inline submenu container', 'woow-admin' ); ?>
+                    </p>
+                </div>
+
+                <!-- Text Color -->
+                <div class="woow-form-group">
+                    <label class="woow-label">
+                        <?php esc_html_e( 'Text Color', 'woow-admin' ); ?>
+                    </label>
+                    <div class="woow-color-picker-group">
+                        <input 
+                            type="color" 
+                            name="admin_menu[inline_submenu_text_color]" 
+                            value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_menu['inline_submenu_text_color'] ?? '', '#0f172a' ) ); ?>"
+                            data-default="#0f172a"
+                            class="woow-color-input"
+                        />
+                        <input 
+                            type="text" 
+                            value="<?php echo esc_attr( $admin_menu['inline_submenu_text_color'] ); ?>"
+                            class="woow-color-text"
+                        />
+                        <button type="button" class="woow-color-reset button">↺</button>
+                    </div>
+                    <p class="woow-field-description">
+                        <?php esc_html_e( 'Text color for inline submenu items', 'woow-admin' ); ?>
+                    </p>
+                </div>
+
+                <!-- Font Size -->
+                <div class="woow-form-group">
+                    <label class="woow-label">
+                        <?php esc_html_e( 'Font Size', 'woow-admin' ); ?>
+                    </label>
+                    <div class="woow-slider-group">
+                        <input 
+                            type="range" 
+                            name="admin_menu[inline_submenu_font_size]"
+                            value="<?php echo esc_attr( intval( $admin_menu['inline_submenu_font_size'] ?? 13 ) ); ?>"
+                            min="10" 
+                            max="18" 
+                            step="1"
+                            class="woow-slider"
+                            data-type="unitless"
+                            data-unit="px"
+                        />
+                        <span class="woow-slider-value">
+                            <?php echo esc_html( $admin_menu['inline_submenu_font_size'] ?? 13 ); ?>px
+                        </span>
+                    </div>
+                    <p class="woow-field-description">
+                        <?php esc_html_e( 'Font size for inline submenu text', 'woow-admin' ); ?>
+                    </p>
+                </div>
+
+                <!-- Font Weight -->
+                <div class="woow-form-group">
+                    <label class="woow-label">
+                        <?php esc_html_e( 'Font Weight', 'woow-admin' ); ?>
+                    </label>
+                    <select name="admin_menu[inline_submenu_font_weight]" class="woow-select">
+                        <option value="300" <?php selected( $admin_menu['inline_submenu_font_weight'] ?? '400', '300' ); ?>>
+                            <?php esc_html_e( 'Light (300)', 'woow-admin' ); ?>
+                        </option>
+                        <option value="400" <?php selected( $admin_menu['inline_submenu_font_weight'] ?? '400', '400' ); ?>>
+                            <?php esc_html_e( 'Normal (400)', 'woow-admin' ); ?>
+                        </option>
+                        <option value="500" <?php selected( $admin_menu['inline_submenu_font_weight'] ?? '400', '500' ); ?>>
+                            <?php esc_html_e( 'Medium (500)', 'woow-admin' ); ?>
+                        </option>
+                        <option value="600" <?php selected( $admin_menu['inline_submenu_font_weight'] ?? '400', '600' ); ?>>
+                            <?php esc_html_e( 'Semi-Bold (600)', 'woow-admin' ); ?>
+                        </option>
+                        <option value="700" <?php selected( $admin_menu['inline_submenu_font_weight'] ?? '400', '700' ); ?>>
+                            <?php esc_html_e( 'Bold (700)', 'woow-admin' ); ?>
+                        </option>
+                    </select>
+                    <p class="woow-field-description">
+                        <?php esc_html_e( 'Font weight for inline submenu text', 'woow-admin' ); ?>
+                    </p>
+                </div>
+
+                <!-- Item Background Color -->
+                <div class="woow-form-group">
+                    <label class="woow-label">
+                        <?php esc_html_e( 'Item Background Color', 'woow-admin' ); ?>
+                    </label>
+                    <div class="woow-color-picker-group">
+                        <input 
+                            type="color" 
+                            name="admin_menu[inline_submenu_item_bg_color]" 
+                            value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_menu['inline_submenu_item_bg_color'] ?? '', '#f1f5f9' ) ); ?>"
+                            data-default="#f1f5f9"
+                            class="woow-color-input"
+                        />
+                        <input 
+                            type="text" 
+                            value="<?php echo esc_attr( $admin_menu['inline_submenu_item_bg_color'] ); ?>"
+                            class="woow-color-text"
+                        />
+                        <button type="button" class="woow-color-reset button">↺</button>
+                    </div>
+                    <p class="woow-field-description">
+                        <?php esc_html_e( 'Background color for inline submenu items on hover', 'woow-admin' ); ?>
+                    </p>
+                </div>
             </div>
         </div>
     </div>

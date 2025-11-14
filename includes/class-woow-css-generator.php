@@ -645,9 +645,15 @@ class WOOW_CSS_Generator {
         $active_text_color = $menu['active_text_color'] ?? '#ffffff';
         
         // Submenu
-        $submenu_bg_color = $menu['submenu_bg_color'] ?? '#f8fafc';
-        $submenu_text_color = $menu['submenu_text_color'] ?? '#0f172a';
-        $submenu_hover_bg_color = $menu['submenu_hover_bg_color'] ?? '#f1f5f9';
+        $submenu_inherit = $menu['submenu_inherit_styles'] ?? false;
+        $submenu_bg_color = $submenu_inherit ? $hover_bg_color : ($menu['submenu_bg_color'] ?? '#f8fafc');
+        $submenu_text_color = $submenu_inherit ? $text_color : ($menu['submenu_text_color'] ?? '#0f172a');
+        $submenu_hover_text_color = $submenu_inherit ? $hover_text_color : ($menu['submenu_hover_text_color'] ?? '#6366f1');
+        $submenu_hover_bg_color = $submenu_inherit ? $hover_bg_color : ($menu['submenu_hover_bg_color'] ?? '#f1f5f9');
+        $submenu_item_height = $menu['submenu_item_height'] ?? '36';
+        $submenu_font_size = $menu['submenu_font_size'] ?? '13';
+        $submenu_font_weight = $menu['submenu_font_weight'] ?? '400';
+        $submenu_item_border_radius = $menu['submenu_item_border_radius'] ?? '8';
         $submenu_border_radius = $menu['submenu_border_radius'] ?? '8';
 
         $this->css .= "/* Admin Menu Styling - Customizable */\n";
@@ -741,6 +747,7 @@ class WOOW_CSS_Generator {
         $active_bg_type = $menu['active_bg_type'] ?? 'gradient';
         $active_bg_solid = $menu['active_bg_solid'] ?? $active_bg_start;
         
+        // All active menu items - full border radius (submenu will overlap with negative margin)
         $this->css .= "#adminmenu .wp-has-current-submenu .wp-submenu .wp-submenu-head,\n";
         $this->css .= "#adminmenu li.current a.menu-top,\n";
         $this->css .= "#adminmenu li.wp-has-current-submenu a.wp-has-current-submenu {\n";
@@ -904,24 +911,110 @@ class WOOW_CSS_Generator {
         $this->css .= "    display: none !important;\n";
         $this->css .= "}\n\n";
         
-        // Active submenu (current page) - inline below parent
-        $this->css .= "#adminmenu li.wp-has-current-submenu > .wp-submenu,\n";
-        $this->css .= "#adminmenu li.wp-menu-open > .wp-submenu {\n";
-        $this->css .= "    display: block !important;\n";
+        // Inline Submenu (Active/Current) - inline below parent
+        $inline_submenu_visible = $menu['inline_submenu_visible'] ?? true;
+        $inline_submenu_inherit = $menu['inline_submenu_inherit_styles'] ?? true;
+        
+        // Calculate colors based on inheritance
+        if ( $inline_submenu_inherit ) {
+            // Inherit from active parent with opacity adjustments
+            if ( $active_bg_type === 'solid' ) {
+                $inline_bg_color = $this->hex_to_rgba( $active_bg_solid, 0.5 );
+            } else {
+                $inline_bg_color = $this->hex_to_rgba( $active_bg_start, 0.5 );
+            }
+            $inline_text_color = $active_text_color;
+            $inline_font_size = $font_size;
+            $inline_font_weight = $font_weight;
+            $inline_item_bg_color = $this->hex_to_rgba( $active_bg_solid, 0.19 );
+        } else {
+            // Use custom colors
+            $inline_bg_color = $menu['inline_submenu_bg_color'] ?? '#f8fafc';
+            $inline_text_color = $menu['inline_submenu_text_color'] ?? '#0f172a';
+            $inline_font_size = $menu['inline_submenu_font_size'] ?? '13';
+            $inline_font_weight = $menu['inline_submenu_font_weight'] ?? '400';
+            $inline_item_bg_color = $menu['inline_submenu_item_bg_color'] ?? '#f1f5f9';
+        }
+        
+        // Match parent width, only bottom border radius, negative margin to go behind parent
+        // Adjust margin to position submenu lower (less negative = lower position)
+        $submenu_negative_margin = -((int)$item_height / 2 + 4); // Reduced from 8 to 4
+        $submenu_padding_top = (int)$item_height / 2 + 12; // Reduced from 16 to 12
+        
+        if ( $inline_submenu_visible ) {
+            $this->css .= "#adminmenu li.wp-has-current-submenu > .wp-submenu,\n";
+            $this->css .= "#adminmenu li.wp-menu-open > .wp-submenu {\n";
+            $this->css .= "    display: block !important;\n";
+            $this->css .= "    position: relative !important;\n";
+            $this->css .= "    left: 0 !important;\n";
+            $this->css .= "    top: 0 !important;\n";
+            $this->css .= "    margin: {$submenu_negative_margin}px 0 0 0 !important;\n";
+            $this->css .= "    padding: 8px !important;\n";
+            $this->css .= "    padding-top: {$submenu_padding_top}px !important;\n";
+            $this->css .= "    width: 100% !important;\n";
+            $this->css .= "    box-sizing: border-box !important;\n";
+            $this->css .= "    background: {$inline_bg_color} !important;\n";
+            $this->css .= "    border-radius: 0 0 {$item_border_radius}px {$item_border_radius}px !important;\n";
+            $this->css .= "    box-shadow: none !important;\n";
+            $this->css .= "    border: none !important;\n";
+            $this->css .= "    z-index: 1 !important;\n";
+            $this->css .= "}\n\n";
+            
+            // Hide submenu head (title) in inline submenu
+            $this->css .= "#adminmenu li.wp-has-current-submenu > .wp-submenu .wp-submenu-head,\n";
+            $this->css .= "#adminmenu li.wp-menu-open > .wp-submenu .wp-submenu-head {\n";
+            $this->css .= "    display: none !important;\n";
+            $this->css .= "}\n\n";
+            
+            // Inline submenu items styling
+            $this->css .= "#adminmenu li.wp-has-current-submenu > .wp-submenu li a,\n";
+            $this->css .= "#adminmenu li.wp-menu-open > .wp-submenu li a {\n";
+            $this->css .= "    color: {$inline_text_color} !important;\n";
+            $this->css .= "    font-size: {$inline_font_size}px !important;\n";
+            $this->css .= "    font-weight: {$inline_font_weight} !important;\n";
+            $this->css .= "}\n\n";
+            
+            // Inline submenu items hover
+            $this->css .= "#adminmenu li.wp-has-current-submenu > .wp-submenu li a:hover,\n";
+            $this->css .= "#adminmenu li.wp-menu-open > .wp-submenu li a:hover {\n";
+            $this->css .= "    background: {$inline_item_bg_color} !important;\n";
+            $this->css .= "}\n\n";
+            
+            // Inline submenu current/active item - darker version of inline bg color
+            // Extract color from inline_bg_color and darken it
+            $inline_current_bg_color = $this->darken_color( $inline_bg_color, 15 );
+            
+            $this->css .= "#adminmenu .wp-submenu li.current a,\n";
+            $this->css .= "#adminmenu .wp-submenu li.current > a {\n";
+            $this->css .= "    background: {$inline_current_bg_color} !important;\n";
+            $this->css .= "    color: {$inline_text_color} !important;\n";
+            $this->css .= "    font-weight: 600 !important;\n";
+            $this->css .= "}\n\n";
+            
+            // Inline submenu items alignment - left aligned like expanded menu
+            $this->css .= "#adminmenu li.wp-has-current-submenu > .wp-submenu li a,\n";
+            $this->css .= "#adminmenu li.wp-menu-open > .wp-submenu li a {\n";
+            $this->css .= "    text-align: left !important;\n";
+            $this->css .= "    padding-left: 12px !important;\n";
+            $this->css .= "}\n\n";
+        } else {
+            // Hide inline submenu
+            $this->css .= "#adminmenu li.wp-has-current-submenu > .wp-submenu,\n";
+            $this->css .= "#adminmenu li.wp-menu-open > .wp-submenu {\n";
+            $this->css .= "    display: none !important;\n";
+            $this->css .= "}\n\n";
+        }
+        
+        // Parent item with submenu needs higher z-index to be on top
+        $this->css .= "#adminmenu li.wp-has-current-submenu > a.wp-has-current-submenu,\n";
+        $this->css .= "#adminmenu li.wp-menu-open > a.menu-top {\n";
         $this->css .= "    position: relative !important;\n";
-        $this->css .= "    left: 0 !important;\n";
-        $this->css .= "    top: 0 !important;\n";
-        $this->css .= "    margin: 0 !important;\n";
-        $this->css .= "    padding: 8px !important;\n";
-        $this->css .= "    background: {$submenu_bg_color} !important;\n";
-        $this->css .= "    border-radius: {$submenu_border_radius}px !important;\n";
-        $this->css .= "    box-shadow: none !important;\n";
-        $this->css .= "    border: none !important;\n";
+        $this->css .= "    z-index: 2 !important;\n";
         $this->css .= "}\n\n";
         
         // Hover submenu (flyout) - positioned to the right like WordPress default
-        // Position: margin_left + width (no gap, directly next to menu)
-        $submenu_left = (int)$width + (int)$margin_left;
+        // Position: margin_left + width + 2px gap (prevents submenu from disappearing on hover)
+        $submenu_left = (int)$width + (int)$margin_left + 2;
         // Align top with parent item (negative margin = item height + padding + adjustment)
         // Get padding top value
         $padding_top = $spacing_mode === 'all' ? (int)$spacing_all : (int)$spacing_top;
@@ -966,16 +1059,19 @@ class WOOW_CSS_Generator {
         $this->css .= "    color: {$submenu_text_color} !important;\n";
         $this->css .= "    padding: 8px 12px 8px 20px !important;\n";
         $this->css .= "    margin: 2px 0 !important;\n";
-        $this->css .= "    display: block !important;\n";
-        $this->css .= "    border-radius: {$submenu_border_radius}px !important;\n";
-        $this->css .= "    font-size: 13px !important;\n";
+        $this->css .= "    min-height: {$submenu_item_height}px !important;\n";
+        $this->css .= "    display: flex !important;\n";
+        $this->css .= "    align-items: center !important;\n";
+        $this->css .= "    border-radius: {$submenu_item_border_radius}px !important;\n";
+        $this->css .= "    font-size: {$submenu_font_size}px !important;\n";
+        $this->css .= "    font-weight: {$submenu_font_weight} !important;\n";
         $this->css .= "    transition: all 200ms ease !important;\n";
         $this->css .= "}\n\n";
         
         $this->css .= "#adminmenu .wp-submenu a:hover,\n";
         $this->css .= "#adminmenu .wp-submenu a:focus {\n";
         $this->css .= "    background: {$submenu_hover_bg_color} !important;\n";
-        $this->css .= "    color: {$submenu_text_color} !important;\n";
+        $this->css .= "    color: {$submenu_hover_text_color} !important;\n";
         $this->css .= "    padding-left: 24px !important;\n";
         $this->css .= "}\n\n";
         
@@ -1003,6 +1099,79 @@ class WOOW_CSS_Generator {
         $this->css .= "    display: none !important;\n";
         $this->css .= "}\n\n";
         
+        // Collapsed state - ALL submenus use flyout style (including active/current)
+        // Override inline submenu styles for collapsed state
+        $collapsed_submenu_left = $margin_left + $collapsed_width + 4;
+        // Use same margin-top calculation as flyout submenu
+        $collapsed_submenu_margin_top = $submenu_margin_top;
+        
+        $this->css .= ".folded #adminmenu .wp-submenu,\n";
+        $this->css .= ".folded #adminmenu li.wp-has-current-submenu > .wp-submenu,\n";
+        $this->css .= ".folded #adminmenu li.wp-menu-open > .wp-submenu {\n";
+        $this->css .= "    position: fixed !important;\n";
+        $this->css .= "    left: {$collapsed_submenu_left}px !important;\n";
+        $this->css .= "    top: auto !important;\n";
+        $this->css .= "    margin-top: {$collapsed_submenu_margin_top}px !important;\n";
+        $this->css .= "    margin-left: 0 !important;\n";
+        $this->css .= "    padding: 8px !important;\n";
+        $this->css .= "    min-width: 200px !important;\n";
+        $this->css .= "    width: auto !important;\n";
+        $this->css .= "    background: {$submenu_bg_color} !important;\n";
+        $this->css .= "    backdrop-filter: blur(12px) !important;\n";
+        $this->css .= "    -webkit-backdrop-filter: blur(12px) !important;\n";
+        $this->css .= "    border-radius: {$submenu_border_radius}px !important;\n";
+        $this->css .= "    box-shadow: {$shadow} !important;\n";
+        $this->css .= "    border: 1px solid rgba(0, 0, 0, 0.1) !important;\n";
+        $this->css .= "    z-index: 99999 !important;\n";
+        $this->css .= "    display: none !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Show submenu on hover in collapsed state
+        $this->css .= ".folded #adminmenu li:hover > .wp-submenu {\n";
+        $this->css .= "    display: block !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Collapsed state - submenu items styling (EXACTLY same as flyout)
+        $this->css .= ".folded #adminmenu .wp-submenu li {\n";
+        $this->css .= "    margin: 0 !important;\n";
+        $this->css .= "    padding: 0 !important;\n";
+        $this->css .= "    min-height: auto !important;\n";
+        $this->css .= "    height: auto !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".folded #adminmenu .wp-submenu a {\n";
+        $this->css .= "    color: {$submenu_text_color} !important;\n";
+        $this->css .= "    padding: 8px 12px 8px 20px !important;\n";
+        $this->css .= "    margin: 2px 0 !important;\n";
+        $this->css .= "    min-height: {$submenu_item_height}px !important;\n";
+        $this->css .= "    display: flex !important;\n";
+        $this->css .= "    align-items: center !important;\n";
+        $this->css .= "    border-radius: {$submenu_item_border_radius}px !important;\n";
+        $this->css .= "    font-size: {$submenu_font_size}px !important;\n";
+        $this->css .= "    font-weight: {$submenu_font_weight} !important;\n";
+        $this->css .= "    transition: all 200ms ease !important;\n";
+        $this->css .= "    text-align: left !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".folded #adminmenu .wp-submenu a:hover,\n";
+        $this->css .= ".folded #adminmenu .wp-submenu a:focus {\n";
+        $this->css .= "    background: {$submenu_hover_bg_color} !important;\n";
+        $this->css .= "    color: {$submenu_hover_text_color} !important;\n";
+        $this->css .= "    padding-left: 24px !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".folded #adminmenu .wp-submenu li.current a,\n";
+        $this->css .= ".folded #adminmenu .wp-submenu li.current > a {\n";
+        $this->css .= "    color: {$active_bg_start} !important;\n";
+        $this->css .= "    font-weight: 600 !important;\n";
+        $this->css .= "    background: {$submenu_hover_bg_color} !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Hide submenu head in collapsed state
+        $this->css .= ".folded #adminmenu .wp-submenu .wp-submenu-head {\n";
+        $this->css .= "    display: none !important;\n";
+        $this->css .= "}\n\n";
+        
         // Center icons in collapsed state
         $this->css .= ".folded #adminmenu li a {\n";
         $this->css .= "    justify-content: center !important;\n";
@@ -1015,28 +1184,9 @@ class WOOW_CSS_Generator {
         $this->css .= "    margin-left: {$collapsed_content_margin}px !important;\n";
         $this->css .= "}\n\n";
         
-        // Collapsed submenu - flyout style (ALL submenus including active)
-        // Position: margin_left + collapsed_width + small gap
-        $submenu_left = $margin_left + $collapsed_width + 4;
-        $this->css .= ".folded #adminmenu .wp-submenu,\n";
-        $this->css .= ".folded #adminmenu li.wp-has-current-submenu > .wp-submenu,\n";
-        $this->css .= ".folded #adminmenu li.wp-menu-open > .wp-submenu {\n";
-        $this->css .= "    position: fixed !important;\n";
-        $this->css .= "    left: {$submenu_left}px !important;\n";
-        $this->css .= "    top: auto !important;\n";
-        $this->css .= "    margin-top: 0 !important;\n";
-        $this->css .= "    z-index: 99999 !important;\n";
-        $this->css .= "    display: none !important;\n";
-        $this->css .= "}\n\n";
-        
-        // Show submenu on hover in collapsed state
-        $this->css .= ".folded #adminmenu li:hover > .wp-submenu {\n";
-        $this->css .= "    display: block !important;\n";
-        $this->css .= "}\n\n";
-        
         // Override hover submenu position for collapsed state (more specific selector)
-        $this->css .= ".folded #adminmenu li.wp-has-submenu:not(.wp-has-current-submenu):not(.wp-menu-open):hover > .wp-submenu {\n";
-        $this->css .= "    left: {$submenu_left}px !important;\n";
+        $this->css .= ".folded #adminmenu li.wp-has-submenu:hover > .wp-submenu {\n";
+        $this->css .= "    left: {$collapsed_submenu_left}px !important;\n";
         $this->css .= "}\n\n";
         
         // Only add custom CSS if provided by user
@@ -1785,5 +1935,60 @@ class WOOW_CSS_Generator {
         
         // Return rgba string
         return "rgba({$r}, {$g}, {$b}, {$opacity})";
+    }
+    
+    /**
+     * Darken a color (hex or rgba)
+     *
+     * @param string $color Color (hex or rgba)
+     * @param int $percent Percentage to darken (0-100)
+     * @return string Darkened color (same format as input)
+     */
+    private function darken_color( string $color, int $percent = 10 ): string {
+        // Check if rgba
+        if ( strpos( $color, 'rgba' ) !== false ) {
+            // Extract rgba values
+            preg_match( '/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/', $color, $matches );
+            if ( ! $matches ) {
+                return $color;
+            }
+            
+            $r = (int) $matches[1];
+            $g = (int) $matches[2];
+            $b = (int) $matches[3];
+            $a = isset( $matches[4] ) ? (float) $matches[4] : 1.0;
+            
+            // Darken
+            $r = max( 0, $r - ( $r * $percent / 100 ) );
+            $g = max( 0, $g - ( $g * $percent / 100 ) );
+            $b = max( 0, $b - ( $b * $percent / 100 ) );
+            
+            return "rgba({$r}, {$g}, {$b}, {$a})";
+        }
+        
+        // Handle hex
+        $hex = ltrim( $color, '#' );
+        
+        // Handle short hex (#rgb)
+        if ( strlen( $hex ) === 3 ) {
+            $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+        }
+        
+        // Convert to RGB
+        $r = hexdec( substr( $hex, 0, 2 ) );
+        $g = hexdec( substr( $hex, 2, 2 ) );
+        $b = hexdec( substr( $hex, 4, 2 ) );
+        
+        // Darken
+        $r = max( 0, $r - ( $r * $percent / 100 ) );
+        $g = max( 0, $g - ( $g * $percent / 100 ) );
+        $b = max( 0, $b - ( $b * $percent / 100 ) );
+        
+        // Convert back to hex
+        $r = str_pad( dechex( (int) $r ), 2, '0', STR_PAD_LEFT );
+        $g = str_pad( dechex( (int) $g ), 2, '0', STR_PAD_LEFT );
+        $b = str_pad( dechex( (int) $b ), 2, '0', STR_PAD_LEFT );
+        
+        return "#{$r}{$g}{$b}";
     }
 }

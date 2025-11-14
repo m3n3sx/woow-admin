@@ -13,6 +13,10 @@ All notable changes to WOOW! Admin will be documented in this file.
   - Opacity: Increased from 0.8 to 0.9 for better visibility
   - Shadow: Changed from 'lg' to 'sm' for subtler effect
   - Border/hover colors: Changed from rgba to solid colors for consistency
+- 🐛 **Submenu Field Validation** - Fixed validation errors for new submenu styling fields:
+  - Changed submenu_border_radius, submenu_font_size, submenu_item_height, submenu_item_border_radius from PERCENTAGE to NUMBER type
+  - Added PHP validation for submenu_font_weight keyword field
+  - All submenu fields now properly validated as unitless numbers (unit added in CSS generation)
 
 ## [2.0.0-beta] - 2025-11-11
 
