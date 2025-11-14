@@ -129,6 +129,7 @@ const FIELD_TYPE_MAP = {
     'admin_menu.margin_left': FIELD_TYPES.PERCENTAGE,
     'admin_menu.icon_size': FIELD_TYPES.PERCENTAGE,
     'admin_menu.submenu_inherit_styles': FIELD_TYPES.BOOLEAN,
+    'admin_menu.submenu_offset': FIELD_TYPES.NUMBER, // Distance from menu (0-20px)
     'admin_menu.submenu_border_radius': FIELD_TYPES.NUMBER,
     'admin_menu.submenu_item_height': FIELD_TYPES.NUMBER,
     'admin_menu.submenu_font_size': FIELD_TYPES.NUMBER,

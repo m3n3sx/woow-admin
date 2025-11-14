@@ -58,7 +58,7 @@ class WOOW_Template_Manager {
 	/**
 	 * Get all available templates
 	 *
-	 * Returns all 11 predefined design templates.
+	 * Returns all 12 predefined design templates.
 	 *
 	 * @return array Array of template data.
 	 */
@@ -75,6 +75,7 @@ class WOOW_Template_Manager {
 			$this->get_bold_bright_template(),
 			$this->get_material_design_template(),
 			$this->get_glassmorphism_pro_template(),
+			$this->get_terminal_template(),
 		);
 	}
 
@@ -544,6 +545,346 @@ class WOOW_Template_Manager {
 				'buttons' => array(
 					'glassmorphism' => true,
 					'blur_strength' => '16px',
+				),
+			),
+		);
+	}
+
+	/**
+	 * Terminal Template
+	 *
+	 * Linux terminal-inspired design with dark background and bright green monospace text.
+	 *
+	 * @return array Template data.
+	 */
+	private function get_terminal_template(): array {
+		return array(
+			'id'          => 'terminal',
+			'name'        => __( 'Terminal', 'woow-admin' ),
+			'description' => __( 'Linux terminal aesthetic with dark background and bright green monospace text', 'woow-admin' ),
+			'thumbnail'   => WOOW_PLUGIN_URL . 'assets/dist/images/templates/terminal.png',
+			'settings'    => array(
+				'general' => array(
+					'enabled'          => true,
+					'current_palette'  => 'terminal',
+					'current_template' => 'terminal',
+				),
+				
+				'admin_bar' => array(
+					'enabled'          => true,
+					
+					// Background - Pure black like terminal
+					'background_type'  => 'solid',
+					'background_color' => '#000000',
+					'use_gradient'     => false,
+					
+					// Text - Bright terminal green
+					'text_color'       => '#00ff00',
+					'hover_text_color' => '#00ff00',
+					
+					// Hover - Subtle green glow
+					'hover_bg_color'   => 'rgba(0, 255, 0, 0.1)',
+					'hover_style'      => 'normal',
+					
+					// Dimensions
+					'height'           => '48',
+					'width'            => '100',
+					'width_unit'       => '%',
+					
+					// Border Radius - Sharp terminal edges
+					'border_radius_mode'         => 'all',
+					'border_radius_all'          => '0',
+					'border_radius_top_left'     => '0',
+					'border_radius_top_right'    => '0',
+					'border_radius_bottom_right' => '0',
+					'border_radius_bottom_left'  => '0',
+					
+					// No glassmorphism - solid terminal look
+					'glassmorphism'    => false,
+					'opacity'          => 1.0,
+					'blur_strength'    => '0',
+					
+					// Shadow - Green terminal glow
+					'box_shadow'       => '0 2px 8px rgba(0, 255, 0, 0.3)',
+					'shadow_style'     => 'md',
+					'position'         => 'fixed',
+					'top_offset'       => '0px',
+					
+					// Submenu - Terminal style
+					'submenu_inherit_styles' => false,
+					'submenu_bg_color'       => '#0a0a0a',
+					'submenu_text_color'     => '#00ff00',
+					'submenu_border_radius'  => '0px',
+					'submenu_font_size'      => '13px',
+					
+					// Spacing - Minimal terminal padding
+					'spacing_mode'     => 'all',
+					'spacing_all'      => '12',
+					'spacing_top'      => '0',
+					'spacing_right'    => '12',
+					'spacing_bottom'   => '0',
+					'spacing_left'     => '12',
+					
+					// Margin - No margins
+					'margin_mode'      => 'all',
+					'margin_all'       => '0',
+					'margin_top'       => '0',
+					'margin_right'     => '0',
+					'margin_bottom'    => '0',
+					'margin_left'      => '0',
+				),
+				
+				'admin_menu' => array(
+					'enabled'          => true,
+					
+					// Background - Dark terminal
+					'background_type'  => 'solid',
+					'background_color' => '#0a0a0a',
+					'glass_base_color' => '#0a0a0a',
+					'border_color'     => '#00ff00',
+					
+					// Text - Terminal green
+					'text_color'       => '#00ff00',
+					'hover_text_color' => '#00ff00',
+					
+					// Hover - Green highlight
+					'hover_bg_color'   => 'rgba(0, 255, 0, 0.15)',
+					'hover_style'      => 'normal',
+					
+					// Active - Bright green background
+					'active_bg_type'   => 'solid',
+					'active_bg_solid'  => '#00ff00',
+					'active_text_color' => '#000000',
+					
+					// Dimensions
+					'width'            => '256',
+					'item_height'      => '40',
+					
+					// Border Radius - Sharp edges
+					'border_radius_mode'         => 'all',
+					'border_radius_all'          => '0',
+					'border_radius_top_left'     => '0',
+					'border_radius_top_right'    => '0',
+					'border_radius_bottom_right' => '0',
+					'border_radius_bottom_left'  => '0',
+					'item_border_radius'         => '0',
+					
+					// Typography - Monospace
+					'font_size'        => '13',
+					'font_weight'      => '400',
+					
+					// No glassmorphism
+					'glassmorphism'    => false,
+					'opacity'          => 1.0,
+					'blur_strength'    => '0',
+					
+					// Shadow - Green glow
+					'shadow_style'     => 'sm',
+					
+					// Spacing - Compact terminal style
+					'spacing_mode'     => 'all',
+					'spacing_all'      => '8',
+					'spacing_top'      => '8',
+					'spacing_right'    => '12',
+					'spacing_bottom'   => '8',
+					'spacing_left'     => '12',
+					
+					// Margin
+					'margin_mode'      => 'all',
+					'margin_all'       => '0',
+					'margin_top'       => '0',
+					'margin_right'     => '0',
+					'margin_bottom'    => '0',
+					'margin_left'      => '0',
+					
+					// Icons - Green
+					'icon_size'        => '16',
+					'icon_color'       => '#00ff00',
+					'icon_hover_color' => '#00ff00',
+					'icon_active_color' => '#000000',
+					
+					// Submenu (Flyout)
+					'submenu_inherit_styles'    => false,
+					'submenu_offset'            => '0',
+					'submenu_bg_color'          => '#0a0a0a',
+					'submenu_text_color'        => '#00ff00',
+					'submenu_hover_text_color'  => '#00ff00',
+					'submenu_hover_bg_color'    => 'rgba(0, 255, 0, 0.15)',
+					'submenu_item_height'       => '32',
+					'submenu_font_size'         => '12',
+					'submenu_font_weight'       => '400',
+					'submenu_item_border_radius' => '0',
+					'submenu_border_radius'     => '0',
+					
+					// Inline Submenu
+					'inline_submenu_visible'       => true,
+					'inline_submenu_inherit_styles' => false,
+					'inline_submenu_bg_color'      => '#000000',
+					'inline_submenu_text_color'    => '#00cc00',
+					'inline_submenu_font_size'     => '12',
+					'inline_submenu_font_weight'   => '400',
+					'inline_submenu_item_bg_color' => 'rgba(0, 255, 0, 0.05)',
+				),
+				
+				'dashboard_widgets' => array(
+					'enabled'          => true,
+					
+					// Background - Dark terminal
+					'background_color' => '#0a0a0a',
+					'border_color'     => '#00ff00',
+					
+					// Text - Terminal green
+					'text_color'       => '#00ff00',
+					'heading_color'    => '#00ff00',
+					
+					// Dimensions - Sharp edges
+					'border_radius'    => '0',
+					'padding'          => '16',
+					'max_height'       => '600',
+					
+					// No glassmorphism
+					'glassmorphism'    => false,
+					'opacity'          => 1.0,
+					'blur_strength'    => '0',
+					
+					// Shadow - Green glow
+					'box_shadow'       => '0 2px 8px rgba(0, 255, 0, 0.2)',
+				),
+				
+				'form_controls' => array(
+					'enabled'          => true,
+					
+					// Input - Dark with green border
+					'input_bg_color'   => '#000000',
+					'input_border_color' => '#00ff00',
+					'input_text_color' => '#00ff00',
+					
+					// Focus - Bright green
+					'input_focus_color' => '#00ff00',
+					'input_focus_shadow' => '0 0 0 2px rgba(0, 255, 0, 0.3)',
+					
+					// Dimensions - Sharp edges
+					'input_height'     => '36',
+					'input_padding'    => '8px 12px',
+					'input_border_radius' => '0',
+					
+					// No glassmorphism
+					'glassmorphism'    => false,
+					'blur_strength'    => '0',
+				),
+				
+				'buttons' => array(
+					'enabled'          => true,
+					
+					// Primary Button - Green terminal style
+					'primary_bg_color' => '#00ff00',
+					'primary_text_color' => '#000000',
+					'primary_hover_bg' => '#00cc00',
+					'primary_hover_shadow' => '0 0 8px rgba(0, 255, 0, 0.5)',
+					
+					// Secondary Button - Outlined green
+					'secondary_bg_color' => 'transparent',
+					'secondary_border_color' => '#00ff00',
+					'secondary_text_color' => '#00ff00',
+					'secondary_hover_bg' => 'rgba(0, 255, 0, 0.1)',
+					
+					// Dimensions - Sharp edges
+					'button_height'    => '36',
+					'button_padding'   => '8px 16px',
+					'button_border_radius' => '0',
+					
+					// Typography - Monospace
+					'button_font_size' => '13',
+					'button_font_weight' => '400',
+				),
+				
+				'backgrounds' => array(
+					'enabled'          => true,
+					
+					// Main Background - Pure black terminal
+					'main_bg_color_start' => '#000000',
+					'main_bg_color_middle' => '#000000',
+					'main_bg_color_end' => '#000000',
+					'use_gradient'     => false,
+					
+					// No image
+					'image_url'        => '',
+					'image_size'       => 'cover',
+					'image_repeat'     => 'no-repeat',
+					'image_position'   => 'center',
+					'image_attachment' => 'fixed',
+				),
+				
+				'typography' => array(
+					'enabled'          => true,
+					
+					// Headings - Terminal green
+					'h1_color'         => '#00ff00',
+					'h1_font_size'     => '24',
+					'h1_font_weight'   => '700',
+					'h1_line_height'   => '1.2',
+					
+					'h2_color'         => '#00ff00',
+					'h2_font_size'     => '20',
+					'h2_font_weight'   => '700',
+					'h2_line_height'   => '1.2',
+					
+					'h3_color'         => '#00ff00',
+					'h3_font_size'     => '16',
+					'h3_font_weight'   => '600',
+					'h3_line_height'   => '1.3',
+					
+					// Body - Lighter green for readability
+					'body_color'       => '#00cc00',
+					'body_font_size'   => '13',
+					'body_font_weight' => '400',
+					'body_line_height' => '1.5',
+					
+					// Links - Bright green
+					'link_color'       => '#00ff00',
+					'link_hover_color' => '#00ff00',
+				),
+				
+				'visual_effects' => array(
+					'enabled'          => true,
+					
+					// No glassmorphism
+					'global_glassmorphism' => false,
+					'global_blur_strength' => '0',
+					'global_opacity'   => 1.0,
+					
+					// Fast animations - terminal feel
+					'enable_animations' => true,
+					'animation_duration' => '100',
+					'animation_easing' => 'linear',
+					
+					// Green shadows
+					'enable_shadows'   => true,
+					'shadow_color'     => 'rgba(0, 255, 0, 0.3)',
+				),
+				
+				'login_page' => array(
+					'enabled'          => true,
+					
+					// Background - Pure black
+					'login_bg_color_start' => '#000000',
+					'login_bg_color_end' => '#000000',
+					'use_gradient'     => false,
+					
+					// Form - Dark terminal
+					'form_bg_color'    => '#0a0a0a',
+					'form_border_color' => '#00ff00',
+					'form_text_color'  => '#00ff00',
+					
+					// No glassmorphism
+					'glassmorphism'    => false,
+					'opacity'          => 1.0,
+					'blur_strength'    => '0',
+					
+					// Logo
+					'custom_logo'      => '',
+					'logo_width'       => '84',
+					'logo_height'      => '84',
 				),
 			),
 		);

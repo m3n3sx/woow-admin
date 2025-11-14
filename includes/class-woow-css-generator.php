@@ -646,15 +646,30 @@ class WOOW_CSS_Generator {
         
         // Submenu
         $submenu_inherit = $menu['submenu_inherit_styles'] ?? false;
-        $submenu_bg_color = $submenu_inherit ? $hover_bg_color : ($menu['submenu_bg_color'] ?? '#f8fafc');
-        $submenu_text_color = $submenu_inherit ? $text_color : ($menu['submenu_text_color'] ?? '#0f172a');
-        $submenu_hover_text_color = $submenu_inherit ? $hover_text_color : ($menu['submenu_hover_text_color'] ?? '#6366f1');
-        $submenu_hover_bg_color = $submenu_inherit ? $hover_bg_color : ($menu['submenu_hover_bg_color'] ?? '#f1f5f9');
+        $submenu_offset = $menu['submenu_offset'] ?? '5'; // Distance from menu
+        
+        // ✅ FIX: Inherit from main menu background, not hover background
+        if ( $submenu_inherit ) {
+            $submenu_bg_color = $background_color; // Main menu background
+            $submenu_text_color = $text_color; // Main menu text
+            $submenu_hover_text_color = $hover_text_color; // Main menu hover text
+            $submenu_hover_bg_color = $hover_bg_color; // Main menu hover bg
+            $submenu_border_radius = $item_border_radius; // Parent item radius
+            $submenu_font_size = $font_size; // Parent font size
+            $submenu_font_weight = $font_weight; // Parent font weight
+        } else {
+            $submenu_bg_color = $menu['submenu_bg_color'] ?? '#f8fafc';
+            $submenu_text_color = $menu['submenu_text_color'] ?? '#0f172a';
+            $submenu_hover_text_color = $menu['submenu_hover_text_color'] ?? '#6366f1';
+            $submenu_hover_bg_color = $menu['submenu_hover_bg_color'] ?? '#f1f5f9';
+            $submenu_border_radius = $menu['submenu_border_radius'] ?? '12';
+            $submenu_font_size = $menu['submenu_font_size'] ?? '13';
+            $submenu_font_weight = $menu['submenu_font_weight'] ?? '400';
+        }
+        
+        // Submenu item settings (not affected by inherit)
         $submenu_item_height = $menu['submenu_item_height'] ?? '36';
-        $submenu_font_size = $menu['submenu_font_size'] ?? '13';
-        $submenu_font_weight = $menu['submenu_font_weight'] ?? '400';
         $submenu_item_border_radius = $menu['submenu_item_border_radius'] ?? '8';
-        $submenu_border_radius = $menu['submenu_border_radius'] ?? '8';
 
         $this->css .= "/* Admin Menu Styling - Customizable */\n";
         
@@ -688,6 +703,7 @@ class WOOW_CSS_Generator {
         
         $this->css .= "    border-radius: {$border_radius} !important;\n";
         $this->css .= "    box-shadow: {$shadow} !important;\n";
+        $this->css .= "    /* ✅ overflow: visible - no clipping, submenu can extend */\n";
         $this->css .= "    overflow: visible !important;\n";
         $this->css .= "}\n\n";
         
@@ -698,8 +714,8 @@ class WOOW_CSS_Generator {
         $this->css .= "    border-radius: {$border_radius} !important;\n";
         $this->css .= "    height: 85vh !important;\n";
         $this->css .= "    background: transparent !important;\n";
-        $this->css .= "    overflow-x: visible !important;\n";
-        $this->css .= "    overflow-y: auto !important;\n";
+        $this->css .= "    /* ✅ overflow: visible - no clipping */\n";
+        $this->css .= "    overflow: visible !important;\n";
         $this->css .= "    box-sizing: border-box !important;\n";
         $this->css .= "    font-size: {$font_size}px !important;\n";
         $this->css .= "    font-weight: {$font_weight} !important;\n";
@@ -1012,20 +1028,25 @@ class WOOW_CSS_Generator {
         $this->css .= "    z-index: 2 !important;\n";
         $this->css .= "}\n\n";
         
-        // Hover submenu (flyout) - positioned to the right like WordPress default
-        // Position: margin_left + width + 2px gap (prevents submenu from disappearing on hover)
-        $submenu_left = (int)$width + (int)$margin_left + 2;
-        // Align top with parent item (negative margin = item height + padding + adjustment)
-        // Get padding top value
-        $padding_top = $spacing_mode === 'all' ? (int)$spacing_all : (int)$spacing_top;
-        $submenu_margin_top = -((int)$item_height + $padding_top + 8);
+        // ✅ PARENT-CHILD APPROACH: Submenu positioned relative to parent
+        // Parent (li.wp-has-submenu) = position: relative
+        // Child (.wp-submenu) = position: absolute, left: 100% + offset
+        
+        // Step 1: Parent must be position: relative
+        $this->css .= "#adminmenu li.wp-has-submenu {\n";
+        $this->css .= "    position: relative !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Step 2: Submenu positioned absolutely relative to parent
+        // Using submenu_offset for distance (default: 5px)
+        // left: 100% = right edge of parent
+        // left: calc(100% + {offset}px) = offset gap from parent
         $this->css .= "#adminmenu li.wp-has-submenu:not(.wp-has-current-submenu):not(.wp-menu-open):hover > .wp-submenu {\n";
         $this->css .= "    display: block !important;\n";
-        $this->css .= "    position: fixed !important;\n";
-        $this->css .= "    left: {$submenu_left}px !important;\n";
-        $this->css .= "    top: auto !important;\n";
-        $this->css .= "    margin-top: {$submenu_margin_top}px !important;\n";
-        $this->css .= "    margin-left: 0 !important;\n";
+        $this->css .= "    position: absolute !important;\n";
+        $this->css .= "    left: calc(100% + {$submenu_offset}px) !important;\n";
+        $this->css .= "    top: 0 !important;\n";
+        $this->css .= "    margin: 0 !important;\n";
         $this->css .= "    padding: 8px !important;\n";
         $this->css .= "    min-width: 200px !important;\n";
         $this->css .= "    background: {$submenu_bg_color} !important;\n";
@@ -1035,16 +1056,35 @@ class WOOW_CSS_Generator {
         $this->css .= "    box-shadow: {$shadow} !important;\n";
         $this->css .= "    border: 1px solid rgba(0, 0, 0, 0.1) !important;\n";
         $this->css .= "    z-index: 99999 !important;\n";
+        $this->css .= "    /* Smooth transitions */\n";
+        $this->css .= "    opacity: 1 !important;\n";
+        $this->css .= "    visibility: visible !important;\n";
+        $this->css .= "    transition: opacity 0.2s ease, visibility 0.2s ease !important;\n";
         $this->css .= "}\n\n";
         
-        // Keep submenu visible when hovering over it
+        // Step 3: Keep submenu visible when hovering over it
         $this->css .= "#adminmenu li.wp-has-submenu .wp-submenu:hover {\n";
         $this->css .= "    display: block !important;\n";
+        $this->css .= "    opacity: 1 !important;\n";
+        $this->css .= "    visibility: visible !important;\n";
         $this->css .= "}\n\n";
         
-        // Position submenu relative to parent item
-        $this->css .= "#adminmenu li.wp-has-submenu {\n";
-        $this->css .= "    position: relative !important;\n";
+        // Step 4: Hover bridge - fills the gap (submenu_offset)
+        $this->css .= "#adminmenu li.wp-has-submenu > a::after {\n";
+        $this->css .= "    content: '' !important;\n";
+        $this->css .= "    position: absolute !important;\n";
+        $this->css .= "    top: 0 !important;\n";
+        $this->css .= "    right: -{$submenu_offset}px !important;\n";
+        $this->css .= "    width: {$submenu_offset}px !important;\n";
+        $this->css .= "    height: 100% !important;\n";
+        $this->css .= "    background: transparent !important;\n";
+        $this->css .= "    pointer-events: all !important;\n";
+        $this->css .= "    z-index: 99998 !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Step 5: Ensure proper stacking
+        $this->css .= "#adminmenu li.wp-has-submenu:hover {\n";
+        $this->css .= "    z-index: 99999 !important;\n";
         $this->css .= "}\n\n";
         
         // Submenu items styling - override parent item height
@@ -1083,7 +1123,7 @@ class WOOW_CSS_Generator {
         $this->css .= "}\n\n";
         
         // Collapsed menu state (.folded class on body)
-        $collapsed_width = 80; // Collapsed width in pixels
+        $collapsed_width = 55; // Collapsed width in pixels (reduced from 80 to 55)
         $this->css .= "/* Collapsed Menu State */\n";
         $this->css .= ".folded #adminmenuwrap {\n";
         $this->css .= "    width: {$collapsed_width}px !important;\n";
@@ -1099,20 +1139,17 @@ class WOOW_CSS_Generator {
         $this->css .= "    display: none !important;\n";
         $this->css .= "}\n\n";
         
-        // Collapsed state - ALL submenus use flyout style (including active/current)
-        // Override inline submenu styles for collapsed state
-        $collapsed_submenu_left = $margin_left + $collapsed_width + 4;
-        // Use same margin-top calculation as flyout submenu
-        $collapsed_submenu_margin_top = $submenu_margin_top;
+        // ✅ COLLAPSED STATE: Same parent-child approach
+        // In collapsed state, ALL submenus use flyout (including active/current)
+        // Using same submenu_offset for consistency
         
         $this->css .= ".folded #adminmenu .wp-submenu,\n";
         $this->css .= ".folded #adminmenu li.wp-has-current-submenu > .wp-submenu,\n";
         $this->css .= ".folded #adminmenu li.wp-menu-open > .wp-submenu {\n";
-        $this->css .= "    position: fixed !important;\n";
-        $this->css .= "    left: {$collapsed_submenu_left}px !important;\n";
-        $this->css .= "    top: auto !important;\n";
-        $this->css .= "    margin-top: {$collapsed_submenu_margin_top}px !important;\n";
-        $this->css .= "    margin-left: 0 !important;\n";
+        $this->css .= "    position: absolute !important;\n";
+        $this->css .= "    left: calc(100% + {$submenu_offset}px) !important;\n";
+        $this->css .= "    top: 0 !important;\n";
+        $this->css .= "    margin: 0 !important;\n";
         $this->css .= "    padding: 8px !important;\n";
         $this->css .= "    min-width: 200px !important;\n";
         $this->css .= "    width: auto !important;\n";
@@ -1124,11 +1161,29 @@ class WOOW_CSS_Generator {
         $this->css .= "    border: 1px solid rgba(0, 0, 0, 0.1) !important;\n";
         $this->css .= "    z-index: 99999 !important;\n";
         $this->css .= "    display: none !important;\n";
+        $this->css .= "    opacity: 0 !important;\n";
+        $this->css .= "    visibility: hidden !important;\n";
+        $this->css .= "    transition: opacity 0.2s ease, visibility 0.2s ease !important;\n";
         $this->css .= "}\n\n";
         
         // Show submenu on hover in collapsed state
         $this->css .= ".folded #adminmenu li:hover > .wp-submenu {\n";
         $this->css .= "    display: block !important;\n";
+        $this->css .= "    opacity: 1 !important;\n";
+        $this->css .= "    visibility: visible !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Hover bridge for collapsed state (same submenu_offset gap)
+        $this->css .= ".folded #adminmenu li.wp-has-submenu > a::after {\n";
+        $this->css .= "    content: '' !important;\n";
+        $this->css .= "    position: absolute !important;\n";
+        $this->css .= "    top: 0 !important;\n";
+        $this->css .= "    right: -{$submenu_offset}px !important;\n";
+        $this->css .= "    width: {$submenu_offset}px !important;\n";
+        $this->css .= "    height: 100% !important;\n";
+        $this->css .= "    background: transparent !important;\n";
+        $this->css .= "    pointer-events: all !important;\n";
+        $this->css .= "    z-index: 99998 !important;\n";
         $this->css .= "}\n\n";
         
         // Collapsed state - submenu items styling (EXACTLY same as flyout)
@@ -1172,10 +1227,9 @@ class WOOW_CSS_Generator {
         $this->css .= "    display: none !important;\n";
         $this->css .= "}\n\n";
         
-        // Center icons in collapsed state
+        // Collapsed state - remove padding for compact layout
         $this->css .= ".folded #adminmenu li a {\n";
-        $this->css .= "    justify-content: center !important;\n";
-        $this->css .= "    padding: 12px !important;\n";
+        $this->css .= "    padding: 0 !important;\n";
         $this->css .= "}\n\n";
         
         // Adjust content margin for collapsed state
@@ -1184,9 +1238,64 @@ class WOOW_CSS_Generator {
         $this->css .= "    margin-left: {$collapsed_content_margin}px !important;\n";
         $this->css .= "}\n\n";
         
-        // Override hover submenu position for collapsed state (more specific selector)
-        $this->css .= ".folded #adminmenu li.wp-has-submenu:hover > .wp-submenu {\n";
-        $this->css .= "    left: {$collapsed_submenu_left}px !important;\n";
+        // ✨ Collapse Button Styling (Figma Design)
+        $this->css .= "/* Collapse Menu Button - Modern Design */\n";
+        $this->css .= "#collapse-menu {\n";
+        $this->css .= "    display: flex !important;\n";
+        $this->css .= "    align-items: center !important;\n";
+        $this->css .= "    gap: 8px !important;\n";
+        $this->css .= "    padding: 10px 16px !important;\n";
+        $this->css .= "    margin: 8px !important;\n";
+        $this->css .= "    background: rgba(99, 102, 241, 0.08) !important;\n";
+        $this->css .= "    border: 1px solid rgba(99, 102, 241, 0.2) !important;\n";
+        $this->css .= "    border-radius: 12px !important;\n";
+        $this->css .= "    color: #6366f1 !important;\n";
+        $this->css .= "    font-size: 13px !important;\n";
+        $this->css .= "    font-weight: 600 !important;\n";
+        $this->css .= "    cursor: pointer !important;\n";
+        $this->css .= "    transition: all 0.2s ease !important;\n";
+        $this->css .= "    text-decoration: none !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= "#collapse-menu:hover {\n";
+        $this->css .= "    background: rgba(99, 102, 241, 0.15) !important;\n";
+        $this->css .= "    border-color: rgba(99, 102, 241, 0.3) !important;\n";
+        $this->css .= "    transform: translateY(-1px) !important;\n";
+        $this->css .= "    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15) !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= "#collapse-menu:active {\n";
+        $this->css .= "    transform: translateY(0) !important;\n";
+        $this->css .= "    box-shadow: 0 1px 3px rgba(99, 102, 241, 0.1) !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Collapse button icon
+        $this->css .= "#collapse-menu .collapse-button-icon {\n";
+        $this->css .= "    width: 16px !important;\n";
+        $this->css .= "    height: 16px !important;\n";
+        $this->css .= "    display: flex !important;\n";
+        $this->css .= "    align-items: center !important;\n";
+        $this->css .= "    justify-content: center !important;\n";
+        $this->css .= "    transition: transform 0.2s ease !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= "#collapse-menu:hover .collapse-button-icon {\n";
+        $this->css .= "    transform: translateX(-2px) !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Collapsed state - show only icon
+        $this->css .= ".folded #collapse-menu {\n";
+        $this->css .= "    justify-content: center !important;\n";
+        $this->css .= "    padding: 12px !important;\n";
+        $this->css .= "    width: calc(100% - 16px) !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".folded #collapse-menu .collapse-button-label {\n";
+        $this->css .= "    display: none !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".folded #collapse-menu:hover .collapse-button-icon {\n";
+        $this->css .= "    transform: translateX(2px) !important;\n";
         $this->css .= "}\n\n";
         
         // Only add custom CSS if provided by user
@@ -1532,45 +1641,44 @@ class WOOW_CSS_Generator {
         $bg = $this->settings->get_section( 'backgrounds' );
 
         $this->css .= "/* Background Styling */\n";
+        
+        // Get background settings
+        $use_gradient = $bg['use_gradient'] ?? true;
+        $main_bg_start = $bg['main_bg_color_start'] ?? '#f8fafc';
+        $main_bg_middle = $bg['main_bg_color_middle'] ?? '#eff6ff';
+        $main_bg_end = $bg['main_bg_color_end'] ?? '#eef2ff';
+        $image_url = $bg['image_url'] ?? '';
+        $image_size = $bg['image_size'] ?? 'cover';
+        $image_repeat = $bg['image_repeat'] ?? 'no-repeat';
+        $image_position = $bg['image_position'] ?? 'center';
+        $image_attachment = $bg['image_attachment'] ?? 'fixed';
+        
+        // Style #wpwrap (main WordPress wrapper)
+        $this->css .= "#wpwrap {\n";
+        
+        if ( ! empty( $image_url ) ) {
+            // Image background
+            $this->css .= "    background-image: url('{$image_url}') !important;\n";
+            $this->css .= "    background-position: {$image_position} !important;\n";
+            $this->css .= "    background-size: {$image_size} !important;\n";
+            $this->css .= "    background-repeat: {$image_repeat} !important;\n";
+            $this->css .= "    background-attachment: {$image_attachment} !important;\n";
+        } elseif ( $use_gradient ) {
+            // Gradient background
+            $this->css .= "    background: linear-gradient(to bottom right, {$main_bg_start}, {$main_bg_middle}, {$main_bg_end}) !important;\n";
+        } else {
+            // Solid background (use start color)
+            $this->css .= "    background: {$main_bg_start} !important;\n";
+        }
+        
+        $this->css .= "    min-height: 100vh !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Style #wpbody-content
         $this->css .= "#wpbody-content {\n";
         $this->css .= "    padding: 16px !important;\n";
         $this->css .= "    margin-left: 0 !important;\n";
-        
-        if ( $bg['type'] === 'solid' ) {
-            $this->css .= "    background: {$bg['solid_color']} !important;\n";
-        } elseif ( $bg['type'] === 'gradient' ) {
-            $colors = $bg['gradient_colors'];
-            $angle = $bg['gradient_angle'];
-            
-            if ( $bg['gradient_type'] === 'linear' ) {
-                $gradient = "linear-gradient({$angle}deg";
-                foreach ( $colors as $color ) {
-                    $gradient .= ", {$color}";
-                }
-                $gradient .= ")";
-                $this->css .= "    background: {$gradient} !important;\n";
-            } elseif ( $bg['gradient_type'] === 'radial' ) {
-                $gradient = "radial-gradient(circle";
-                foreach ( $colors as $color ) {
-                    $gradient .= ", {$color}";
-                }
-                $gradient .= ")";
-                $this->css .= "    background: {$gradient} !important;\n";
-            } elseif ( $bg['gradient_type'] === 'conic' ) {
-                $gradient = "conic-gradient(from {$angle}deg";
-                foreach ( $colors as $color ) {
-                    $gradient .= ", {$color}";
-                }
-                $gradient .= ")";
-                $this->css .= "    background: {$gradient} !important;\n";
-            }
-        } elseif ( $bg['type'] === 'image' && ! empty( $bg['image_url'] ) ) {
-            $this->css .= "    background-image: url('{$bg['image_url']}') !important;\n";
-            $this->css .= "    background-position: {$bg['image_position']} !important;\n";
-            $this->css .= "    background-size: {$bg['image_size']} !important;\n";
-            $this->css .= "    background-repeat: no-repeat !important;\n";
-        }
-        
+        $this->css .= "    background: transparent !important;\n";
         $this->css .= "}\n\n";
         
         // Custom CSS

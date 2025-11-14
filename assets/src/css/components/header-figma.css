@@ -305,21 +305,23 @@
     font-size: 16px;
 }
 
-/* Secondary Button (Reset) */
+/* Secondary Button (Reset) - RED DESTRUCTIVE STYLE */
 .woow-btn-secondary {
-    border: 1px solid #e5e7eb;
-    background: white;
-    color: #6b7280;
-}
-
-.woow-btn-secondary:hover {
+    border: 1px solid rgba(239, 68, 68, 0.3);
     background: rgba(239, 68, 68, 0.05);
-    border-color: rgba(239, 68, 68, 0.2);
     color: #ef4444;
 }
 
+.woow-btn-secondary:hover {
+    background: #ef4444;
+    border-color: #ef4444;
+    color: white;
+    box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3);
+    transform: translateY(-1px);
+}
+
 .woow-btn-secondary:active {
-    transform: scale(0.98);
+    transform: translateY(0);
 }
 
 /* Primary Button (Apply Changes) */
@@ -444,15 +446,15 @@
 }
 
 .dark #woow-reset-btn {
-    background: #1e293b;
-    border-color: #334155;
-    color: #94a3b8;
-}
-
-.dark #woow-reset-btn:hover {
     background: rgba(239, 68, 68, 0.1);
     border-color: rgba(239, 68, 68, 0.3);
     color: #ef4444;
+}
+
+.dark #woow-reset-btn:hover {
+    background: #ef4444;
+    border-color: #ef4444;
+    color: white;
 }
 
 .dark #woow-save-btn {

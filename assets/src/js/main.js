@@ -176,6 +176,9 @@ class WoowAdmin {
         
         // Handle conditional fields visibility
         this.setupConditionalFields();
+        
+        // Handle admin menu submenu hover persistence
+        this.setupSubmenuHoverHandler();
     }
     
     /**
@@ -229,6 +232,72 @@ class WoowAdmin {
                 widthValue.textContent = widthSlider.value + unit;
             });
         }
+    }
+    
+    /**
+     * Setup admin menu submenu hover persistence
+     * Adds delay before hiding submenu to allow mouse movement
+     */
+    setupSubmenuHoverHandler() {
+        // Only run if we're on a WordPress admin page with admin menu
+        const adminMenu = document.querySelector('#adminmenu');
+        if (!adminMenu) return;
+        
+        let hideTimeout = null;
+        const HIDE_DELAY = 200; // 200ms delay before hiding
+        
+        // Find all menu items with submenus
+        const menuItems = adminMenu.querySelectorAll('.wp-has-submenu');
+        
+        menuItems.forEach(item => {
+            const submenu = item.querySelector('.wp-submenu');
+            if (!submenu) return;
+            
+            // Show submenu on parent hover
+            item.addEventListener('mouseenter', () => {
+                clearTimeout(hideTimeout);
+                submenu.style.display = 'block';
+                submenu.style.opacity = '1';
+                submenu.style.visibility = 'visible';
+            });
+            
+            // Hide submenu with delay when leaving parent
+            item.addEventListener('mouseleave', () => {
+                hideTimeout = setTimeout(() => {
+                    // Check if mouse is over submenu
+                    if (!submenu.matches(':hover')) {
+                        submenu.style.opacity = '0';
+                        submenu.style.visibility = 'hidden';
+                        setTimeout(() => {
+                            if (submenu.style.opacity === '0') {
+                                submenu.style.display = 'none';
+                            }
+                        }, 200); // Wait for transition
+                    }
+                }, HIDE_DELAY);
+            });
+            
+            // Keep visible when hovering submenu
+            submenu.addEventListener('mouseenter', () => {
+                clearTimeout(hideTimeout);
+                submenu.style.display = 'block';
+                submenu.style.opacity = '1';
+                submenu.style.visibility = 'visible';
+            });
+            
+            // Hide when leaving submenu
+            submenu.addEventListener('mouseleave', () => {
+                submenu.style.opacity = '0';
+                submenu.style.visibility = 'hidden';
+                setTimeout(() => {
+                    if (submenu.style.opacity === '0') {
+                        submenu.style.display = 'none';
+                    }
+                }, 200); // Wait for transition
+            });
+        });
+        
+        console.log('[WOOW Admin] Submenu hover handler initialized for', menuItems.length, 'items');
     }
     
     /**

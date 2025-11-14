@@ -1022,6 +1022,7 @@ class WOOW_Settings {
                     $key === 'font_size' || 
                     $key === 'blur_strength' || 
                     $key === 'icon_size' || 
+                    $key === 'submenu_offset' || 
                     $key === 'submenu_border_radius' || 
                     $key === 'submenu_item_height' || 
                     $key === 'submenu_font_size' || 

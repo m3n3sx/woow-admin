@@ -165,6 +165,7 @@ function woow_get_default_settings() {
             
             // Submenu (Flyout - hover)
             'submenu_inherit_styles' => false,
+            'submenu_offset' => '5', // Distance from menu (in px)
             'submenu_bg_color' => 'rgba(255, 255, 255, 0.98)',
             'submenu_text_color' => '#0f172a',
             'submenu_hover_text_color' => '#6366f1',

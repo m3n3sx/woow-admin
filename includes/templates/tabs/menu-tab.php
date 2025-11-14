@@ -554,7 +554,33 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                     </span>
                 </label>
                 <p class="woow-field-description">
-                    <?php esc_html_e( 'When enabled, submenu will use the same colors and styling as main menu items', 'woow-admin' ); ?>
+                    <?php esc_html_e( 'When enabled, submenu inherits: background color, text color, hover colors, border radius, font size, and font weight from main menu', 'woow-admin' ); ?>
+                </p>
+            </div>
+
+            <!-- Submenu Offset -->
+            <div class="woow-form-group">
+                <label class="woow-label">
+                    <?php esc_html_e( 'Distance from Menu', 'woow-admin' ); ?>
+                </label>
+                <div class="woow-slider-group">
+                    <input 
+                        type="range" 
+                        name="admin_menu[submenu_offset]"
+                        value="<?php echo esc_attr( intval( $admin_menu['submenu_offset'] ?? 5 ) ); ?>"
+                        min="0" 
+                        max="20" 
+                        step="1"
+                        class="woow-slider"
+                        data-type="unitless"
+                        data-unit="px"
+                    />
+                    <span class="woow-slider-value">
+                        <?php echo esc_html( $admin_menu['submenu_offset'] ?? 5 ); ?>px
+                    </span>
+                </div>
+                <p class="woow-field-description">
+                    <?php esc_html_e( 'Gap between menu and submenu. Default: 5px', 'woow-admin' ); ?>
                 </p>
             </div>
 

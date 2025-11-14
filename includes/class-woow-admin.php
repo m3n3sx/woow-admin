@@ -1013,4 +1013,22 @@ class WOOW_Admin {
 		
 		return update_option( $backup_key, $current_settings, false );
 	}
+
+	/**
+	 * Get available templates
+	 *
+	 * Returns all available templates from the template manager.
+	 *
+	 * @return array Array of templates indexed by template ID.
+	 */
+	public function get_available_templates(): array {
+		$templates = $this->template_manager->get_all_templates();
+		$indexed = array();
+		
+		foreach ( $templates as $template ) {
+			$indexed[ $template['id'] ] = $template;
+		}
+		
+		return $indexed;
+	}
 }
