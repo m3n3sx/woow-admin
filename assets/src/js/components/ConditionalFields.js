@@ -94,18 +94,31 @@ export class ConditionalFields {
      * @returns {HTMLElement|null} - Found field element
      */
     findControlField(fieldName) {
+        // Get current active tab to prioritize fields from that section
+        const activeTab = document.querySelector('.woow-tab-pane:not([style*="display: none"])');
+        const searchContext = activeTab || document;
+        
         // Try different name patterns
         const patterns = [
-            `[name*="[${fieldName}]"]`,  // admin_bar[background_type]
-            `[name="${fieldName}"]`,      // background_type
-            `[name$="[${fieldName}]"]`    // ends with [background_type]
+            `[name*="[${fieldName}]"]`,  // backgrounds[type], admin_bar[background_type]
+            `[name="${fieldName}"]`,      // type, background_type
+            `[name$="[${fieldName}]"]`,   // ends with [type]
+            `#${fieldName}`               // ID selector as fallback
         ];
         
+        console.log(`[ConditionalFields] Searching for field: ${fieldName}`);
+        console.log(`[ConditionalFields] Patterns:`, patterns);
+        console.log(`[ConditionalFields] Search context:`, activeTab ? 'Active tab' : 'Document');
+        
         for (const pattern of patterns) {
-            const field = document.querySelector(pattern);
-            if (field) return field;
+            const field = searchContext.querySelector(pattern);
+            if (field) {
+                console.log(`[ConditionalFields] Found with pattern: ${pattern}`, field);
+                return field;
+            }
         }
         
+        console.warn(`[ConditionalFields] Field not found: ${fieldName}`);
         return null;
     }
 

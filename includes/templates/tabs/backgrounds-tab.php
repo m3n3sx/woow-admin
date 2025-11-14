@@ -123,7 +123,7 @@ $backgrounds = array_merge( $defaults, $this->settings->get_section( 'background
             </div>
 
             <!-- Gradient -->
-            <div class="woow-conditional" data-show-when="#bg-type-select=gradient">
+            <div class="woow-conditional" data-show-when="type=gradient">
                 <div class="woow-form-group">
                     <label class="woow-label"><?php esc_html_e( 'Gradient Type', 'woow-admin' ); ?></label>
                     <select name="backgrounds[gradient_type]" class="woow-select">
@@ -190,7 +190,7 @@ $backgrounds = array_merge( $defaults, $this->settings->get_section( 'background
             </div>
 
             <!-- Image -->
-            <div class="woow-conditional" data-show-when="#bg-type-select=image">
+            <div class="woow-conditional" data-show-when="type=image">
                 <div class="woow-form-group">
                     <label class="woow-label"><?php esc_html_e( 'Background Image', 'woow-admin' ); ?></label>
                     <div class="woow-image-upload-container">
