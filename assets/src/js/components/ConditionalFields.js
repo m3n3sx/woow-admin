@@ -22,13 +22,16 @@ export class ConditionalFields {
      * Initialize conditional fields
      */
     init() {
-        // Handle select/checkbox conditionals (data-show-when)
-        this.initShowWhenFields();
-        
-        // Handle radio button conditionals (data-condition-trigger)
-        this.initConditionTriggers();
-        
-        console.log('[ConditionalFields] Initialized');
+        // Use a small delay to ensure DOM is fully ready
+        setTimeout(() => {
+            // Handle select/checkbox conditionals (data-show-when)
+            this.initShowWhenFields();
+            
+            // Handle radio button conditionals (data-condition-trigger)
+            this.initConditionTriggers();
+            
+            console.log('[ConditionalFields] Initialized');
+        }, 100);
     }
 
     /**
@@ -47,7 +50,12 @@ export class ConditionalFields {
             console.log(`[ConditionalFields] Processing: ${fieldName} = ${expectedValue}`);
             
             // Find the controlling field
-            const controlField = this.findControlField(fieldName);
+            let controlField = this.findControlField(fieldName);
+            
+            if (!controlField) {
+                // Try with section prefix if not found
+                controlField = this.findControlField(`admin_menu[${fieldName}]`);
+            }
             
             if (controlField) {
                 console.log(`[ConditionalFields] Found control field for ${fieldName}:`, controlField.name, '=', controlField.value);
@@ -98,23 +106,53 @@ export class ConditionalFields {
         const activeTab = document.querySelector('.woow-tab-pane:not([style*="display: none"])');
         const searchContext = activeTab || document;
         
-        // Try different name patterns
+        // Try different name patterns - order matters!
         const patterns = [
-            `[name*="[${fieldName}]"]`,  // backgrounds[type], admin_bar[background_type]
-            `[name="${fieldName}"]`,      // type, background_type
-            `[name$="[${fieldName}]"]`,   // ends with [type]
-            `#${fieldName}`               // ID selector as fallback
+            `[name*="[${fieldName}]"]`,  // admin_menu[background_type], backgrounds[type]
+            `[name$="[${fieldName}]"]`,  // ends with [fieldName]
+            `[name="${fieldName}"]`,     // exact match: background_type
         ];
         
         console.log(`[ConditionalFields] Searching for field: ${fieldName}`);
-        console.log(`[ConditionalFields] Patterns:`, patterns);
-        console.log(`[ConditionalFields] Search context:`, activeTab ? 'Active tab' : 'Document');
         
+        // First try in active tab
+        if (activeTab) {
+            for (const pattern of patterns) {
+                try {
+                    const field = activeTab.querySelector(pattern);
+                    if (field) {
+                        console.log(`[ConditionalFields] Found in active tab with pattern: ${pattern}`, field.name);
+                        return field;
+                    }
+                } catch (e) {
+                    console.warn(`[ConditionalFields] Invalid selector pattern: ${pattern}`, e.message);
+                }
+            }
+        }
+        
+        // Then try in entire document
         for (const pattern of patterns) {
-            const field = searchContext.querySelector(pattern);
-            if (field) {
-                console.log(`[ConditionalFields] Found with pattern: ${pattern}`, field);
-                return field;
+            try {
+                const field = document.querySelector(pattern);
+                if (field) {
+                    console.log(`[ConditionalFields] Found in document with pattern: ${pattern}`, field.name);
+                    return field;
+                }
+            } catch (e) {
+                console.warn(`[ConditionalFields] Invalid selector pattern: ${pattern}`, e.message);
+            }
+        }
+        
+        // Try ID selector as last resort (with validation)
+        if (fieldName && !fieldName.includes('[') && !fieldName.includes(']')) {
+            try {
+                const field = document.getElementById(fieldName);
+                if (field) {
+                    console.log(`[ConditionalFields] Found by ID: ${fieldName}`, field);
+                    return field;
+                }
+            } catch (e) {
+                console.warn(`[ConditionalFields] Error searching by ID: ${fieldName}`, e.message);
             }
         }
         
