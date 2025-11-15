@@ -58,16 +58,40 @@ $login = array_merge( $defaults, $this->settings->get_section( 'login_page' ) ??
         <div class="woow-card-body">
             <div class="woow-form-group">
                 <label class="woow-label"><?php esc_html_e( 'Custom Logo', 'woow-admin' ); ?></label>
-                <div class="woow-image-upload">
-                    <input type="hidden" name="login_page[logo_url]" value="<?php echo esc_attr( $login['logo_url'] ); ?>" id="login-logo-url" />
-                    <button type="button" class="button woow-upload-image" data-target="#login-logo-url">
-                        <?php esc_html_e( 'Upload Logo', 'woow-admin' ); ?>
-                    </button>
+                <div class="woow-image-upload-container">
+                    <input 
+                        type="hidden" 
+                        name="login_page[logo_url]" 
+                        value="<?php echo esc_attr( $login['logo_url'] ); ?>" 
+                        id="login-logo-url"
+                    />
+                    <div class="woow-upload-controls" style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                        <input 
+                            type="file" 
+                            id="login-logo-file" 
+                            accept="image/*"
+                            style="display: none;"
+                        />
+                        <button type="button" class="button" id="login-logo-upload-btn">
+                            <?php esc_html_e( 'Upload Logo', 'woow-admin' ); ?>
+                        </button>
+                        <span id="login-logo-upload-status" style="color: #666; font-size: 13px;"></span>
+                    </div>
+                    <input 
+                        type="text" 
+                        id="login-logo-url-display"
+                        value="<?php echo esc_attr( $login['logo_url'] ); ?>"
+                        class="woow-input"
+                        placeholder="<?php esc_attr_e( 'Or paste image URL here', 'woow-admin' ); ?>"
+                        style="width: 100%; margin-bottom: 10px;"
+                    />
                     <?php if ( ! empty( $login['logo_url'] ) ) : ?>
-                        <img src="<?php echo esc_url( $login['logo_url'] ); ?>" class="woow-image-preview" style="max-width: 320px; max-height: 240px;" />
+                        <img src="<?php echo esc_url( $login['logo_url'] ); ?>" id="login-logo-preview" class="woow-image-preview" style="max-width: 320px; max-height: 240px; display: block; margin-top: 10px; border-radius: 8px; border: 1px solid #ddd;" />
+                    <?php else : ?>
+                        <img id="login-logo-preview" class="woow-image-preview" style="max-width: 320px; max-height: 240px; display: none; margin-top: 10px; border-radius: 8px; border: 1px solid #ddd;" />
                     <?php endif; ?>
                 </div>
-                <p class="woow-field-description"><?php esc_html_e( 'Maximum dimensions: 320x240px', 'woow-admin' ); ?></p>
+                <p class="woow-field-description"><?php esc_html_e( 'Maximum dimensions: 320x240px. Recommended format: PNG with transparency.', 'woow-admin' ); ?></p>
             </div>
         </div>
     </div>
@@ -86,22 +110,23 @@ $login = array_merge( $defaults, $this->settings->get_section( 'login_page' ) ??
                 </select>
             </div>
 
-            <div class="woow-form-group woow-conditional" data-show-when="#login-bg-type=color">
+            <div class="woow-form-group woow-conditional" data-show-when="login_page[background_type]=color">
                 <label class="woow-label"><?php esc_html_e( 'Background Color', 'woow-admin' ); ?></label>
                 <div class="woow-color-picker-group">
                     <input 
                         type="color" 
                         name="login_page[background_color]" 
-                        value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $login['background_color'] ?? '', '#f8fafc' ) ); ?>"
-                        data-default="#f8fafc"
+                        value="<?php echo esc_attr( $login['background_color'] ?? '#f8fafc' ); ?>"
                         class="woow-color-input"
                     />
                     <input 
                         type="text" 
-                        value="<?php echo esc_attr( $login['background_color'] ); ?>"
+                        name="login_page[background_color]"
+                        value="<?php echo esc_attr( $login['background_color'] ?? '#f8fafc' ); ?>"
                         class="woow-color-text"
+                        placeholder="#f8fafc"
                     />
-                    <button type="button" class="woow-color-reset button" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
+                    <button type="button" class="woow-color-reset button" data-default="#f8fafc" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
                         ↺
                     </button>
                 </div>
@@ -110,7 +135,7 @@ $login = array_merge( $defaults, $this->settings->get_section( 'login_page' ) ??
                 </p>
             </div>
 
-            <div class="woow-conditional" data-show-when="#login-bg-type=gradient">
+            <div class="woow-conditional" data-show-when="login_page[background_type]=gradient">
                 <div class="woow-form-row">
                     <div class="woow-form-group">
                         <label class="woow-label"><?php esc_html_e( 'Start Color', 'woow-admin' ); ?></label>
@@ -118,16 +143,17 @@ $login = array_merge( $defaults, $this->settings->get_section( 'login_page' ) ??
                             <input 
                                 type="color" 
                                 name="login_page[gradient_start]" 
-                                value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $login['gradient_start'] ?? '', '#6366f1' ) ); ?>"
-                                data-default="#6366f1"
+                                value="<?php echo esc_attr( $login['gradient_start'] ?? '#6366f1' ); ?>"
                                 class="woow-color-input"
                             />
                             <input 
                                 type="text" 
-                                value="<?php echo esc_attr( $login['gradient_start'] ); ?>"
+                                name="login_page[gradient_start]"
+                                value="<?php echo esc_attr( $login['gradient_start'] ?? '#6366f1' ); ?>"
                                 class="woow-color-text"
+                                placeholder="#6366f1"
                             />
-                            <button type="button" class="woow-color-reset button" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
+                            <button type="button" class="woow-color-reset button" data-default="#6366f1" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
                                 ↺
                             </button>
                         </div>
@@ -141,16 +167,17 @@ $login = array_merge( $defaults, $this->settings->get_section( 'login_page' ) ??
                             <input 
                                 type="color" 
                                 name="login_page[gradient_end]" 
-                                value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $login['gradient_end'] ?? '', '#8b5cf6' ) ); ?>"
-                                data-default="#8b5cf6"
+                                value="<?php echo esc_attr( $login['gradient_end'] ?? '#8b5cf6' ); ?>"
                                 class="woow-color-input"
                             />
                             <input 
                                 type="text" 
-                                value="<?php echo esc_attr( $login['gradient_end'] ); ?>"
+                                name="login_page[gradient_end]"
+                                value="<?php echo esc_attr( $login['gradient_end'] ?? '#8b5cf6' ); ?>"
                                 class="woow-color-text"
+                                placeholder="#8b5cf6"
                             />
-                            <button type="button" class="woow-color-reset button" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
+                            <button type="button" class="woow-color-reset button" data-default="#8b5cf6" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
                                 ↺
                             </button>
                         </div>
@@ -161,18 +188,45 @@ $login = array_merge( $defaults, $this->settings->get_section( 'login_page' ) ??
                 </div>
             </div>
 
-            <div class="woow-conditional" data-show-when="#login-bg-type=image">
+            <div class="woow-conditional" data-show-when="login_page[background_type]=image">
                 <div class="woow-form-group">
                     <label class="woow-label"><?php esc_html_e( 'Background Image', 'woow-admin' ); ?></label>
-                    <div class="woow-image-upload">
-                        <input type="hidden" name="login_page[background_image]" value="<?php echo esc_attr( $login['background_image'] ); ?>" id="login-bg-image" />
-                        <button type="button" class="button woow-upload-image" data-target="#login-bg-image">
-                            <?php esc_html_e( 'Upload Image', 'woow-admin' ); ?>
-                        </button>
+                    <div class="woow-image-upload-container">
+                        <input 
+                            type="hidden" 
+                            name="login_page[background_image]" 
+                            value="<?php echo esc_attr( $login['background_image'] ); ?>" 
+                            id="login-bg-image-url"
+                        />
+                        <div class="woow-upload-controls" style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                            <input 
+                                type="file" 
+                                id="login-bg-image-file" 
+                                accept="image/*"
+                                style="display: none;"
+                            />
+                            <button type="button" class="button" id="login-bg-upload-btn">
+                                <?php esc_html_e( 'Upload Image', 'woow-admin' ); ?>
+                            </button>
+                            <span id="login-bg-upload-status" style="color: #666; font-size: 13px;"></span>
+                        </div>
+                        <input 
+                            type="text" 
+                            id="login-bg-image-url-display"
+                            value="<?php echo esc_attr( $login['background_image'] ); ?>"
+                            class="woow-input"
+                            placeholder="<?php esc_attr_e( 'Or paste image URL here', 'woow-admin' ); ?>"
+                            style="width: 100%; margin-bottom: 10px;"
+                        />
                         <?php if ( ! empty( $login['background_image'] ) ) : ?>
-                            <img src="<?php echo esc_url( $login['background_image'] ); ?>" class="woow-image-preview" />
+                            <img src="<?php echo esc_url( $login['background_image'] ); ?>" id="login-bg-image-preview" class="woow-image-preview" style="max-width: 100%; display: block; margin-top: 10px; border-radius: 8px; border: 1px solid #ddd;" />
+                        <?php else : ?>
+                            <img id="login-bg-image-preview" class="woow-image-preview" style="max-width: 100%; display: none; margin-top: 10px; border-radius: 8px; border: 1px solid #ddd;" />
                         <?php endif; ?>
                     </div>
+                    <p class="woow-field-description">
+                        <?php esc_html_e( 'Upload an image or paste a URL. Recommended size: 1920x1080px or larger.', 'woow-admin' ); ?>
+                    </p>
                 </div>
             </div>
         </div>

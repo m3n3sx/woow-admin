@@ -15,8 +15,10 @@ $defaults = array(
     'enabled'              => true,
     'border_radius'        => '24px',
     'padding'              => '24px',
-    'background_color'     => 'rgba(255,255,255,0.9)',
-    'border_color'         => 'rgba(0,0,0,0.05)',
+    'background_color'     => '#ffffff',
+    'border_color'         => '#e2e8f0',
+    'text_color'           => '#0f172a',
+    'heading_color'        => '#0f172a',
     'shadow_style'         => 'md',
     'hover_effects'        => true,
     'glassmorphism'        => true,
@@ -88,44 +90,97 @@ $widgets = array_merge( $defaults, $this->settings->get_section( 'dashboard_widg
                     <input 
                         type="color" 
                         name="dashboard_widgets[background_color]" 
-                        value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $widgets['background_color'] ?? '', '#ffffff' ) ); ?>"
-                        data-default="rgba(255,255,255,0.9)"
+                        value="<?php echo esc_attr( $widgets['background_color'] ?? '#ffffff' ); ?>"
                         class="woow-color-input"
                     />
                     <input 
                         type="text" 
-                        value="<?php echo esc_attr( $widgets['background_color'] ); ?>"
+                        name="dashboard_widgets[background_color]"
+                        value="<?php echo esc_attr( $widgets['background_color'] ?? '#ffffff' ); ?>"
                         class="woow-color-text"
+                        placeholder="#ffffff"
                     />
-                    <button type="button" class="woow-color-reset button" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
+                    <button type="button" class="woow-color-reset button" data-default="#ffffff" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
                         ↺
                     </button>
                 </div>
                 <p class="woow-field-description">
-                    <?php esc_html_e( 'Default: rgba(255,255,255,0.9) (White with transparency)', 'woow-admin' ); ?>
+                    <?php esc_html_e( 'Default: #ffffff (White)', 'woow-admin' ); ?>
                 </p>
             </div>
+            
             <div class="woow-form-group">
                 <label class="woow-label"><?php esc_html_e( 'Border Color', 'woow-admin' ); ?></label>
                 <div class="woow-color-picker-group">
                     <input 
                         type="color" 
                         name="dashboard_widgets[border_color]" 
-                        value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $widgets['border_color'] ?? '', '#000000' ) ); ?>"
-                        data-default="rgba(0,0,0,0.05)"
+                        value="<?php echo esc_attr( $widgets['border_color'] ?? '#e2e8f0' ); ?>"
                         class="woow-color-input"
                     />
                     <input 
                         type="text" 
-                        value="<?php echo esc_attr( $widgets['border_color'] ); ?>"
+                        name="dashboard_widgets[border_color]"
+                        value="<?php echo esc_attr( $widgets['border_color'] ?? '#e2e8f0' ); ?>"
                         class="woow-color-text"
+                        placeholder="#e2e8f0"
                     />
-                    <button type="button" class="woow-color-reset button" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
+                    <button type="button" class="woow-color-reset button" data-default="#e2e8f0" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
                         ↺
                     </button>
                 </div>
                 <p class="woow-field-description">
-                    <?php esc_html_e( 'Default: rgba(0,0,0,0.05) (Subtle border)', 'woow-admin' ); ?>
+                    <?php esc_html_e( 'Default: #e2e8f0 (Light gray)', 'woow-admin' ); ?>
+                </p>
+            </div>
+            
+            <div class="woow-form-group">
+                <label class="woow-label"><?php esc_html_e( 'Text Color', 'woow-admin' ); ?></label>
+                <div class="woow-color-picker-group">
+                    <input 
+                        type="color" 
+                        name="dashboard_widgets[text_color]" 
+                        value="<?php echo esc_attr( $widgets['text_color'] ?? '#0f172a' ); ?>"
+                        class="woow-color-input"
+                    />
+                    <input 
+                        type="text" 
+                        name="dashboard_widgets[text_color]"
+                        value="<?php echo esc_attr( $widgets['text_color'] ?? '#0f172a' ); ?>"
+                        class="woow-color-text"
+                        placeholder="#0f172a"
+                    />
+                    <button type="button" class="woow-color-reset button" data-default="#0f172a" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
+                        ↺
+                    </button>
+                </div>
+                <p class="woow-field-description">
+                    <?php esc_html_e( 'Default: #0f172a (Dark gray)', 'woow-admin' ); ?>
+                </p>
+            </div>
+            
+            <div class="woow-form-group">
+                <label class="woow-label"><?php esc_html_e( 'Heading Color', 'woow-admin' ); ?></label>
+                <div class="woow-color-picker-group">
+                    <input 
+                        type="color" 
+                        name="dashboard_widgets[heading_color]" 
+                        value="<?php echo esc_attr( $widgets['heading_color'] ?? '#0f172a' ); ?>"
+                        class="woow-color-input"
+                    />
+                    <input 
+                        type="text" 
+                        name="dashboard_widgets[heading_color]"
+                        value="<?php echo esc_attr( $widgets['heading_color'] ?? '#0f172a' ); ?>"
+                        class="woow-color-text"
+                        placeholder="#0f172a"
+                    />
+                    <button type="button" class="woow-color-reset button" data-default="#0f172a" title="<?php esc_attr_e( 'Reset', 'woow-admin' ); ?>">
+                        ↺
+                    </button>
+                </div>
+                <p class="woow-field-description">
+                    <?php esc_html_e( 'Default: #0f172a (Dark gray)', 'woow-admin' ); ?>
                 </p>
             </div>
         </div>

@@ -17,6 +17,7 @@ import { KeyboardShortcuts } from './components/KeyboardShortcuts.js';
 import { HeaderController } from './components/HeaderController.js';
 import { LayoutController } from './components/LayoutController.js';
 import { ConditionalFields } from './components/ConditionalFields.js';
+import { MediaUploader } from './components/MediaUploader.js';
 import { Validator } from './utils/Validator.js';
 
 /**
@@ -82,6 +83,7 @@ class WoowAdmin {
             this.components.tabManager = new TabManager(this);
             this.components.keyboardShortcuts = new KeyboardShortcuts(this);
             this.components.conditionalFields = new ConditionalFields(this);
+            this.components.mediaUploader = new MediaUploader(this);
 
             // Check for unsaved data and offer to restore
             this.checkUnsavedData();
@@ -184,6 +186,67 @@ class WoowAdmin {
         
         // Handle simple image upload
         this.setupSimpleImageUpload();
+        
+        // Handle slider value display updates
+        this.setupSliderValueDisplay();
+    }
+    
+    /**
+     * Setup slider value display updates
+     * Updates the displayed value next to each slider when it changes
+     */
+    setupSliderValueDisplay() {
+        // Find all range sliders
+        const sliders = document.querySelectorAll('input[type="range"].woow-slider');
+        
+        if (!sliders.length) return;
+        
+        sliders.forEach(slider => {
+            // Find the value display span (should be next sibling)
+            const valueSpan = slider.nextElementSibling;
+            
+            if (!valueSpan || !valueSpan.classList.contains('woow-slider-value')) {
+                console.warn('[WOOW Admin] Slider value display not found for:', slider.name);
+                return;
+            }
+            
+            // Update display on input (real-time as user drags)
+            slider.addEventListener('input', () => {
+                this.updateSliderDisplay(slider, valueSpan);
+            });
+            
+            // Also update on change event
+            slider.addEventListener('change', () => {
+                this.updateSliderDisplay(slider, valueSpan);
+            });
+        });
+        
+        console.log('[WOOW Admin] Slider value display initialized for', sliders.length, 'sliders');
+    }
+    
+    /**
+     * Update slider value display
+     * 
+     * @param {HTMLElement} slider - The range input element
+     * @param {HTMLElement} valueSpan - The span to display the value
+     */
+    updateSliderDisplay(slider, valueSpan) {
+        const dataType = slider.dataset.type;
+        const unit = slider.dataset.unit || '';
+        let displayValue;
+        
+        if (dataType === 'opacity') {
+            // Opacity: show as percentage
+            displayValue = slider.value + '%';
+        } else if (dataType === 'unitless') {
+            // Unitless: show value with unit
+            displayValue = slider.value + unit;
+        } else {
+            // Default: show value with unit
+            displayValue = slider.value + unit;
+        }
+        
+        valueSpan.textContent = displayValue;
     }
     
     /**
@@ -371,6 +434,27 @@ class WoowAdmin {
                 if (currentValue === expectedValue) {
                     field.style.display = '';
                     field.classList.add('woow-conditional-visible');
+                    
+                    // Reinitialize color pickers in newly visible fields
+                    if (this.components.colorPicker) {
+                        const colorGroups = field.querySelectorAll('.woow-color-picker-group');
+                        if (colorGroups.length) {
+                            colorGroups.forEach(group => {
+                                const colorInput = group.querySelector('.woow-color-input');
+                                const textInput = group.querySelector('.woow-color-text');
+                                const resetButton = group.querySelector('.woow-color-reset');
+                                
+                                if (colorInput && textInput) {
+                                    this.components.colorPicker.bindColorInput(colorInput, textInput);
+                                    this.components.colorPicker.bindTextInput(textInput, colorInput);
+                                }
+                                
+                                if (resetButton) {
+                                    this.components.colorPicker.bindResetButton(resetButton, colorInput, textInput);
+                                }
+                            });
+                        }
+                    }
                 } else {
                     field.style.display = 'none';
                     field.classList.remove('woow-conditional-visible');
@@ -400,104 +484,152 @@ class WoowAdmin {
 
     /**
      * Setup simple image upload without WordPress Media Library
+     * Supports multiple upload instances (Background, Login Logo, Login Background)
      */
     setupSimpleImageUpload() {
-        const uploadBtn = document.getElementById('bg-upload-btn');
-        const fileInput = document.getElementById('bg-image-file');
-        const urlInput = document.getElementById('bg-image-url-display');
-        const hiddenInput = document.getElementById('bg-image-url');
-        const preview = document.getElementById('bg-image-preview');
-        const status = document.getElementById('bg-upload-status');
-        
-        if (!uploadBtn || !fileInput) return;
-        
-        // Click upload button triggers file input
-        uploadBtn.addEventListener('click', () => {
-            fileInput.click();
-        });
-        
-        // Handle file selection
-        fileInput.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            // Validate file type
-            if (!file.type.startsWith('image/')) {
-                alert('Please select an image file.');
-                return;
+        // Define all upload instances
+        const uploadInstances = [
+            {
+                id: 'bg',
+                uploadBtn: 'bg-upload-btn',
+                fileInput: 'bg-image-file',
+                urlInput: 'bg-image-url-display',
+                hiddenInput: 'bg-image-url',
+                preview: 'bg-image-preview',
+                status: 'bg-upload-status'
+            },
+            {
+                id: 'login-logo',
+                uploadBtn: 'login-logo-upload-btn',
+                fileInput: 'login-logo-file',
+                urlInput: 'login-logo-url-display',
+                hiddenInput: 'login-logo-url',
+                preview: 'login-logo-preview',
+                status: 'login-logo-upload-status'
+            },
+            {
+                id: 'login-bg',
+                uploadBtn: 'login-bg-upload-btn',
+                fileInput: 'login-bg-image-file',
+                urlInput: 'login-bg-image-url-display',
+                hiddenInput: 'login-bg-image-url',
+                preview: 'login-bg-image-preview',
+                status: 'login-bg-upload-status'
             }
+        ];
+        
+        // Initialize each upload instance
+        uploadInstances.forEach(instance => {
+            const uploadBtn = document.getElementById(instance.uploadBtn);
+            const fileInput = document.getElementById(instance.fileInput);
+            const urlInput = document.getElementById(instance.urlInput);
+            const hiddenInput = document.getElementById(instance.hiddenInput);
+            const preview = document.getElementById(instance.preview);
+            const status = document.getElementById(instance.status);
             
-            // Show uploading status
-            status.textContent = 'Uploading...';
-            uploadBtn.disabled = true;
+            if (!uploadBtn || !fileInput) return;
             
-            // Create FormData
-            const formData = new FormData();
-            formData.append('action', 'woow_upload_image');
-            formData.append('nonce', this.nonce);
-            formData.append('image', file);
+            // Click upload button triggers file input
+            uploadBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
             
-            try {
-                // Upload via AJAX
-                const response = await fetch(this.ajaxUrl, {
-                    method: 'POST',
-                    body: formData
-                });
+            // Handle file selection
+            fileInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
                 
-                const data = await response.json();
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    alert('Please select an image file.');
+                    return;
+                }
                 
-                if (data.success && data.data.url) {
-                    // Update inputs
-                    hiddenInput.value = data.data.url;
-                    urlInput.value = data.data.url;
+                // Show uploading status
+                if (status) {
+                    status.textContent = 'Uploading...';
+                    status.style.color = '#666';
+                }
+                uploadBtn.disabled = true;
+                
+                // Create FormData
+                const formData = new FormData();
+                formData.append('action', 'woow_upload_image');
+                formData.append('nonce', this.nonce);
+                formData.append('image', file);
+                
+                try {
+                    // Upload via AJAX
+                    const response = await fetch(this.ajaxUrl, {
+                        method: 'POST',
+                        body: formData
+                    });
                     
-                    // Show preview
-                    preview.src = data.data.url;
-                    preview.style.display = 'block';
+                    const data = await response.json();
                     
-                    // Update status
-                    status.textContent = 'Uploaded!';
-                    status.style.color = '#46b450';
+                    if (data.success && data.data.url) {
+                        // Update inputs
+                        hiddenInput.value = data.data.url;
+                        if (urlInput) urlInput.value = data.data.url;
+                        
+                        // Show preview
+                        if (preview) {
+                            preview.src = data.data.url;
+                            preview.style.display = 'block';
+                        }
+                        
+                        // Update status
+                        if (status) {
+                            status.textContent = 'Uploaded!';
+                            status.style.color = '#46b450';
+                        }
+                        
+                        // Trigger change for live preview
+                        hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+                        
+                        console.log(`[WOOW Admin] Image uploaded (${instance.id}):`, data.data.url);
+                    } else {
+                        throw new Error(data.data?.message || 'Upload failed');
+                    }
+                } catch (error) {
+                    console.error(`[WOOW Admin] Upload error (${instance.id}):`, error);
+                    if (status) {
+                        status.textContent = 'Upload failed: ' + error.message;
+                        status.style.color = '#dc3232';
+                    }
+                    alert('Upload failed: ' + error.message);
+                } finally {
+                    uploadBtn.disabled = false;
+                    if (status) {
+                        setTimeout(() => {
+                            status.textContent = '';
+                        }, 3000);
+                    }
+                }
+            });
+            
+            // Handle manual URL input
+            if (urlInput) {
+                urlInput.addEventListener('input', (e) => {
+                    const url = e.target.value.trim();
+                    hiddenInput.value = url;
+                    
+                    if (preview) {
+                        if (url) {
+                            preview.src = url;
+                            preview.style.display = 'block';
+                        } else {
+                            preview.style.display = 'none';
+                        }
+                    }
                     
                     // Trigger change for live preview
                     hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
-                    
-                    console.log('[WOOW Admin] Image uploaded:', data.data.url);
-                } else {
-                    throw new Error(data.data?.message || 'Upload failed');
-                }
-            } catch (error) {
-                console.error('[WOOW Admin] Upload error:', error);
-                status.textContent = 'Upload failed: ' + error.message;
-                status.style.color = '#dc3232';
-                alert('Upload failed: ' + error.message);
-            } finally {
-                uploadBtn.disabled = false;
-                setTimeout(() => {
-                    status.textContent = '';
-                }, 3000);
+                });
             }
+            
+            console.log(`[WOOW Admin] Image upload initialized: ${instance.id}`);
         });
-        
-        // Handle manual URL input
-        if (urlInput) {
-            urlInput.addEventListener('input', (e) => {
-                const url = e.target.value.trim();
-                hiddenInput.value = url;
-                
-                if (url) {
-                    preview.src = url;
-                    preview.style.display = 'block';
-                } else {
-                    preview.style.display = 'none';
-                }
-                
-                // Trigger change for live preview
-                hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
-            });
-        }
-        
-        console.log('[WOOW Admin] Simple image upload initialized');
     }
 
     /**
@@ -544,30 +676,35 @@ class WoowAdmin {
 
             const [, section, key] = match;
 
-            // ✅ FIX: Skip hidden/invisible inputs (conditional fields)
-            // EXCEPT for backgrounds section - always collect those values
-            // This prevents duplicate field names from overwriting visible values
+            // ✅ FIX: Skip ONLY conditional fields that are hidden
+            // DO NOT skip fields from inactive tabs - we need all tabs data!
             if (input.type !== 'hidden') {
-                // Always collect backgrounds fields, even if hidden
-                if (section !== 'backgrounds') {
-                    const isVisible = input.offsetParent !== null;
-                    const parentHidden = input.closest('[style*="display: none"]') || 
-                                       input.closest('.woow-conditional:not(.woow-conditional-visible)');
+                // Check if this is a conditional field (has .woow-conditional parent)
+                const conditionalParent = input.closest('.woow-conditional');
+                
+                if (conditionalParent) {
+                    // This is a conditional field - check if it's hidden
+                    const isConditionalHidden = conditionalParent.style.display === 'none' || 
+                                               conditionalParent.classList.contains('woow-hidden');
                     
-                    if (!isVisible || parentHidden) {
-                        console.log(`[collectFormData] Skipping non-visible input: ${name} (value: ${input.value})`);
+                    if (isConditionalHidden) {
+                        console.log(`[collectFormData] Skipping hidden conditional field: ${name}`);
                         return;
                     }
                 }
+                // For non-conditional fields, always collect (even from inactive tabs)
             }
             
             // Debug: log background_color (only visible ones now)
             if (key === 'background_color') {
                 console.log('[collectFormData] background_color found (VISIBLE):', {
+                    section: section,
                     value: input.value,
                     type: input.type,
                     visible: input.offsetParent !== null,
-                    display: window.getComputedStyle(input).display
+                    display: window.getComputedStyle(input).display,
+                    parentConditional: input.closest('.woow-conditional'),
+                    parentHidden: input.closest('[style*="display: none"]')
                 });
             }
 
@@ -1462,8 +1599,16 @@ class WoowAdmin {
                     // Update value display
                     const valueSpan = input.nextElementSibling;
                     if (valueSpan && valueSpan.classList.contains('woow-slider-value')) {
+                        const dataType = input.dataset.type;
                         const unit = input.dataset.unit || '';
-                        valueSpan.textContent = numericValue + unit;
+                        
+                        if (dataType === 'opacity') {
+                            // Opacity: show as percentage
+                            valueSpan.textContent = numericValue + '%';
+                        } else {
+                            // Default: show value with unit
+                            valueSpan.textContent = numericValue + unit;
+                        }
                     }
                 } else {
                     input.value = value;

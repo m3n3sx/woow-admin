@@ -1175,13 +1175,22 @@ class WOOW_Settings {
         
         $color = trim( $color );
 
-        // Hex color validation
-        if ( preg_match( '/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/', $color ) ) {
+        // Hex color validation (3, 6, or 8 characters for alpha)
+        if ( preg_match( '/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$/', $color ) ) {
             return $color;
         }
 
         // RGB/RGBA validation
-        if ( preg_match( '/^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(,\s*[\d.]+\s*)?\)$/', $color ) ) {
+        if ( preg_match( '/^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(,\s*[\d.]+\s*)?\)$/i', $color ) ) {
+            return $color;
+        }
+
+        // Named colors (basic set)
+        $named_colors = array(
+            'transparent', 'white', 'black', 'red', 'green', 'blue',
+            'yellow', 'cyan', 'magenta', 'gray', 'grey'
+        );
+        if ( in_array( strtolower( $color ), $named_colors, true ) ) {
             return $color;
         }
 

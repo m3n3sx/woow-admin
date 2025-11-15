@@ -214,7 +214,15 @@ function woow_get_default_settings() {
             'blur_strength' => '12',
             
             // Shadow
-            'box_shadow' => '0 4px 12px rgba(0, 0, 0, 0.06)',
+            'shadow_style' => 'md',
+            'hover_effects' => true,
+            
+            // Typography
+            'header_font_size' => '20',
+            'header_font_weight' => '600',
+            
+            // Custom
+            'custom_css' => '',
         ),
         
         'form_controls' => array(

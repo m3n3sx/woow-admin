@@ -92,6 +92,10 @@ class WOOW_CSS_Generator {
             $this->add_effect_styles();
         }
         
+        if ( $this->settings->get_option( 'login_page.enabled', false ) ) {
+            $this->add_login_page_styles();
+        }
+        
         // Add responsive styles
         $this->add_responsive_styles();
 
@@ -1332,38 +1336,72 @@ class WOOW_CSS_Generator {
      */
     private function add_dashboard_widget_styles(): void {
         $widgets = $this->settings->get_section( 'dashboard_widgets' );
+        
+        // Get colors with defaults
+        $background_color = $widgets['background_color'] ?? '#ffffff';
+        $border_color = $widgets['border_color'] ?? '#e2e8f0';
+        $text_color = $widgets['text_color'] ?? '#0f172a';
+        $heading_color = $widgets['heading_color'] ?? '#0f172a';
+        
+        // Get dimensions
+        $border_radius = $widgets['border_radius'] ?? '24px';
+        $padding = $widgets['padding'] ?? '24px';
+        
+        // Get shadow
+        $shadow_style = $widgets['shadow_style'] ?? 'md';
+        $shadows = [
+            'none' => 'none',
+            'sm' => '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+            'md' => '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
+            'lg' => '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
+            'xl' => '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+        ];
+        $box_shadow = $shadows[$shadow_style] ?? $shadows['md'];
 
         $this->css .= "/* Dashboard Widgets Styling */\n";
         $this->css .= ".postbox,\n";
         $this->css .= "#dashboard-widgets .postbox,\n";
         $this->css .= ".wrap > div.card {\n";
-        $this->css .= "    border-radius: {$widgets['border_radius']} !important;\n";
-        $this->css .= "    padding: {$widgets['padding']} !important;\n";
-        $this->css .= "    margin-bottom: {$widgets['margin_bottom']} !important;\n";
-        $this->css .= "    box-shadow: {$this->get_shadow_value($widgets['shadow_style'])} !important;\n";
-        $this->css .= "    border: none !important;\n";
-        $this->css .= "    transition: all 200ms var(--woow-easing);\n";
+        $this->css .= "    background: {$background_color} !important;\n";
+        $this->css .= "    border: 1px solid {$border_color} !important;\n";
+        $this->css .= "    border-radius: {$border_radius} !important;\n";
+        $this->css .= "    padding: {$padding} !important;\n";
+        $this->css .= "    margin-bottom: 20px !important;\n";
+        $this->css .= "    box-shadow: {$box_shadow} !important;\n";
+        $this->css .= "    color: {$text_color} !important;\n";
+        $this->css .= "    transition: all 200ms ease;\n";
         
-        if ( $widgets['glassmorphism'] ) {
-            $this->css .= $this->get_glassmorphism_css( $widgets['blur_strength'], $widgets['opacity'] );
-            $this->css .= "    background: rgba(255, 255, 255, {$widgets['opacity']}) !important;\n";
-        } else {
-            $this->css .= "    background: {$widgets['background_color']} !important;\n";
+        // Glassmorphism
+        if ( $widgets['glassmorphism'] ?? false ) {
+            $blur_strength = $widgets['blur_strength'] ?? '8px';
+            $this->css .= "    backdrop-filter: blur({$blur_strength}) !important;\n";
+            $this->css .= "    -webkit-backdrop-filter: blur({$blur_strength}) !important;\n";
         }
         
-        $this->css .= "    border: 1px solid rgba(255, 255, 255, 0.4) !important;\n";
         $this->css .= "}\n\n";
         
         // Hover effects
-        if ( $widgets['hover_transform'] ) {
+        if ( $widgets['hover_effects'] ?? true ) {
             $this->css .= ".postbox:hover,\n";
             $this->css .= "#dashboard-widgets .postbox:hover {\n";
             $this->css .= "    transform: translateY(-2px);\n";
-            $this->css .= "    box-shadow: {$this->get_shadow_value($widgets['hover_shadow'])} !important;\n";
+            $this->css .= "    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15) !important;\n";
             $this->css .= "}\n\n";
         }
         
+        // Widget text
+        $this->css .= ".postbox p,\n";
+        $this->css .= ".postbox div,\n";
+        $this->css .= ".postbox span,\n";
+        $this->css .= "#dashboard-widgets .postbox p,\n";
+        $this->css .= "#dashboard-widgets .postbox div {\n";
+        $this->css .= "    color: {$text_color} !important;\n";
+        $this->css .= "}\n\n";
+        
         // Headers
+        $header_font_size = $widgets['header_font_size'] ?? '20px';
+        $header_font_weight = $widgets['header_font_weight'] ?? '600';
+        
         $this->css .= ".postbox-header,\n";
         $this->css .= ".postbox h2,\n";
         $this->css .= ".postbox h3,\n";
@@ -1372,9 +1410,9 @@ class WOOW_CSS_Generator {
         $this->css .= "    border: none !important;\n";
         $this->css .= "    padding: 0 !important;\n";
         $this->css .= "    margin-bottom: 16px !important;\n";
-        $this->css .= "    font-size: {$widgets['header_font_size']} !important;\n";
-        $this->css .= "    font-weight: {$widgets['header_font_weight']} !important;\n";
-        $this->css .= "    color: {$widgets['header_text_color']} !important;\n";
+        $this->css .= "    font-size: {$header_font_size} !important;\n";
+        $this->css .= "    font-weight: {$header_font_weight} !important;\n";
+        $this->css .= "    color: {$heading_color} !important;\n";
         $this->css .= "    line-height: 1.4 !important;\n";
         $this->css .= "    letter-spacing: -0.01em !important;\n";
         $this->css .= "}\n\n";
@@ -2140,5 +2178,135 @@ class WOOW_CSS_Generator {
         $b = str_pad( dechex( (int) $b ), 2, '0', STR_PAD_LEFT );
         
         return "#{$r}{$g}{$b}";
+    }
+
+    /**
+     * Add login page styles
+     *
+     * @return void
+     */
+    private function add_login_page_styles(): void {
+        $login = $this->settings->get_section( 'login_page' );
+        
+        // Get settings with defaults
+        $background_type = $login['background_type'] ?? 'gradient';
+        $background_color = $login['background_color'] ?? '#f8fafc';
+        $gradient_start = $login['gradient_start'] ?? '#6366f1';
+        $gradient_end = $login['gradient_end'] ?? '#8b5cf6';
+        $background_image = $login['background_image'] ?? '';
+        
+        $this->css .= "/* Login Page Styling */\n";
+        $this->css .= "body.login {\n";
+        
+        // Background based on type
+        if ( $background_type === 'image' && ! empty( $background_image ) ) {
+            $this->css .= "    background-image: url('{$background_image}') !important;\n";
+            $this->css .= "    background-size: cover !important;\n";
+            $this->css .= "    background-position: center !important;\n";
+            $this->css .= "    background-repeat: no-repeat !important;\n";
+        } elseif ( $background_type === 'gradient' ) {
+            $this->css .= "    background: linear-gradient(135deg, {$gradient_start}, {$gradient_end}) !important;\n";
+        } else {
+            $this->css .= "    background: {$background_color} !important;\n";
+        }
+        
+        $this->css .= "    min-height: 100vh !important;\n";
+        $this->css .= "    display: flex !important;\n";
+        $this->css .= "    align-items: center !important;\n";
+        $this->css .= "    justify-content: center !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Login form container
+        $form_glassmorphism = $login['form_glassmorphism'] ?? true;
+        $blur_strength = $login['blur_strength'] ?? '12px';
+        
+        $this->css .= "#login {\n";
+        $this->css .= "    padding: 0 !important;\n";
+        $this->css .= "    width: 400px !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= "#loginform,\n";
+        $this->css .= ".login form {\n";
+        
+        if ( $form_glassmorphism ) {
+            $this->css .= "    background: rgba(255, 255, 255, 0.95) !important;\n";
+            $this->css .= "    backdrop-filter: blur({$blur_strength}) !important;\n";
+            $this->css .= "    -webkit-backdrop-filter: blur({$blur_strength}) !important;\n";
+        } else {
+            $this->css .= "    background: #ffffff !important;\n";
+        }
+        
+        $this->css .= "    border: 1px solid rgba(255, 255, 255, 0.4) !important;\n";
+        $this->css .= "    border-radius: 24px !important;\n";
+        $this->css .= "    padding: 32px !important;\n";
+        $this->css .= "    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Logo
+        $logo_url = $login['logo_url'] ?? '';
+        if ( ! empty( $logo_url ) ) {
+            $this->css .= ".login h1 a {\n";
+            $this->css .= "    background-image: url('{$logo_url}') !important;\n";
+            $this->css .= "    background-size: contain !important;\n";
+            $this->css .= "    width: 320px !important;\n";
+            $this->css .= "    height: 84px !important;\n";
+            $this->css .= "}\n\n";
+        }
+        
+        // Inherit button styles
+        $inherit_button_styles = $login['inherit_button_styles'] ?? true;
+        if ( $inherit_button_styles ) {
+            $buttons = $this->settings->get_section( 'buttons' );
+            $primary_bg = $buttons['primary_bg_color'] ?? '#6366f1';
+            $primary_text = $buttons['primary_text_color'] ?? '#ffffff';
+            $button_radius = $buttons['button_border_radius'] ?? '12px';
+            
+            $this->css .= ".login .button-primary {\n";
+            $this->css .= "    background: {$primary_bg} !important;\n";
+            $this->css .= "    color: {$primary_text} !important;\n";
+            $this->css .= "    border: none !important;\n";
+            $this->css .= "    border-radius: {$button_radius} !important;\n";
+            $this->css .= "    padding: 12px 24px !important;\n";
+            $this->css .= "    font-weight: 600 !important;\n";
+            $this->css .= "    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;\n";
+            $this->css .= "    transition: all 200ms ease !important;\n";
+            $this->css .= "}\n\n";
+            
+            $this->css .= ".login .button-primary:hover {\n";
+            $this->css .= "    transform: translateY(-2px) !important;\n";
+            $this->css .= "    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15) !important;\n";
+            $this->css .= "}\n\n";
+        }
+        
+        // Inherit input styles
+        $inherit_input_styles = $login['inherit_input_styles'] ?? true;
+        if ( $inherit_input_styles ) {
+            $forms = $this->settings->get_section( 'form_controls' );
+            $input_border = $forms['input_border_color'] ?? '#e2e8f0';
+            $input_radius = $forms['input_border_radius'] ?? '12px';
+            $input_focus = $forms['input_focus_color'] ?? '#6366f1';
+            
+            $this->css .= ".login input[type=\"text\"],\n";
+            $this->css .= ".login input[type=\"password\"] {\n";
+            $this->css .= "    border: 1px solid {$input_border} !important;\n";
+            $this->css .= "    border-radius: {$input_radius} !important;\n";
+            $this->css .= "    padding: 12px 16px !important;\n";
+            $this->css .= "    font-size: 14px !important;\n";
+            $this->css .= "    transition: all 200ms ease !important;\n";
+            $this->css .= "}\n\n";
+            
+            $this->css .= ".login input[type=\"text\"]:focus,\n";
+            $this->css .= ".login input[type=\"password\"]:focus {\n";
+            $this->css .= "    border-color: {$input_focus} !important;\n";
+            $this->css .= "    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;\n";
+            $this->css .= "    outline: none !important;\n";
+            $this->css .= "}\n\n";
+        }
+        
+        // Custom CSS
+        if ( ! empty( $login['custom_css'] ) ) {
+            $this->css .= "/* Login Page Custom CSS */\n";
+            $this->css .= $this->sanitize_css( $login['custom_css'] ) . "\n\n";
+        }
     }
 }

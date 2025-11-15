@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Media Uploader</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 2px solid #ccc; }
+        .button { padding: 10px 20px; background: #0073aa; color: white; border: none; cursor: pointer; }
+        .button:hover { background: #005177; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Media Uploader</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Check if wp.media is available</h2>
+        <button onclick="testWpMedia()" class="button">Test wp.media</button>
+        <div id="test1-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2: Check if MediaUploader is initialized</h2>
+        <p>Open browser console (F12) and look for:</p>
+        <pre>[MediaUploader] Initialized</pre>
+        <div id="test2-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 3: Test Upload Button Click</h2>
+        <input type="hidden" id="test-image-url" value="" />
+        <button type="button" class="button woow-upload-image" data-target="#test-image-url">
+            Upload Test Image
+        </button>
+        <div id="test3-result"></div>
+        <div id="test3-preview"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 4: Manual wp.media Test</h2>
+        <button onclick="testManualUpload()" class="button">Open Media Library Manually</button>
+        <div id="test4-result"></div>
+    </div>
+    
+    <script>
+        function testWpMedia() {
+            const result = document.getElementById('test1-result');
+            result.innerHTML = '<h3>Results:</h3>';
+            
+            result.innerHTML += '<p><strong>typeof wp:</strong> ' + typeof wp + '</p>';
+            
+            if (typeof wp !== 'undefined') {
+                result.innerHTML += '<p><strong>typeof wp.media:</strong> ' + typeof wp.media + '</p>';
+                
+                if (typeof wp.media !== 'undefined') {
+                    result.innerHTML += '<p style="color: green;">✅ wp.media is available!</p>';
+                } else {
+                    result.innerHTML += '<p style="color: red;">❌ wp.media is NOT available!</p>';
+                }
+            } else {
+                result.innerHTML += '<p style="color: red;">❌ wp is NOT defined!</p>';
+            }
+        }
+        
+        function testManualUpload() {
+            const result = document.getElementById('test4-result');
+            
+            if (typeof wp === 'undefined' || typeof wp.media === 'undefined') {
+                result.innerHTML = '<p style="color: red;">❌ wp.media not available</p>';
+                return;
+            }
+            
+            result.innerHTML = '<p style="color: green;">✅ Opening Media Library...</p>';
+            
+            const frame = wp.media({
+                title: 'Manual Test',
+                button: { text: 'Select Image' },
+                multiple: false,
+                library: { type: 'image' }
+            });
+            
+            frame.on('select', function() {
+                const attachment = frame.state().get('selection').first().toJSON();
+                result.innerHTML = '<p style="color: green;">✅ Image selected!</p>';
+                result.innerHTML += '<p><strong>URL:</strong> ' + attachment.url + '</p>';
+                result.innerHTML += '<img src="' + attachment.url + '" style="max-width: 200px; margin-top: 10px;">';
+            });
+            
+            frame.open();
+        }
+        
+        // Monitor clicks on upload button
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('woow-upload-image')) {
+                console.log('[TEST] Upload button clicked!');
+                document.getElementById('test3-result').innerHTML = '<p style="color: blue;">⏳ Button clicked! Check console for MediaUploader logs...</p>';
+            }
+        });
+        
+        // Monitor changes to hidden input
+        document.getElementById('test-image-url').addEventListener('change', function(e) {
+            console.log('[TEST] Hidden input changed:', e.target.value);
+            const preview = document.getElementById('test3-preview');
+            if (e.target.value) {
+                preview.innerHTML = '<p style="color: green;">✅ Image URL set!</p>';
+                preview.innerHTML += '<p><strong>URL:</strong> ' + e.target.value + '</p>';
+                preview.innerHTML += '<img src="' + e.target.value + '" style="max-width: 200px; margin-top: 10px;">';
+            }
+        });
+        
+        // Check on page load
+        window.addEventListener('load', function() {
+            console.log('[TEST] Page loaded');
+            console.log('[TEST] wp:', typeof wp);
+            console.log('[TEST] wp.media:', typeof wp !== 'undefined' ? typeof wp.media : 'wp not defined');
+            
+            // Check if MediaUploader is in window
+            if (typeof window.woowAdmin !== 'undefined') {
+                console.log('[TEST] woowAdmin found:', window.woowAdmin);
+                if (window.woowAdmin.components && window.woowAdmin.components.mediaUploader) {
+                    console.log('[TEST] MediaUploader component found!');
+                } else {
+                    console.log('[TEST] MediaUploader component NOT found');
+                }
+            } else {
+                console.log('[TEST] woowAdmin NOT found in window');
+            }
+        });
+    </script>
+</body>
+</html>

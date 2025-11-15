@@ -153,6 +153,9 @@ class WOOW_Admin {
 
 		// Inject generated CSS
 		add_action( 'admin_head', array( $this, 'inject_generated_css' ) );
+		
+		// Inject CSS for login page
+		add_action( 'login_enqueue_scripts', array( $this, 'inject_login_css' ) );
 
 		// Register AJAX handlers
 		add_action( 'wp_ajax_woow_save_settings', array( $this, 'ajax_save_settings' ) );
@@ -214,6 +217,9 @@ class WOOW_Admin {
 			return;
 		}
 
+		// Enqueue WordPress media library (with dependencies)
+		wp_enqueue_media();
+
 		// Enqueue main CSS
 		wp_enqueue_style(
 			'woow-admin-styles',
@@ -223,11 +229,11 @@ class WOOW_Admin {
 			'all'
 		);
 
-		// Enqueue main JavaScript
+		// Enqueue main JavaScript (with media dependencies)
 		wp_enqueue_script(
 			'woow-admin-scripts',
 			WOOW_ASSETS_URL . 'main.js',
-			array( 'jquery' ),
+			array( 'jquery', 'media-editor', 'media-views', 'media-models' ),
 			WOOW_VERSION,
 			true
 		);
@@ -306,6 +312,31 @@ class WOOW_Admin {
 			echo "  });\n";
 			echo "});\n";
 			echo "</script>\n\n";
+		}
+	}
+
+	/**
+	 * Inject CSS for login page
+	 *
+	 * @return void
+	 */
+	public function inject_login_css(): void {
+		// Check if login page customization is enabled
+		$login_settings = $this->settings->get_section( 'login_page' );
+		if ( empty( $login_settings['enabled'] ) ) {
+			return;
+		}
+
+		// Generate CSS
+		$css = $this->css_generator->generate();
+
+		// Output CSS
+		if ( ! empty( $css ) ) {
+			echo "\n<!-- WOOW! Admin Login Page Styles -->\n";
+			echo '<style id="woow-login-custom-css" type="text/css">' . "\n";
+			echo wp_strip_all_tags( $css ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo "\n</style>\n";
+			echo "<!-- /WOOW! Admin Login Page Styles -->\n\n";
 		}
 	}
 
