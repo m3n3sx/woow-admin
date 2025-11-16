@@ -28,6 +28,9 @@
   /* Padding */
   padding: 32px;
   
+  /* Spacing */
+  margin-bottom: 50px;
+  
   /* Shadow */
   box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.05),
               0 4px 6px -4px rgba(15, 23, 42, 0.05);
@@ -50,7 +53,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
 /* Header Left Side (Icon + Text) */
@@ -153,18 +156,18 @@
    CARD BODY
    =========================== */
 .woow-card-body {
-  /* space-y-6 = 24px gap */
+  /* space-y-8 = 32px gap */
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 32px;
 }
 
 /* ===========================
    CARD FOOTER
    =========================== */
 .woow-card-footer {
-  margin-top: 24px;
-  padding-top: 24px;
+  margin-top: 32px;
+  padding-top: 32px;
   border-top: 1px solid rgba(229, 231, 235, 0.5);
   display: flex;
   justify-content: flex-end;

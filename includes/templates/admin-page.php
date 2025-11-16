@@ -16,109 +16,10 @@ $current_template = $settings['general']['current_template'] ?? 'default';
 ?>
 
 <div class="woow-admin-wrap">
-    <!-- Header (Figma-compliant: 2 rows) -->
-    <header class="woow-header">
-        <!-- Row 1: Title Bar (h-16 = 64px) -->
-        <div class="woow-header-row-1">
-            <!-- Left: Page Title -->
-            <h1>
-                <?php esc_html_e( 'WOOW! Admin', 'woow-admin' ); ?>
-            </h1>
-            
-            <!-- Right: Theme Toggle + User Info -->
-            <div class="woow-header-user-section">
-                <!-- Theme Toggle Button -->
-                <button type="button" id="woow-theme-toggle" aria-label="<?php esc_attr_e( 'Toggle theme', 'woow-admin' ); ?>">
-                    <span class="dashicons dashicons-admin-appearance"></span>
-                </button>
-                
-                <!-- User Info -->
-                <div class="woow-user-info">
-                    <div class="woow-user-details">
-                        <p class="woow-user-name">
-                            <?php echo esc_html( wp_get_current_user()->display_name ); ?>
-                        </p>
-                        <p class="woow-user-role">
-                            <?php esc_html_e( 'WordPress Admin', 'woow-admin' ); ?>
-                        </p>
-                    </div>
-                    <!-- User Avatar -->
-                    <div class="woow-user-avatar">
-                        <?php echo esc_html( strtoupper( substr( wp_get_current_user()->display_name, 0, 1 ) ) ); ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Row 2: Control Bar (h-14 = 56px) -->
-        <div class="woow-header-row-2">
-            <!-- Left: Status Indicators -->
-            <div class="woow-status-indicators">
-                <!-- Connection Status -->
-                <div class="woow-connection-status">
-                    <div class="woow-status-dot"></div>
-                    <span><?php esc_html_e( 'Connected', 'woow-admin' ); ?></span>
-                </div>
-                
-                <!-- Save Status Badge -->
-                <div id="woow-save-status" class="woow-badge woow-badge-success">
-                    <span class="dashicons dashicons-yes-alt"></span>
-                    <?php esc_html_e( 'Saved', 'woow-admin' ); ?>
-                </div>
-                
-                <!-- Pending Changes -->
-                <div id="woow-pending-changes" class="woow-badge woow-badge-outline">
-                    <span id="woow-changes-count">0</span> <?php esc_html_e( 'changes pending', 'woow-admin' ); ?>
-                </div>
-                
-                <!-- Live Preview Status -->
-                <div class="woow-preview-status">
-                    <span><?php esc_html_e( 'Live Preview:', 'woow-admin' ); ?></span>
-                    <span id="woow-preview-status"><?php esc_html_e( 'Active', 'woow-admin' ); ?></span>
-                </div>
-            </div>
-            
-            <!-- Right: Action Buttons -->
-            <div class="woow-action-buttons">
-                <!-- Undo/Redo -->
-                <div class="woow-undo-redo-group">
-                    <button type="button" id="woow-undo-btn" aria-label="<?php esc_attr_e( 'Undo', 'woow-admin' ); ?>">
-                        <span class="dashicons dashicons-undo"></span>
-                    </button>
-                    <button type="button" id="woow-redo-btn" aria-label="<?php esc_attr_e( 'Redo', 'woow-admin' ); ?>">
-                        <span class="dashicons dashicons-redo"></span>
-                    </button>
-                </div>
-                
-                <!-- Real-time Toggle -->
-                <div class="woow-realtime-toggle-group">
-                    <label for="woow-realtime-toggle">
-                        <input type="checkbox" id="woow-realtime-toggle" checked>
-                        <span><?php esc_html_e( 'Real-time', 'woow-admin' ); ?></span>
-                    </label>
-                </div>
-                
-                <!-- Reset Button -->
-                <button type="button" id="woow-reset-btn" class="woow-btn woow-btn-secondary">
-                    <span class="dashicons dashicons-image-rotate"></span>
-                    <?php esc_html_e( 'Reset', 'woow-admin' ); ?>
-                </button>
-                
-                <!-- Apply Changes Button -->
-                <button type="button" id="woow-save-btn" class="woow-btn woow-btn-primary">
-                    <span class="dashicons dashicons-yes-alt"></span>
-                    <?php esc_html_e( 'Apply Changes', 'woow-admin' ); ?>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Layout Container (KLUCZOWE!) -->
-    <div class="woow-layout-container">
-        <!-- Sidebar Navigation (Figma-compliant: w-64 = 256px) -->
-        <aside class="woow-sidebar">
-            <!-- Logo Section (h-16 = 64px) -->
-            <div class="woow-sidebar-logo">
+    <!-- Sidebar Navigation (Full Height) -->
+    <aside class="woow-sidebar">
+        <!-- Logo Section (h-16 = 64px) -->
+        <div class="woow-sidebar-logo">
                 <div class="woow-logo-icon">
                     <span class="dashicons dashicons-star-filled"></span>
                 </div>
@@ -233,7 +134,106 @@ $current_template = $settings['general']['current_template'] ?? 'default';
                     </button>
                 <?php endforeach; ?>
             </nav>
-        </aside>
+    </aside>
+
+    <!-- Right Container: Header + Content -->
+    <div class="woow-right-container">
+        <!-- Header (Figma-compliant: 2 rows) -->
+        <header class="woow-header">
+            <!-- Row 1: Title Bar (h-16 = 64px) -->
+            <div class="woow-header-row-1">
+                <!-- Left: Page Title -->
+                <h1>
+                    <?php esc_html_e( 'WOOW! Admin', 'woow-admin' ); ?>
+                </h1>
+                
+                <!-- Right: Theme Toggle + User Info -->
+                <div class="woow-header-user-section">
+                    <!-- Theme Toggle Button -->
+                    <button type="button" id="woow-theme-toggle" aria-label="<?php esc_attr_e( 'Toggle theme', 'woow-admin' ); ?>">
+                        <span class="dashicons dashicons-admin-appearance"></span>
+                    </button>
+                    
+                    <!-- User Info -->
+                    <div class="woow-user-info">
+                        <div class="woow-user-details">
+                            <p class="woow-user-name">
+                                <?php echo esc_html( wp_get_current_user()->display_name ); ?>
+                            </p>
+                            <p class="woow-user-role">
+                                <?php esc_html_e( 'WordPress Admin', 'woow-admin' ); ?>
+                            </p>
+                        </div>
+                        <!-- User Avatar -->
+                        <div class="woow-user-avatar">
+                            <?php echo esc_html( strtoupper( substr( wp_get_current_user()->display_name, 0, 1 ) ) ); ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Row 2: Control Bar (h-14 = 56px) -->
+            <div class="woow-header-row-2">
+                <!-- Left: Status Indicators -->
+                <div class="woow-status-indicators">
+                    <!-- Connection Status -->
+                    <div class="woow-connection-status">
+                        <div class="woow-status-dot"></div>
+                        <span><?php esc_html_e( 'Connected', 'woow-admin' ); ?></span>
+                    </div>
+                    
+                    <!-- Save Status Badge -->
+                    <div id="woow-save-status" class="woow-badge woow-badge-success">
+                        <span class="dashicons dashicons-yes-alt"></span>
+                        <?php esc_html_e( 'Saved', 'woow-admin' ); ?>
+                    </div>
+                    
+                    <!-- Pending Changes -->
+                    <div id="woow-pending-changes" class="woow-badge woow-badge-outline">
+                        <span id="woow-changes-count">0</span> <?php esc_html_e( 'changes pending', 'woow-admin' ); ?>
+                    </div>
+                    
+                    <!-- Live Preview Status -->
+                    <div class="woow-preview-status">
+                        <span><?php esc_html_e( 'Live Preview:', 'woow-admin' ); ?></span>
+                        <span id="woow-preview-status"><?php esc_html_e( 'Active', 'woow-admin' ); ?></span>
+                    </div>
+                </div>
+                
+                <!-- Right: Action Buttons -->
+                <div class="woow-action-buttons">
+                    <!-- Undo/Redo -->
+                    <div class="woow-undo-redo-group">
+                        <button type="button" id="woow-undo-btn" aria-label="<?php esc_attr_e( 'Undo', 'woow-admin' ); ?>">
+                            <span class="dashicons dashicons-undo"></span>
+                        </button>
+                        <button type="button" id="woow-redo-btn" aria-label="<?php esc_attr_e( 'Redo', 'woow-admin' ); ?>">
+                            <span class="dashicons dashicons-redo"></span>
+                        </button>
+                    </div>
+                    
+                    <!-- Real-time Toggle -->
+                    <div class="woow-realtime-toggle-group">
+                        <label for="woow-realtime-toggle">
+                            <input type="checkbox" id="woow-realtime-toggle" checked>
+                            <span><?php esc_html_e( 'Real-time', 'woow-admin' ); ?></span>
+                        </label>
+                    </div>
+                    
+                    <!-- Reset Button -->
+                    <button type="button" id="woow-reset-btn" class="woow-btn woow-btn-secondary">
+                        <span class="dashicons dashicons-image-rotate"></span>
+                        <?php esc_html_e( 'Reset', 'woow-admin' ); ?>
+                    </button>
+                    
+                    <!-- Apply Changes Button -->
+                    <button type="button" id="woow-save-btn" class="woow-btn woow-btn-primary">
+                        <span class="dashicons dashicons-yes-alt"></span>
+                        <?php esc_html_e( 'Apply Changes', 'woow-admin' ); ?>
+                    </button>
+                </div>
+            </div>
+        </header>
 
         <!-- Main Content Area -->
         <main class="woow-main-content">

@@ -19,10 +19,20 @@
   );
   min-height: calc(100vh - 32px); /* Account for WP admin bar */
   display: flex;
-  flex-direction: column;
+  flex-direction: row; /* Sidebar + Right Container side by side */
   position: relative;
-  margin: 0; /* Don't extend beyond WordPress .wrap container */
+  margin: 0;
   padding: 0;
+}
+
+/* ===========================
+   RIGHT CONTAINER (Header + Content)
+   =========================== */
+.woow-right-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* Prevent flex overflow */
 }
 
 /* ===========================
@@ -126,21 +136,7 @@
   box-shadow: 0 4px 8px rgba(99, 102, 241, 0.3);
 }
 
-/* ===========================
-   MAIN LAYOUT CONTAINER (KLUCZOWE!)
-   =========================== */
-.woow-layout-container {
-  /* FLEX LAYOUT - sidebar + content obok siebie */
-  display: flex;
-  flex-direction: row;
-  
-  /* Account for header */
-  margin-top: 0;
-  
-  /* Full viewport height minus header */
-  min-height: calc(100vh - 152px);
-  position: relative;
-}
+
 
 /* ===========================
    SIDEBAR
@@ -202,17 +198,6 @@
    RESPONSIVE
    =========================== */
 @media (max-width: 1024px) {
-  .woow-layout-container {
-    flex-direction: column;
-  }
-  
-  .woow-sidebar {
-    width: 100%;
-    max-height: none;
-    border-right: none;
-    border-bottom: 1px solid #e5e7eb;
-  }
-  
   .woow-main-content {
     padding: 16px;
   }

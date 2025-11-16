@@ -256,13 +256,12 @@
   }
 
   .woow-sidebar {
-    width: 320px;
-    min-width: 320px;
+    width: 280px;
   }
   
-  /* Allow collapsed state to override min-width */
+  /* Allow collapsed state to override width */
   .woow-sidebar.collapsed {
-    min-width: 80px;
+    width: 80px;
   }
 
   /* Grids - 2 Columns */

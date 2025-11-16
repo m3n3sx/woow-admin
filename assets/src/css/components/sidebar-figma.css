@@ -14,18 +14,17 @@
 
 /* Sidebar Container */
 .woow-sidebar {
-  width: 160px;
+  width: 280px;
   flex-shrink: 0;
   background: #ffffff;
   border-right: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
   
-  /* Sticky positioning - stays visible while scrolling, positioned below header */
+  /* Full height - sticky to viewport */
+  height: calc(100vh - 32px); /* Account for WP admin bar */
   position: sticky;
-  top: 0;
-  align-self: flex-start;
-  max-height: calc(100vh - 32px); /* Account for WP admin bar */
+  top: 32px; /* Below WP admin bar */
   overflow: hidden;
   
   /* Smooth transition for collapse */
@@ -271,11 +270,15 @@
 
 /* Responsive Behavior */
 @media (max-width: 1024px) {
+  .woow-admin-wrap {
+    flex-direction: column;
+  }
+  
   .woow-sidebar {
     position: relative;
     top: 0;
     width: 100%;
-    max-height: none;
+    height: auto;
     border-right: none;
     border-bottom: 1px solid #e5e7eb;
   }

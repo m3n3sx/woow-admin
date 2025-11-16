@@ -941,7 +941,7 @@ $admin_bar = array_merge( $defaults, $this->settings->get_section( 'admin_bar' )
             </div>
 
             <!-- All Sides Spacing (visible when mode is 'all') -->
-            <div class="woow-form-group woow-conditional" data-show-when="spacing_mode=all">
+            <div class="woow-form-group woow-conditional-field" data-condition="spacing_mode" data-value="all">
                 <label class="woow-label">
                     <?php esc_html_e( 'Padding (All Sides)', 'woow-admin' ); ?>
                 </label>
@@ -965,7 +965,7 @@ $admin_bar = array_merge( $defaults, $this->settings->get_section( 'admin_bar' )
             </div>
 
             <!-- Individual Sides (visible when mode is 'individual') -->
-            <div class="woow-conditional" data-show-when="spacing_mode=individual">
+            <div class="woow-conditional-field" data-condition="spacing_mode" data-value="individual">
                 <div class="woow-form-row">
                     <div class="woow-form-group">
                         <label class="woow-label">
@@ -1094,7 +1094,7 @@ $admin_bar = array_merge( $defaults, $this->settings->get_section( 'admin_bar' )
             </div>
 
             <!-- All Sides Margin (visible when mode is 'all') -->
-            <div class="woow-form-group woow-conditional" data-show-when="margin_mode=all">
+            <div class="woow-form-group woow-conditional-field" data-condition="margin_mode" data-value="all">
                 <label class="woow-label">
                     <?php esc_html_e( 'Margin (All Sides)', 'woow-admin' ); ?>
                 </label>
@@ -1118,7 +1118,7 @@ $admin_bar = array_merge( $defaults, $this->settings->get_section( 'admin_bar' )
             </div>
 
             <!-- Individual Sides (visible when mode is 'individual') -->
-            <div class="woow-conditional" data-show-when="margin_mode=individual">
+            <div class="woow-conditional-field" data-condition="margin_mode" data-value="individual">
                 <div class="woow-form-row">
                     <div class="woow-form-group">
                         <label class="woow-label">
