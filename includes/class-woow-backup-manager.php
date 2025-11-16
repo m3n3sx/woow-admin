@@ -181,6 +181,28 @@ class WOOW_Backup_Manager {
 	}
 
 	/**
+	 * Restore the most recent backup
+	 *
+	 * Convenience method to restore the latest backup without needing to know the ID.
+	 * Useful for automatic rollback scenarios.
+	 *
+	 * @return bool True on success, false on failure.
+	 */
+	public function restore_latest(): bool {
+		$backups = $this->get_backups();
+
+		if ( empty( $backups ) ) {
+			error_log( '[WOOW Admin] No backups available to restore' );
+			return false;
+		}
+
+		// Get the most recent backup (backups are already sorted newest first)
+		$latest_backup = $backups[0];
+
+		return $this->restore_backup( $latest_backup['id'] );
+	}
+
+	/**
 	 * Delete a backup
 	 *
 	 * Removes backup from options and updates index.

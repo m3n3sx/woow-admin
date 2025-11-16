@@ -10,8 +10,8 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-$templates = $this->settings->get_available_templates();
-$current_template = $settings['general']['current_template'] ?? 'default';
+// Note: Templates are loaded via JavaScript from woowAdminData.templates
+$current_template = $settings['general']['current_template'] ?? 'modern_minimal';
 ?>
 
 <div class="woow-tab-pane" id="tab-templates">
@@ -27,64 +27,32 @@ $current_template = $settings['general']['current_template'] ?? 'default';
     <div class="woow-card">
         <div class="woow-card-header">
             <h3><?php esc_html_e( 'Available Templates', 'woow-admin' ); ?></h3>
+            <p class="woow-card-description">
+                <?php esc_html_e( 'Choose from 11 professionally designed templates. Each template includes complete styling for all admin sections.', 'woow-admin' ); ?>
+            </p>
         </div>
         <div class="woow-card-body">
             <?php include WOOW_PLUGIN_DIR . 'includes/templates/components/template-gallery.php'; ?>
         </div>
     </div>
 
-    <!-- Active Template Details -->
-    <div class="woow-card">
+    <!-- Active Template Info (Dynamically Updated) -->
+    <div class="woow-card" id="woow-active-template-info" style="display: none;">
         <div class="woow-card-header">
             <h3><?php esc_html_e( 'Active Template Details', 'woow-admin' ); ?></h3>
         </div>
         <div class="woow-card-body">
-            <?php
-            $active_template = $templates[ $current_template ] ?? $templates['default'];
-            ?>
             <div class="woow-template-details">
                 <div class="woow-template-detail-header">
-                    <h4><?php echo esc_html( $active_template['name'] ); ?></h4>
+                    <h4 id="woow-active-template-name"></h4>
                     <span class="woow-badge woow-badge-primary">
                         <?php esc_html_e( 'Active', 'woow-admin' ); ?>
                     </span>
                 </div>
                 
-                <p class="woow-template-detail-description">
-                    <?php echo esc_html( $active_template['description'] ); ?>
-                </p>
+                <p class="woow-template-detail-description" id="woow-active-template-description"></p>
 
-                <?php if ( ! empty( $active_template['features'] ) ) : ?>
-                    <div class="woow-template-features-list">
-                        <h5><?php esc_html_e( 'Features:', 'woow-admin' ); ?></h5>
-                        <ul>
-                            <?php foreach ( $active_template['features'] as $feature ) : ?>
-                                <li>
-                                    <span class="dashicons dashicons-yes"></span>
-                                    <?php echo esc_html( $feature ); ?>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
-                    </div>
-                <?php endif; ?>
-
-                <?php if ( ! empty( $active_template['metadata'] ) ) : ?>
-                    <div class="woow-template-metadata">
-                        <?php if ( ! empty( $active_template['metadata']['author'] ) ) : ?>
-                            <div class="woow-metadata-item">
-                                <span class="woow-metadata-label"><?php esc_html_e( 'Author:', 'woow-admin' ); ?></span>
-                                <span class="woow-metadata-value"><?php echo esc_html( $active_template['metadata']['author'] ); ?></span>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <?php if ( ! empty( $active_template['metadata']['version'] ) ) : ?>
-                            <div class="woow-metadata-item">
-                                <span class="woow-metadata-label"><?php esc_html_e( 'Version:', 'woow-admin' ); ?></span>
-                                <span class="woow-metadata-value"><?php echo esc_html( $active_template['metadata']['version'] ); ?></span>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                <?php endif; ?>
+                <div class="woow-template-characteristics" id="woow-active-template-characteristics"></div>
             </div>
         </div>
     </div>

@@ -11,6 +11,7 @@ import { ColorPicker } from './components/ColorPicker.js';
 import { LivePreview } from './components/LivePreview.js';
 import { PaletteSelector } from './components/PaletteSelector.js';
 import { TemplateGallery } from './components/TemplateGallery.js';
+import { TemplateSelector } from './components/TemplateSelector.js';
 import { ImportExport } from './components/ImportExport.js';
 import { TabManager } from './components/TabManager.js';
 import { KeyboardShortcuts } from './components/KeyboardShortcuts.js';
@@ -79,6 +80,7 @@ class WoowAdmin {
             this.components.livePreview = new LivePreview(this);
             this.components.paletteSelector = new PaletteSelector(this);
             this.components.templateGallery = new TemplateGallery(this);
+            this.components.templateSelector = new TemplateSelector(this);
             this.components.importExport = new ImportExport(this);
             this.components.tabManager = new TabManager(this);
             this.components.keyboardShortcuts = new KeyboardShortcuts(this);
@@ -1522,7 +1524,21 @@ class WoowAdmin {
                 body: data
             });
 
-            const result = await response.json();
+            // Check if response is OK
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            // Try to parse JSON
+            let result;
+            try {
+                result = await response.json();
+            } catch (parseError) {
+                console.error('[PaletteSelector] JSON parse error:', parseError);
+                const text = await response.text();
+                console.error('[PaletteSelector] Response text:', text.substring(0, 500));
+                throw new Error('Invalid JSON response from server. Check console for details.');
+            }
 
             if (result.success) {
                 // Update state with new settings

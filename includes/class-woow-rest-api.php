@@ -29,6 +29,20 @@ class WOOW_REST_API {
 	private WOOW_Settings $settings;
 
 	/**
+	 * Palette manager instance
+	 *
+	 * @var WOOW_Palette_Manager|null
+	 */
+	private ?WOOW_Palette_Manager $palette_manager = null;
+
+	/**
+	 * Template manager instance
+	 *
+	 * @var WOOW_Template_Manager|null
+	 */
+	private ?WOOW_Template_Manager $template_manager = null;
+
+	/**
 	 * API namespace
 	 *
 	 * @var string
@@ -42,6 +56,26 @@ class WOOW_REST_API {
 	 */
 	public function __construct( WOOW_Settings $settings ) {
 		$this->settings = $settings;
+	}
+
+	/**
+	 * Set palette manager instance
+	 *
+	 * @param WOOW_Palette_Manager $palette_manager Palette manager instance.
+	 * @return void
+	 */
+	public function set_palette_manager( WOOW_Palette_Manager $palette_manager ): void {
+		$this->palette_manager = $palette_manager;
+	}
+
+	/**
+	 * Set template manager instance
+	 *
+	 * @param WOOW_Template_Manager $template_manager Template manager instance.
+	 * @return void
+	 */
+	public function set_template_manager( WOOW_Template_Manager $template_manager ): void {
+		$this->template_manager = $template_manager;
 	}
 
 	/**
@@ -92,6 +126,23 @@ class WOOW_REST_API {
 			self::NAMESPACE,
 			'/palettes/(?P<id>[a-zA-Z0-9_-]+)',
 			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_palette' ),
+				'permission_callback' => array( $this, 'check_permissions' ),
+				'args'                => array(
+					'id' => array(
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_key',
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/palettes/(?P<id>[a-zA-Z0-9_-]+)/apply',
+			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'apply_palette' ),
 				'permission_callback' => array( $this, 'check_permissions' ),
@@ -99,7 +150,7 @@ class WOOW_REST_API {
 					'id' => array(
 						'required'          => true,
 						'type'              => 'string',
-						'sanitize_callback' => 'sanitize_text_field',
+						'sanitize_callback' => 'sanitize_key',
 					),
 				),
 			)
@@ -120,6 +171,23 @@ class WOOW_REST_API {
 			self::NAMESPACE,
 			'/templates/(?P<id>[a-zA-Z0-9_-]+)',
 			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_template' ),
+				'permission_callback' => array( $this, 'check_permissions' ),
+				'args'                => array(
+					'id' => array(
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_key',
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/templates/(?P<id>[a-zA-Z0-9_-]+)/apply',
+			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'apply_template' ),
 				'permission_callback' => array( $this, 'check_permissions' ),
@@ -127,7 +195,7 @@ class WOOW_REST_API {
 					'id' => array(
 						'required'          => true,
 						'type'              => 'string',
-						'sanitize_callback' => 'sanitize_text_field',
+						'sanitize_callback' => 'sanitize_key',
 					),
 				),
 			)
@@ -283,105 +351,492 @@ class WOOW_REST_API {
 	/**
 	 * Get palettes
 	 *
+	 * Returns all available color palettes with metadata.
+	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response Response object.
 	 */
 	public function get_palettes( WP_REST_Request $request ): WP_REST_Response {
-		$palettes = $this->settings->get_available_palettes();
+		// Verify nonce if provided
+		$nonce = $request->get_header( 'X-WP-Nonce' );
+		if ( $nonce && ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+			return new WP_REST_Response(
+				array(
+					'success' => false,
+					'message' => 'Invalid nonce',
+				),
+				403
+			);
+		}
 
-		return new WP_REST_Response(
-			array(
-				'success'  => true,
-				'palettes' => $palettes,
-			),
-			200
-		);
+		// Get palette manager instance
+		if ( $this->palette_manager === null ) {
+			$this->palette_manager = new WOOW_Palette_Manager( $this->settings );
+		}
+
+		try {
+			$palettes = $this->palette_manager->get_all_palettes();
+
+			// Add preview URLs to each palette
+			$palettes_with_previews = array();
+			foreach ( $palettes as $palette_id => $palette ) {
+				$palette['preview_url'] = $this->palette_manager->get_preview_image_url( $palette_id );
+				$palettes_with_previews[ $palette_id ] = $palette;
+			}
+
+			return new WP_REST_Response(
+				array(
+					'success'  => true,
+					'palettes' => $palettes_with_previews,
+					'count'    => count( $palettes_with_previews ),
+				),
+				200
+			);
+		} catch ( Exception $e ) {
+			return new WP_REST_Response(
+				array(
+					'success' => false,
+					'message' => 'Failed to load palettes: ' . $e->getMessage(),
+				),
+				500
+			);
+		}
+	}
+
+	/**
+	 * Get single palette
+	 *
+	 * Returns a specific palette by ID with full details.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response object.
+	 */
+	public function get_palette( WP_REST_Request $request ): WP_REST_Response {
+		// Verify nonce if provided
+		$nonce = $request->get_header( 'X-WP-Nonce' );
+		if ( $nonce && ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+			return new WP_REST_Response(
+				array(
+					'success' => false,
+					'message' => 'Invalid nonce',
+				),
+				403
+			);
+		}
+
+		$palette_id = $request->get_param( 'id' );
+
+		// Get palette manager instance
+		if ( $this->palette_manager === null ) {
+			$this->palette_manager = new WOOW_Palette_Manager( $this->settings );
+		}
+
+		try {
+			$palette = $this->palette_manager->get_palette( $palette_id );
+
+			if ( $palette === null ) {
+				return new WP_REST_Response(
+					array(
+						'success' => false,
+						'message' => 'Palette not found',
+					),
+					404
+				);
+			}
+
+			// Add preview URL
+			$palette['preview_url'] = $this->palette_manager->get_preview_image_url( $palette_id );
+
+			// Add completeness check
+			$completeness = $this->palette_manager->check_completeness( $palette );
+
+			return new WP_REST_Response(
+				array(
+					'success'      => true,
+					'palette'      => $palette,
+					'completeness' => $completeness,
+				),
+				200
+			);
+		} catch ( Exception $e ) {
+			return new WP_REST_Response(
+				array(
+					'success' => false,
+					'message' => 'Failed to load palette: ' . $e->getMessage(),
+				),
+				500
+			);
+		}
 	}
 
 	/**
 	 * Apply palette
 	 *
+	 * Applies a color palette to the current settings.
+	 * Creates a backup before applying and regenerates CSS.
+	 * Implements automatic rollback on failure.
+	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response Response object.
 	 */
 	public function apply_palette( WP_REST_Request $request ): WP_REST_Response {
-		$palette_id = $request->get_param( 'id' );
-
-		$result = $this->settings->apply_palette( $palette_id );
-
-		if ( $result ) {
-			// Clear CSS cache
-			$cache = new WOOW_Cache_Manager();
-			$cache->delete( 'woow_css' );
-
+		// Verify nonce
+		$nonce = $request->get_header( 'X-WP-Nonce' );
+		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
 			return new WP_REST_Response(
 				array(
-					'success'  => true,
-					'message'  => 'Palette applied successfully',
-					'settings' => $this->settings->get_all_settings(),
+					'success'    => false,
+					'error_code' => 'INVALID_NONCE',
+					'message'    => 'Invalid or missing security token. Please refresh the page and try again.',
 				),
-				200
+				403
 			);
 		}
 
-		return new WP_REST_Response(
-			array(
-				'success' => false,
-				'message' => 'Failed to apply palette',
-			),
-			400
-		);
+		$palette_id = $request->get_param( 'id' );
+
+		// Get palette manager instance
+		if ( $this->palette_manager === null ) {
+			$this->palette_manager = new WOOW_Palette_Manager( $this->settings );
+			
+			// Set dependencies
+			$backup_manager = new WOOW_Backup_Manager( $this->settings );
+			$css_generator  = new WOOW_CSS_Generator( $this->settings );
+			
+			$this->palette_manager->set_backup_manager( $backup_manager );
+			$this->palette_manager->set_css_generator( $css_generator );
+		}
+
+		try {
+			// Apply palette (returns array with success, message, error_code, etc.)
+			$result = $this->palette_manager->apply_palette( $palette_id );
+
+			if ( $result['success'] ) {
+				// Clear CSS cache on success
+				try {
+					$cache = new WOOW_Cache_Manager();
+					$cache->delete( 'woow_css' );
+				} catch ( Exception $e ) {
+					error_log( '[WOOW REST API] Warning: Failed to clear CSS cache: ' . $e->getMessage() );
+				}
+
+				return new WP_REST_Response(
+					array(
+						'success'    => true,
+						'message'    => $result['message'],
+						'palette_id' => $result['palette_id'],
+						'backup_id'  => $result['backup_id'] ?? null,
+						'settings'   => $this->settings->get_all_settings(),
+					),
+					200
+				);
+			}
+
+			// Determine HTTP status code based on error code
+			$status_code = $this->get_http_status_for_error( $result['error_code'] ?? 'APPLICATION_FAILED' );
+
+			return new WP_REST_Response(
+				array(
+					'success'    => false,
+					'error_code' => $result['error_code'] ?? 'APPLICATION_FAILED',
+					'message'    => $result['message'],
+					'context'    => $result['context'] ?? array(),
+				),
+				$status_code
+			);
+
+		} catch ( Exception $e ) {
+			error_log( sprintf(
+				'[WOOW REST API] Unexpected exception in apply_palette: %s (File: %s, Line: %d)',
+				$e->getMessage(),
+				$e->getFile(),
+				$e->getLine()
+			) );
+			
+			return new WP_REST_Response(
+				array(
+					'success'    => false,
+					'error_code' => 'UNEXPECTED_ERROR',
+					'message'    => 'An unexpected error occurred. Please try again or contact support.',
+					'context'    => array(
+						'error' => $e->getMessage(),
+					),
+				),
+				500
+			);
+		}
 	}
 
 	/**
 	 * Get templates
 	 *
+	 * Returns all available design templates with metadata.
+	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response Response object.
 	 */
 	public function get_templates( WP_REST_Request $request ): WP_REST_Response {
-		$template_manager = new WOOW_Template_Manager( $this->settings );
-		$templates        = $template_manager->get_all_templates();
+		// Verify nonce if provided
+		$nonce = $request->get_header( 'X-WP-Nonce' );
+		if ( $nonce && ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+			return new WP_REST_Response(
+				array(
+					'success' => false,
+					'message' => 'Invalid nonce',
+				),
+				403
+			);
+		}
 
-		return new WP_REST_Response(
-			array(
-				'success'   => true,
-				'templates' => $templates,
-			),
-			200
-		);
+		// Check if template manager is available
+		if ( $this->template_manager === null ) {
+			return new WP_REST_Response(
+				array(
+					'success' => false,
+					'message' => 'Template manager not initialized',
+				),
+				500
+			);
+		}
+
+		try {
+			$templates = $this->template_manager->get_all_templates();
+
+			// Add preview URLs to each template
+			$templates_with_previews = array();
+			foreach ( $templates as $template ) {
+				if ( isset( $template['id'] ) ) {
+					$template['preview_url'] = $this->get_template_preview_url( $template['id'] );
+					$templates_with_previews[] = $template;
+				}
+			}
+
+			return new WP_REST_Response(
+				array(
+					'success'   => true,
+					'templates' => $templates_with_previews,
+					'count'     => count( $templates_with_previews ),
+				),
+				200
+			);
+		} catch ( Exception $e ) {
+			return new WP_REST_Response(
+				array(
+					'success' => false,
+					'message' => 'Failed to load templates: ' . $e->getMessage(),
+				),
+				500
+			);
+		}
+	}
+
+	/**
+	 * Get single template
+	 *
+	 * Returns a specific template by ID with full details.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response object.
+	 */
+	public function get_template( WP_REST_Request $request ): WP_REST_Response {
+		// Verify nonce if provided
+		$nonce = $request->get_header( 'X-WP-Nonce' );
+		if ( $nonce && ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+			return new WP_REST_Response(
+				array(
+					'success' => false,
+					'message' => 'Invalid nonce',
+				),
+				403
+			);
+		}
+
+		$template_id = $request->get_param( 'id' );
+
+		// Check if template manager is available
+		if ( $this->template_manager === null ) {
+			return new WP_REST_Response(
+				array(
+					'success' => false,
+					'message' => 'Template manager not initialized',
+				),
+				500
+			);
+		}
+
+		try {
+			$template = $this->template_manager->get_template( $template_id );
+
+			if ( $template === null ) {
+				return new WP_REST_Response(
+					array(
+						'success' => false,
+						'message' => 'Template not found',
+					),
+					404
+				);
+			}
+
+			// Add preview URL
+			$template['preview_url'] = $this->get_template_preview_url( $template_id );
+
+			return new WP_REST_Response(
+				array(
+					'success'  => true,
+					'template' => $template,
+				),
+				200
+			);
+		} catch ( Exception $e ) {
+			return new WP_REST_Response(
+				array(
+					'success' => false,
+					'message' => 'Failed to load template: ' . $e->getMessage(),
+				),
+				500
+			);
+		}
 	}
 
 	/**
 	 * Apply template
 	 *
+	 * Applies a design template to the current settings.
+	 * Creates a backup before applying and regenerates CSS.
+	 * Implements automatic rollback on failure.
+	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response Response object.
 	 */
 	public function apply_template( WP_REST_Request $request ): WP_REST_Response {
-		$template_id      = $request->get_param( 'id' );
-		$template_manager = new WOOW_Template_Manager( $this->settings );
-
-		$result = $template_manager->apply_template( $template_id );
-
-		if ( $result ) {
+		// Verify nonce
+		$nonce = $request->get_header( 'X-WP-Nonce' );
+		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
 			return new WP_REST_Response(
 				array(
-					'success'  => true,
-					'message'  => 'Template applied successfully',
-					'settings' => $this->settings->get_all_settings(),
+					'success'    => false,
+					'error_code' => 'INVALID_NONCE',
+					'message'    => 'Invalid or missing security token. Please refresh the page and try again.',
 				),
-				200
+				403
 			);
 		}
 
-		return new WP_REST_Response(
-			array(
-				'success' => false,
-				'message' => 'Failed to apply template',
-			),
-			400
+		$template_id = $request->get_param( 'id' );
+
+		// Check if template manager is available
+		if ( $this->template_manager === null ) {
+			return new WP_REST_Response(
+				array(
+					'success'    => false,
+					'error_code' => 'MANAGER_NOT_INITIALIZED',
+					'message'    => 'Template manager not initialized. Please contact support.',
+				),
+				500
+			);
+		}
+
+		try {
+			// Apply template (returns array with success, message, error_code, etc.)
+			$result = $this->template_manager->apply_template( $template_id );
+
+			if ( $result['success'] ) {
+				// Clear CSS cache on success
+				try {
+					$cache = new WOOW_Cache_Manager();
+					$cache->delete( 'woow_css' );
+				} catch ( Exception $e ) {
+					error_log( '[WOOW REST API] Warning: Failed to clear CSS cache: ' . $e->getMessage() );
+				}
+
+				return new WP_REST_Response(
+					array(
+						'success'     => true,
+						'message'     => $result['message'],
+						'template_id' => $result['template_id'],
+						'backup_id'   => $result['backup_id'] ?? null,
+						'settings'    => $this->settings->get_all_settings(),
+					),
+					200
+				);
+			}
+
+			// Determine HTTP status code based on error code
+			$status_code = $this->get_http_status_for_error( $result['error_code'] ?? 'APPLICATION_FAILED' );
+
+			return new WP_REST_Response(
+				array(
+					'success'    => false,
+					'error_code' => $result['error_code'] ?? 'APPLICATION_FAILED',
+					'message'    => $result['message'],
+					'context'    => $result['context'] ?? array(),
+				),
+				$status_code
+			);
+
+		} catch ( Exception $e ) {
+			error_log( sprintf(
+				'[WOOW REST API] Unexpected exception in apply_template: %s (File: %s, Line: %d)',
+				$e->getMessage(),
+				$e->getFile(),
+				$e->getLine()
+			) );
+			
+			return new WP_REST_Response(
+				array(
+					'success'    => false,
+					'error_code' => 'UNEXPECTED_ERROR',
+					'message'    => 'An unexpected error occurred. Please try again or contact support.',
+					'context'    => array(
+						'error' => $e->getMessage(),
+					),
+				),
+				500
+			);
+		}
+	}
+	
+	/**
+	 * Get HTTP status code for error code
+	 *
+	 * Maps error codes to appropriate HTTP status codes.
+	 *
+	 * @param string $error_code Error code.
+	 * @return int HTTP status code.
+	 */
+	private function get_http_status_for_error( string $error_code ): int {
+		$status_map = array(
+			'INVALID_PALETTE_ID'   => 400,
+			'INVALID_TEMPLATE_ID'  => 400,
+			'PALETTE_NOT_FOUND'    => 404,
+			'TEMPLATE_NOT_FOUND'   => 404,
+			'PALETTE_INCOMPLETE'   => 400,
+			'TEMPLATE_INVALID'     => 400,
+			'BACKUP_FAILED'        => 500,
+			'APPLICATION_FAILED'   => 500,
+			'INVALID_NONCE'        => 403,
+			'UNEXPECTED_ERROR'     => 500,
 		);
+		
+		return $status_map[ $error_code ] ?? 500;
+	}
+
+	/**
+	 * Get template preview image URL
+	 *
+	 * @param string $template_id Template ID.
+	 * @return string Preview image URL.
+	 */
+	private function get_template_preview_url( string $template_id ): string {
+		$preview_file = str_replace( '_', '-', $template_id ) . '.png';
+		$preview_path = WOOW_PLUGIN_DIR . 'assets/images/previews/templates/' . $preview_file;
+		
+		if ( file_exists( $preview_path ) ) {
+			return WOOW_PLUGIN_URL . 'assets/images/previews/templates/' . $preview_file;
+		}
+		
+		// Return placeholder if preview doesn't exist
+		return WOOW_PLUGIN_URL . 'assets/images/previews/templates/placeholder.png';
 	}
 
 	/**

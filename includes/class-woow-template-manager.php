@@ -29,6 +29,27 @@ class WOOW_Template_Manager {
 	private WOOW_Settings $settings;
 
 	/**
+	 * Loaded templates cache
+	 *
+	 * @var array|null
+	 */
+	private ?array $templates = null;
+
+	/**
+	 * Backup manager instance
+	 *
+	 * @var WOOW_Backup_Manager|null
+	 */
+	private ?WOOW_Backup_Manager $backup_manager = null;
+
+	/**
+	 * CSS generator instance
+	 *
+	 * @var WOOW_CSS_Generator|null
+	 */
+	private ?WOOW_CSS_Generator $css_generator = null;
+
+	/**
 	 * Constructor
 	 *
 	 * @param WOOW_Settings $settings Settings manager instance.
@@ -38,18 +59,73 @@ class WOOW_Template_Manager {
 	}
 
 	/**
+	 * Set backup manager instance
+	 *
+	 * @param WOOW_Backup_Manager $backup_manager Backup manager instance.
+	 * @return void
+	 */
+	public function set_backup_manager( WOOW_Backup_Manager $backup_manager ): void {
+		$this->backup_manager = $backup_manager;
+	}
+
+	/**
+	 * Set CSS generator instance
+	 *
+	 * @param WOOW_CSS_Generator $css_generator CSS generator instance.
+	 * @return void
+	 */
+	public function set_css_generator( WOOW_CSS_Generator $css_generator ): void {
+		$this->css_generator = $css_generator;
+	}
+
+	/**
+	 * Load templates from data file
+	 *
+	 * Loads template definitions from includes/data/templates-data.php
+	 * and caches them for subsequent calls.
+	 *
+	 * @return void
+	 */
+	private function load_templates(): void {
+		if ( $this->templates !== null ) {
+			return; // Already loaded
+		}
+
+		$templates_file = WOOW_PLUGIN_DIR . 'includes/data/templates-data.php';
+
+		if ( ! file_exists( $templates_file ) ) {
+			error_log( '[WOOW Admin] Templates data file not found: ' . $templates_file );
+			$this->templates = array();
+			return;
+		}
+
+		try {
+			$loaded_templates = require $templates_file;
+
+			if ( ! is_array( $loaded_templates ) ) {
+				error_log( '[WOOW Admin] Templates data file did not return an array' );
+				$this->templates = array();
+				return;
+			}
+
+			$this->templates = $loaded_templates;
+		} catch ( Exception $e ) {
+			error_log( '[WOOW Admin] Error loading templates: ' . $e->getMessage() );
+			$this->templates = array();
+		}
+	}
+
+	/**
 	 * Get single template by ID
 	 *
 	 * @param string $template_id Template ID.
 	 * @return array|null Template data or null if not found.
 	 */
 	public function get_template( string $template_id ): ?array {
-		$templates = $this->get_all_templates();
+		$this->load_templates();
 
-		foreach ( $templates as $template ) {
-			if ( $template['id'] === $template_id ) {
-				return $template;
-			}
+		if ( isset( $this->templates[ $template_id ] ) ) {
+			return $this->templates[ $template_id ];
 		}
 
 		return null;
@@ -58,74 +134,351 @@ class WOOW_Template_Manager {
 	/**
 	 * Get all available templates
 	 *
-	 * Returns all 12 predefined design templates.
+	 * Returns all predefined design templates from data file.
 	 *
 	 * @return array Array of template data.
 	 */
 	public function get_all_templates(): array {
-		return array(
-			$this->get_default_template(),
-			$this->get_modern_minimal_template(),
-			$this->get_corporate_professional_template(),
-			$this->get_creative_agency_template(),
-			$this->get_dark_elegant_template(),
-			$this->get_pastel_soft_template(),
-			$this->get_high_contrast_template(),
-			$this->get_minimalist_white_template(),
-			$this->get_bold_bright_template(),
-			$this->get_material_design_template(),
-			$this->get_glassmorphism_pro_template(),
-			$this->get_terminal_template(),
+		$this->load_templates();
+		return array_values( $this->templates );
+	}
+
+	/**
+	 * Get templates by category
+	 *
+	 * @param string $category Category to filter by (minimal, modern, corporate, creative, dark).
+	 * @return array Array of templates in the specified category.
+	 */
+	public function get_templates_by_category( string $category ): array {
+		$this->load_templates();
+
+		$filtered = array();
+		foreach ( $this->templates as $template ) {
+			if ( isset( $template['category'] ) && $template['category'] === $category ) {
+				$filtered[] = $template;
+			}
+		}
+
+		return $filtered;
+	}
+
+	/**
+	 * Validate template data structure
+	 *
+	 * Checks if template has all required keys and valid structure.
+	 *
+	 * @param array $template Template data to validate.
+	 * @return bool True if valid, false otherwise.
+	 */
+	private function validate_template( array $template ): bool {
+		// Check required keys
+		$required_keys = array( 'id', 'name', 'description', 'settings' );
+		foreach ( $required_keys as $key ) {
+			if ( ! isset( $template[ $key ] ) ) {
+				error_log( "[WOOW Admin] Template validation failed: Missing required key '{$key}'" );
+				return false;
+			}
+		}
+
+		// Check settings is an array
+		if ( ! is_array( $template['settings'] ) ) {
+			error_log( '[WOOW Admin] Template validation failed: settings must be an array' );
+			return false;
+		}
+
+		// Check required sections exist
+		$required_sections = array(
+			'color_overrides',
+			'admin_bar',
+			'admin_menu',
+			'dashboard_widgets',
+			'form_controls',
+			'buttons',
+			'backgrounds',
+			'typography',
+			'effects',
+			'login_page',
 		);
+
+		foreach ( $required_sections as $section ) {
+			if ( ! isset( $template['settings'][ $section ] ) ) {
+				error_log( "[WOOW Admin] Template validation failed: Missing settings section '{$section}'" );
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check template completeness
+	 *
+	 * Verifies all 10 sections are present and counts options in each section.
+	 * Returns array of missing options or empty array if complete.
+	 *
+	 * @param array $template Template data to check.
+	 * @return array Array of missing options (empty if complete).
+	 */
+	private function check_completeness( array $template ): array {
+		$missing = array();
+
+		// Expected minimum option counts per section
+		$expected_counts = array(
+			'color_overrides'    => 7,
+			'admin_bar'          => 25,
+			'admin_menu'         => 15,
+			'dashboard_widgets'  => 10,
+			'form_controls'      => 10,
+			'buttons'            => 10,
+			'backgrounds'        => 6,
+			'typography'         => 10,
+			'effects'            => 8,
+			'login_page'         => 10,
+		);
+
+		if ( ! isset( $template['settings'] ) || ! is_array( $template['settings'] ) ) {
+			$missing[] = 'settings section is missing or invalid';
+			return $missing;
+		}
+
+		foreach ( $expected_counts as $section => $min_count ) {
+			if ( ! isset( $template['settings'][ $section ] ) ) {
+				$missing[] = "Section '{$section}' is missing";
+				continue;
+			}
+
+			$actual_count = count( $template['settings'][ $section ] );
+			if ( $actual_count < $min_count ) {
+				$missing[] = "Section '{$section}' has {$actual_count} options, expected at least {$min_count}";
+			}
+		}
+
+		return $missing;
 	}
 
 	/**
 	 * Apply template
 	 *
 	 * Overrides all settings with template configuration.
-	 * Creates backup before applying.
+	 * Validates completeness, creates backup, and implements automatic rollback on failure.
 	 *
 	 * @param string $template_id Template ID to apply.
-	 * @return bool True on success, false on failure.
+	 * @return array Result array with 'success' boolean, 'message' string, and optional 'error_code'.
 	 */
-	public function apply_template( string $template_id ): bool {
-		$template = $this->get_template( $template_id );
-
-		if ( ! $template || ! isset( $template['settings'] ) ) {
-			return false;
-		}
-
+	public function apply_template( string $template_id ): array {
+		$backup_id = null;
+		$template_name = $template_id;
+		
 		try {
+			// Sanitize template ID
+			$template_id = sanitize_key( $template_id );
+			
+			if ( empty( $template_id ) ) {
+				return $this->error_response(
+					'INVALID_TEMPLATE_ID',
+					'Invalid template identifier provided',
+					array( 'template_id' => $template_id )
+				);
+			}
+
+			// Get template
+			$template = $this->get_template( $template_id );
+			if ( ! $template ) {
+				return $this->error_response(
+					'TEMPLATE_NOT_FOUND',
+					sprintf( 'Template "%s" not found', $template_id ),
+					array( 'template_id' => $template_id )
+				);
+			}
+			
+			$template_name = $template['name'] ?? $template_id;
+
+			// Validate template structure
+			if ( ! $this->validate_template( $template ) ) {
+				return $this->error_response(
+					'TEMPLATE_INVALID',
+					sprintf( 'Template "%s" has invalid structure', $template_name ),
+					array( 'template_id' => $template_id )
+				);
+			}
+
+			// Check completeness (warning only, not blocking)
+			$missing = $this->check_completeness( $template );
+			if ( ! empty( $missing ) ) {
+				error_log( sprintf(
+					'[WOOW Template Manager] Warning: Template "%s" may be incomplete: %s',
+					$template_name,
+					implode( ', ', $missing )
+				) );
+			}
+
 			// Create backup before applying template
-			$backup_manager = new WOOW_Backup_Manager( $this->settings );
-			$backup_manager->create_backup( 'before_template_' . $template_id );
+			if ( $this->backup_manager !== null ) {
+				try {
+					$backup_label = 'before_template_' . $template_id;
+					$backup_id = $this->backup_manager->create_backup( $backup_label );
+					error_log( sprintf(
+						'[WOOW Template Manager] Created backup "%s" before applying template "%s"',
+						$backup_id,
+						$template_name
+					) );
+				} catch ( Exception $e ) {
+					// Backup failure is critical - don't proceed without backup
+					return $this->error_response(
+						'BACKUP_FAILED',
+						sprintf( 'Failed to create backup before applying template "%s"', $template_name ),
+						array(
+							'template_id' => $template_id,
+							'error'       => $e->getMessage(),
+						)
+					);
+				}
+			} else {
+				error_log( '[WOOW Template Manager] Warning: Backup manager not available, proceeding without backup' );
+			}
 
 			// Get defaults first (ensures all sections exist)
 			$defaults = woow_get_default_settings();
+			if ( empty( $defaults ) ) {
+				throw new Exception( 'Failed to load default settings' );
+			}
 			
 			// Get current settings
 			$current_settings = $this->settings->get_all_settings();
+			if ( empty( $current_settings ) ) {
+				throw new Exception( 'Failed to retrieve current settings' );
+			}
 			
 			// Merge: defaults -> current -> template
 			// This ensures all sections exist even if template only has partial settings
 			$new_settings = array_replace_recursive( $defaults, $current_settings, $template['settings'] );
+			
+			// Note: We skip strict validation for template settings because:
+			// 1. Templates are pre-defined and trusted
+			// 2. Template values are stored without units (e.g., '52' not '52px')
+			// 3. Units are added during CSS generation
+			// 4. Strict validation would reject valid template values
 
-			// Update settings
+			// Update all settings directly (validation happens during CSS generation)
 			$result = $this->settings->update_all_settings( $new_settings );
-
-			if ( $result ) {
-				// Clear CSS cache
-				$cache = new WOOW_Cache_Manager();
-				$cache->delete( 'woow_css' );
-
-				return true;
+			if ( ! $result ) {
+				throw new Exception( 'Failed to update settings in database' );
 			}
 
-			return false;
+			// Regenerate CSS
+			if ( $this->css_generator !== null ) {
+				try {
+					$this->css_generator->generate();
+					error_log( sprintf(
+						'[WOOW Template Manager] CSS regenerated successfully for template "%s"',
+						$template_name
+					) );
+				} catch ( Exception $e ) {
+					// CSS generation failure is not critical but should be logged
+					error_log( sprintf(
+						'[WOOW Template Manager] Warning: CSS regeneration failed for template "%s": %s',
+						$template_name,
+						$e->getMessage()
+					) );
+				}
+			} else {
+				// Fallback: Clear CSS cache if generator not available
+				try {
+					$cache = new WOOW_Cache_Manager();
+					$cache->delete( 'woow_css' );
+					error_log( '[WOOW Template Manager] CSS cache cleared (generator not available)' );
+				} catch ( Exception $e ) {
+					error_log( sprintf(
+						'[WOOW Template Manager] Warning: Failed to clear CSS cache: %s',
+						$e->getMessage()
+					) );
+				}
+			}
+
+			// Log success
+			error_log( sprintf(
+				'[WOOW Template Manager] Successfully applied template "%s" (ID: %s)',
+				$template_name,
+				$template_id
+			) );
+			
+			return array(
+				'success'     => true,
+				'message'     => sprintf( 'Template "%s" applied successfully', $template_name ),
+				'template_id' => $template_id,
+				'backup_id'   => $backup_id,
+			);
+
 		} catch ( Exception $e ) {
-			error_log( '[WOOW Admin] Template apply failed: ' . $e->getMessage() );
-			return false;
+			// Log detailed error
+			error_log( sprintf(
+				'[WOOW Template Manager] Exception during template application: %s (Template: %s, File: %s, Line: %d)',
+				$e->getMessage(),
+				$template_name,
+				$e->getFile(),
+				$e->getLine()
+			) );
+			
+			// Attempt automatic rollback
+			$rollback_success = false;
+			if ( $this->backup_manager !== null && $backup_id !== null ) {
+				try {
+					$rollback_success = $this->backup_manager->restore_backup( $backup_id );
+					if ( $rollback_success ) {
+						error_log( sprintf(
+							'[WOOW Template Manager] Successfully restored from backup "%s" after failure',
+							$backup_id
+						) );
+					} else {
+						error_log( sprintf(
+							'[WOOW Template Manager] Failed to restore from backup "%s"',
+							$backup_id
+						) );
+					}
+				} catch ( Exception $restore_error ) {
+					error_log( sprintf(
+						'[WOOW Template Manager] Exception during backup restore: %s',
+						$restore_error->getMessage()
+					) );
+				}
+			}
+
+			return $this->error_response(
+				'APPLICATION_FAILED',
+				sprintf( 'Failed to apply template "%s": %s', $template_name, $e->getMessage() ),
+				array(
+					'template_id'      => $template_id,
+					'error'            => $e->getMessage(),
+					'backup_id'        => $backup_id,
+					'rollback_success' => $rollback_success,
+				)
+			);
 		}
+	}
+	
+	/**
+	 * Create standardized error response
+	 *
+	 * @param string $error_code Error code for programmatic handling.
+	 * @param string $message User-friendly error message.
+	 * @param array  $context Additional context data.
+	 * @return array Error response array.
+	 */
+	private function error_response( string $error_code, string $message, array $context = array() ): array {
+		// Log error with full context
+		error_log( sprintf(
+			'[WOOW Template Manager] Error %s: %s | Context: %s',
+			$error_code,
+			$message,
+			wp_json_encode( $context )
+		) );
+		
+		return array(
+			'success'    => false,
+			'error_code' => $error_code,
+			'message'    => $message,
+			'context'    => $context,
+		);
 	}
 
 	/**
@@ -193,700 +546,5 @@ class WOOW_Template_Manager {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Default Template (Figma base with glassmorphism)
-	 *
-	 * @return array Template data.
-	 */
-	private function get_default_template(): array {
-		return array(
-			'id'          => 'default',
-			'name'        => __( 'Default', 'woow-admin' ),
-			'description' => __( 'Figma base design with glassmorphism effects', 'woow-admin' ),
-			'thumbnail'   => WOOW_PLUGIN_URL . 'assets/dist/images/templates/default.png',
-			'settings'    => array(
-				'admin_bar' => array(
-					'glassmorphism' => true,
-					'blur_strength' => '12px',
-					'border_radius' => '24px',
-				),
-				'admin_menu' => array(
-					'glassmorphism' => true,
-					'blur_strength' => '12px',
-					'border_radius' => '24px',
-				),
-				'dashboard_widgets' => array(
-					'glassmorphism' => true,
-					'blur_strength' => '12px',
-					'border_radius' => '24px',
-				),
-			),
-		);
-	}
-
-	/**
-	 * Modern Minimal Template
-	 *
-	 * @return array Template data.
-	 */
-	private function get_modern_minimal_template(): array {
-		return array(
-			'id'          => 'modern_minimal',
-			'name'        => __( 'Modern Minimal', 'woow-admin' ),
-			'description' => __( 'Clean design with large spacing and minimal elements', 'woow-admin' ),
-			'thumbnail'   => WOOW_PLUGIN_URL . 'assets/dist/images/templates/modern-minimal.png',
-			'settings'    => array(
-				'admin_bar' => array(
-					'height'        => '56px',
-					'border_radius' => '16px',
-					'glassmorphism' => false,
-				),
-				'admin_menu' => array(
-					'width_expanded' => '280px',
-					'border_radius'  => '16px',
-					'glassmorphism'  => false,
-				),
-				'dashboard_widgets' => array(
-					'padding'       => '32px',
-					'margin_bottom' => '32px',
-					'border_radius' => '16px',
-					'glassmorphism' => false,
-				),
-			),
-		);
-	}
-
-	/**
-	 * Corporate Professional Template
-	 *
-	 * @return array Template data.
-	 */
-	private function get_corporate_professional_template(): array {
-		return array(
-			'id'          => 'corporate_professional',
-			'name'        => __( 'Corporate Professional', 'woow-admin' ),
-			'description' => __( 'Traditional corporate design with formal aesthetics', 'woow-admin' ),
-			'thumbnail'   => WOOW_PLUGIN_URL . 'assets/dist/images/templates/corporate.png',
-			'settings'    => array(
-				'admin_bar' => array(
-					'background_type' => 'solid',
-					'background_color' => '#1e3a8a',
-					'border_radius'    => '8px',
-					'glassmorphism'    => false,
-				),
-				'admin_menu' => array(
-					'background_color' => '#f8fafc',
-					'border_radius'    => '8px',
-					'glassmorphism'    => false,
-				),
-				'dashboard_widgets' => array(
-					'border_radius' => '8px',
-					'shadow_style'  => 'sm',
-					'glassmorphism' => false,
-				),
-			),
-		);
-	}
-
-	/**
-	 * Creative Agency Template
-	 *
-	 * @return array Template data.
-	 */
-	private function get_creative_agency_template(): array {
-		return array(
-			'id'          => 'creative_agency',
-			'name'        => __( 'Creative Agency', 'woow-admin' ),
-			'description' => __( 'Colorful design with bold animations and gradients', 'woow-admin' ),
-			'thumbnail'   => WOOW_PLUGIN_URL . 'assets/dist/images/templates/creative.png',
-			'settings'    => array(
-				'admin_bar' => array(
-					'background_type'   => 'gradient',
-					'gradient_start'    => '#ec4899',
-					'gradient_end'      => '#8b5cf6',
-					'border_radius'     => '32px',
-					'glassmorphism'     => true,
-				),
-				'admin_menu' => array(
-					'active_gradient_start' => '#ec4899',
-					'active_gradient_end'   => '#f472b6',
-					'border_radius'         => '32px',
-				),
-				'effects' => array(
-					'animation_duration' => '300ms',
-				),
-			),
-		);
-	}
-
-	/**
-	 * Dark Elegant Template
-	 *
-	 * @return array Template data.
-	 */
-	private function get_dark_elegant_template(): array {
-		return array(
-			'id'          => 'dark_elegant',
-			'name'        => __( 'Dark Elegant', 'woow-admin' ),
-			'description' => __( 'Sophisticated dark mode design', 'woow-admin' ),
-			'thumbnail'   => WOOW_PLUGIN_URL . 'assets/dist/images/templates/dark-elegant.png',
-			'settings'    => array(
-				'admin_bar' => array(
-					'background_color' => '#0f172a',
-					'text_color'       => '#f1f5f9',
-					'glassmorphism'    => true,
-					'opacity'          => 0.95,
-				),
-				'admin_menu' => array(
-					'background_color' => '#1e293b',
-					'glassmorphism'    => true,
-					'opacity'          => 0.95,
-				),
-				'dashboard_widgets' => array(
-					'background_color' => '#1e293b',
-					'glassmorphism'    => true,
-					'opacity'          => 0.95,
-				),
-			),
-		);
-	}
-
-	/**
-	 * Pastel Soft Template
-	 *
-	 * @return array Template data.
-	 */
-	private function get_pastel_soft_template(): array {
-		return array(
-			'id'          => 'pastel_soft',
-			'name'        => __( 'Pastel Soft', 'woow-admin' ),
-			'description' => __( 'Delicate pastel colors with soft aesthetics', 'woow-admin' ),
-			'thumbnail'   => WOOW_PLUGIN_URL . 'assets/dist/images/templates/pastel.png',
-			'settings'    => array(
-				'admin_bar' => array(
-					'background_type'  => 'gradient',
-					'gradient_start'   => '#fae8ff',
-					'gradient_end'     => '#ddd6fe',
-					'text_color'       => '#581c87',
-					'border_radius'    => '24px',
-				),
-				'admin_menu' => array(
-					'background_color'      => '#faf5ff',
-					'active_gradient_start' => '#c084fc',
-					'active_gradient_end'   => '#e9d5ff',
-				),
-			),
-		);
-	}
-
-	/**
-	 * High Contrast Template
-	 *
-	 * @return array Template data.
-	 */
-	private function get_high_contrast_template(): array {
-		return array(
-			'id'          => 'high_contrast',
-			'name'        => __( 'High Contrast', 'woow-admin' ),
-			'description' => __( 'WCAG AAA compliant with maximum contrast', 'woow-admin' ),
-			'thumbnail'   => WOOW_PLUGIN_URL . 'assets/dist/images/templates/high-contrast.png',
-			'settings'    => array(
-				'admin_bar' => array(
-					'background_color' => '#000000',
-					'text_color'       => '#ffffff',
-					'glassmorphism'    => false,
-				),
-				'admin_menu' => array(
-					'background_color' => '#ffffff',
-					'glassmorphism'    => false,
-				),
-				'dashboard_widgets' => array(
-					'background_color' => '#ffffff',
-					'glassmorphism'    => false,
-					'shadow_style'     => 'xl',
-				),
-			),
-		);
-	}
-
-	/**
-	 * Minimalist White Template
-	 *
-	 * @return array Template data.
-	 */
-	private function get_minimalist_white_template(): array {
-		return array(
-			'id'          => 'minimalist_white',
-			'name'        => __( 'Minimalist White', 'woow-admin' ),
-			'description' => __( 'Pure white design with minimal elements', 'woow-admin' ),
-			'thumbnail'   => WOOW_PLUGIN_URL . 'assets/dist/images/templates/minimalist.png',
-			'settings'    => array(
-				'admin_bar' => array(
-					'background_color' => '#ffffff',
-					'text_color'       => '#0f172a',
-					'border_radius'    => '0px',
-					'glassmorphism'    => false,
-					'shadow_style'     => 'sm',
-				),
-				'admin_menu' => array(
-					'background_color' => '#ffffff',
-					'border_radius'    => '0px',
-					'glassmorphism'    => false,
-				),
-				'dashboard_widgets' => array(
-					'background_color' => '#ffffff',
-					'border_radius'    => '0px',
-					'glassmorphism'    => false,
-					'shadow_style'     => 'sm',
-				),
-			),
-		);
-	}
-
-	/**
-	 * Bold & Bright Template
-	 *
-	 * @return array Template data.
-	 */
-	private function get_bold_bright_template(): array {
-		return array(
-			'id'          => 'bold_bright',
-			'name'        => __( 'Bold & Bright', 'woow-admin' ),
-			'description' => __( 'High contrast colors with bold design', 'woow-admin' ),
-			'thumbnail'   => WOOW_PLUGIN_URL . 'assets/dist/images/templates/bold.png',
-			'settings'    => array(
-				'admin_bar' => array(
-					'background_type'  => 'gradient',
-					'gradient_start'   => '#ef4444',
-					'gradient_end'     => '#f59e0b',
-					'border_radius'    => '24px',
-				),
-				'admin_menu' => array(
-					'active_gradient_start' => '#ef4444',
-					'active_gradient_end'   => '#f59e0b',
-				),
-				'effects' => array(
-					'shadow_style' => 'xl',
-				),
-			),
-		);
-	}
-
-	/**
-	 * Material Design Template
-	 *
-	 * @return array Template data.
-	 */
-	private function get_material_design_template(): array {
-		return array(
-			'id'          => 'material_design',
-			'name'        => __( 'Material Design', 'woow-admin' ),
-			'description' => __( 'Google Material Design principles', 'woow-admin' ),
-			'thumbnail'   => WOOW_PLUGIN_URL . 'assets/dist/images/templates/material.png',
-			'settings'    => array(
-				'admin_bar' => array(
-					'height'        => '64px',
-					'border_radius' => '0px',
-					'shadow_style'  => 'md',
-					'glassmorphism' => false,
-				),
-				'admin_menu' => array(
-					'border_radius' => '0px',
-					'glassmorphism' => false,
-				),
-				'dashboard_widgets' => array(
-					'border_radius' => '4px',
-					'shadow_style'  => 'md',
-					'glassmorphism' => false,
-				),
-				'buttons' => array(
-					'border_radius' => '4px',
-				),
-			),
-		);
-	}
-
-	/**
-	 * Glassmorphism Pro Template
-	 *
-	 * @return array Template data.
-	 */
-	private function get_glassmorphism_pro_template(): array {
-		return array(
-			'id'          => 'glassmorphism_pro',
-			'name'        => __( 'Glassmorphism Pro', 'woow-admin' ),
-			'description' => __( 'Maximum glass effect with strong blur', 'woow-admin' ),
-			'thumbnail'   => WOOW_PLUGIN_URL . 'assets/dist/images/templates/glass-pro.png',
-			'settings'    => array(
-				'admin_bar' => array(
-					'glassmorphism' => true,
-					'blur_strength' => '24px',
-					'opacity'       => 0.85,
-					'border_radius' => '32px',
-				),
-				'admin_menu' => array(
-					'glassmorphism' => true,
-					'blur_strength' => '24px',
-					'opacity'       => 0.85,
-					'border_radius' => '32px',
-				),
-				'dashboard_widgets' => array(
-					'glassmorphism' => true,
-					'blur_strength' => '24px',
-					'opacity'       => 0.85,
-					'border_radius' => '32px',
-				),
-				'form_controls' => array(
-					'glassmorphism' => true,
-					'blur_strength' => '16px',
-				),
-				'buttons' => array(
-					'glassmorphism' => true,
-					'blur_strength' => '16px',
-				),
-			),
-		);
-	}
-
-	/**
-	 * Terminal Template
-	 *
-	 * Linux terminal-inspired design with dark background and bright green monospace text.
-	 *
-	 * @return array Template data.
-	 */
-	private function get_terminal_template(): array {
-		return array(
-			'id'          => 'terminal',
-			'name'        => __( 'Terminal', 'woow-admin' ),
-			'description' => __( 'Linux terminal aesthetic with dark background and bright green monospace text', 'woow-admin' ),
-			'thumbnail'   => WOOW_PLUGIN_URL . 'assets/dist/images/templates/terminal.png',
-			'settings'    => array(
-				'general' => array(
-					'enabled'          => true,
-					'current_palette'  => 'terminal',
-					'current_template' => 'terminal',
-				),
-				
-				'admin_bar' => array(
-					'enabled'          => true,
-					
-					// Background - Pure black like terminal
-					'background_type'  => 'solid',
-					'background_color' => '#000000',
-					'use_gradient'     => false,
-					
-					// Text - Bright terminal green
-					'text_color'       => '#00ff00',
-					'hover_text_color' => '#00ff00',
-					
-					// Hover - Subtle green glow
-					'hover_bg_color'   => 'rgba(0, 255, 0, 0.1)',
-					'hover_style'      => 'normal',
-					
-					// Dimensions
-					'height'           => '48',
-					'width'            => '100',
-					'width_unit'       => '%',
-					
-					// Border Radius - Sharp terminal edges
-					'border_radius_mode'         => 'all',
-					'border_radius_all'          => '0',
-					'border_radius_top_left'     => '0',
-					'border_radius_top_right'    => '0',
-					'border_radius_bottom_right' => '0',
-					'border_radius_bottom_left'  => '0',
-					
-					// No glassmorphism - solid terminal look
-					'glassmorphism'    => false,
-					'opacity'          => 1.0,
-					'blur_strength'    => '0',
-					
-					// Shadow - Green terminal glow
-					'box_shadow'       => '0 2px 8px rgba(0, 255, 0, 0.3)',
-					'shadow_style'     => 'md',
-					'position'         => 'fixed',
-					'top_offset'       => '0px',
-					
-					// Submenu - Terminal style
-					'submenu_inherit_styles' => false,
-					'submenu_bg_color'       => '#0a0a0a',
-					'submenu_text_color'     => '#00ff00',
-					'submenu_border_radius'  => '0px',
-					'submenu_font_size'      => '13px',
-					
-					// Spacing - Minimal terminal padding
-					'spacing_mode'     => 'all',
-					'spacing_all'      => '12',
-					'spacing_top'      => '0',
-					'spacing_right'    => '12',
-					'spacing_bottom'   => '0',
-					'spacing_left'     => '12',
-					
-					// Margin - No margins
-					'margin_mode'      => 'all',
-					'margin_all'       => '0',
-					'margin_top'       => '0',
-					'margin_right'     => '0',
-					'margin_bottom'    => '0',
-					'margin_left'      => '0',
-				),
-				
-				'admin_menu' => array(
-					'enabled'          => true,
-					
-					// Background - Dark terminal
-					'background_type'  => 'solid',
-					'background_color' => '#0a0a0a',
-					'glass_base_color' => '#0a0a0a',
-					'border_color'     => '#00ff00',
-					
-					// Text - Terminal green
-					'text_color'       => '#00ff00',
-					'hover_text_color' => '#00ff00',
-					
-					// Hover - Green highlight
-					'hover_bg_color'   => 'rgba(0, 255, 0, 0.15)',
-					'hover_style'      => 'normal',
-					
-					// Active - Bright green background
-					'active_bg_type'   => 'solid',
-					'active_bg_solid'  => '#00ff00',
-					'active_text_color' => '#000000',
-					
-					// Dimensions
-					'width'            => '256',
-					'item_height'      => '40',
-					
-					// Border Radius - Sharp edges
-					'border_radius_mode'         => 'all',
-					'border_radius_all'          => '0',
-					'border_radius_top_left'     => '0',
-					'border_radius_top_right'    => '0',
-					'border_radius_bottom_right' => '0',
-					'border_radius_bottom_left'  => '0',
-					'item_border_radius'         => '0',
-					
-					// Typography - Monospace
-					'font_size'        => '13',
-					'font_weight'      => '400',
-					
-					// No glassmorphism
-					'glassmorphism'    => false,
-					'opacity'          => 1.0,
-					'blur_strength'    => '0',
-					
-					// Shadow - Green glow
-					'shadow_style'     => 'sm',
-					
-					// Spacing - Compact terminal style
-					'spacing_mode'     => 'all',
-					'spacing_all'      => '8',
-					'spacing_top'      => '8',
-					'spacing_right'    => '12',
-					'spacing_bottom'   => '8',
-					'spacing_left'     => '12',
-					
-					// Margin
-					'margin_mode'      => 'all',
-					'margin_all'       => '0',
-					'margin_top'       => '0',
-					'margin_right'     => '0',
-					'margin_bottom'    => '0',
-					'margin_left'      => '0',
-					
-					// Icons - Green
-					'icon_size'        => '16',
-					'icon_color'       => '#00ff00',
-					'icon_hover_color' => '#00ff00',
-					'icon_active_color' => '#000000',
-					
-					// Submenu (Flyout)
-					'submenu_inherit_styles'    => false,
-					'submenu_offset'            => '0',
-					'submenu_bg_color'          => '#0a0a0a',
-					'submenu_text_color'        => '#00ff00',
-					'submenu_hover_text_color'  => '#00ff00',
-					'submenu_hover_bg_color'    => 'rgba(0, 255, 0, 0.15)',
-					'submenu_item_height'       => '32',
-					'submenu_font_size'         => '12',
-					'submenu_font_weight'       => '400',
-					'submenu_item_border_radius' => '0',
-					'submenu_border_radius'     => '0',
-					
-					// Inline Submenu
-					'inline_submenu_visible'       => true,
-					'inline_submenu_inherit_styles' => false,
-					'inline_submenu_bg_color'      => '#000000',
-					'inline_submenu_text_color'    => '#00cc00',
-					'inline_submenu_font_size'     => '12',
-					'inline_submenu_font_weight'   => '400',
-					'inline_submenu_item_bg_color' => 'rgba(0, 255, 0, 0.05)',
-				),
-				
-				'dashboard_widgets' => array(
-					'enabled'          => true,
-					
-					// Background - Dark terminal
-					'background_color' => '#0a0a0a',
-					'border_color'     => '#00ff00',
-					
-					// Text - Terminal green
-					'text_color'       => '#00ff00',
-					'heading_color'    => '#00ff00',
-					
-					// Dimensions - Sharp edges
-					'border_radius'    => '0',
-					'padding'          => '16',
-					'max_height'       => '600',
-					
-					// No glassmorphism
-					'glassmorphism'    => false,
-					'opacity'          => 1.0,
-					'blur_strength'    => '0',
-					
-					// Shadow - Green glow
-					'box_shadow'       => '0 2px 8px rgba(0, 255, 0, 0.2)',
-				),
-				
-				'form_controls' => array(
-					'enabled'          => true,
-					
-					// Input - Dark with green border
-					'input_bg_color'   => '#000000',
-					'input_border_color' => '#00ff00',
-					'input_text_color' => '#00ff00',
-					
-					// Focus - Bright green
-					'input_focus_color' => '#00ff00',
-					'input_focus_shadow' => '0 0 0 2px rgba(0, 255, 0, 0.3)',
-					
-					// Dimensions - Sharp edges
-					'input_height'     => '36',
-					'input_padding'    => '8px 12px',
-					'input_border_radius' => '0',
-					
-					// No glassmorphism
-					'glassmorphism'    => false,
-					'blur_strength'    => '0',
-				),
-				
-				'buttons' => array(
-					'enabled'          => true,
-					
-					// Primary Button - Green terminal style
-					'primary_bg_color' => '#00ff00',
-					'primary_text_color' => '#000000',
-					'primary_hover_bg' => '#00cc00',
-					'primary_hover_shadow' => '0 0 8px rgba(0, 255, 0, 0.5)',
-					
-					// Secondary Button - Outlined green
-					'secondary_bg_color' => 'transparent',
-					'secondary_border_color' => '#00ff00',
-					'secondary_text_color' => '#00ff00',
-					'secondary_hover_bg' => 'rgba(0, 255, 0, 0.1)',
-					
-					// Dimensions - Sharp edges
-					'button_height'    => '36',
-					'button_padding'   => '8px 16px',
-					'button_border_radius' => '0',
-					
-					// Typography - Monospace
-					'button_font_size' => '13',
-					'button_font_weight' => '400',
-				),
-				
-				'backgrounds' => array(
-					'enabled'          => true,
-					
-					// Main Background - Pure black terminal
-					'main_bg_color_start' => '#000000',
-					'main_bg_color_middle' => '#000000',
-					'main_bg_color_end' => '#000000',
-					'use_gradient'     => false,
-					
-					// No image
-					'image_url'        => '',
-					'image_size'       => 'cover',
-					'image_repeat'     => 'no-repeat',
-					'image_position'   => 'center',
-					'image_attachment' => 'fixed',
-				),
-				
-				'typography' => array(
-					'enabled'          => true,
-					
-					// Headings - Terminal green
-					'h1_color'         => '#00ff00',
-					'h1_font_size'     => '24',
-					'h1_font_weight'   => '700',
-					'h1_line_height'   => '1.2',
-					
-					'h2_color'         => '#00ff00',
-					'h2_font_size'     => '20',
-					'h2_font_weight'   => '700',
-					'h2_line_height'   => '1.2',
-					
-					'h3_color'         => '#00ff00',
-					'h3_font_size'     => '16',
-					'h3_font_weight'   => '600',
-					'h3_line_height'   => '1.3',
-					
-					// Body - Lighter green for readability
-					'body_color'       => '#00cc00',
-					'body_font_size'   => '13',
-					'body_font_weight' => '400',
-					'body_line_height' => '1.5',
-					
-					// Links - Bright green
-					'link_color'       => '#00ff00',
-					'link_hover_color' => '#00ff00',
-				),
-				
-				'visual_effects' => array(
-					'enabled'          => true,
-					
-					// No glassmorphism
-					'global_glassmorphism' => false,
-					'global_blur_strength' => '0',
-					'global_opacity'   => 1.0,
-					
-					// Fast animations - terminal feel
-					'enable_animations' => true,
-					'animation_duration' => '100',
-					'animation_easing' => 'linear',
-					
-					// Green shadows
-					'enable_shadows'   => true,
-					'shadow_color'     => 'rgba(0, 255, 0, 0.3)',
-				),
-				
-				'login_page' => array(
-					'enabled'          => true,
-					
-					// Background - Pure black
-					'login_bg_color_start' => '#000000',
-					'login_bg_color_end' => '#000000',
-					'use_gradient'     => false,
-					
-					// Form - Dark terminal
-					'form_bg_color'    => '#0a0a0a',
-					'form_border_color' => '#00ff00',
-					'form_text_color'  => '#00ff00',
-					
-					// No glassmorphism
-					'glassmorphism'    => false,
-					'opacity'          => 1.0,
-					'blur_strength'    => '0',
-					
-					// Logo
-					'custom_logo'      => '',
-					'logo_width'       => '84',
-					'logo_height'      => '84',
-				),
-			),
-		);
 	}
 }

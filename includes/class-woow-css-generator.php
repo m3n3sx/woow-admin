@@ -1700,8 +1700,15 @@ class WOOW_CSS_Generator {
 
         $this->css .= "/* Background Styling */\n";
         
-        // Get background settings
-        $background_color = $bg['background_color'] ?? '#dbeafe';
+        // Get background settings - support both old and new key names
+        $body_bg = $bg['body_bg'] ?? $bg['background_color'] ?? '#f8fafc';
+        $body_pattern = $bg['body_pattern'] ?? 'none';
+        $body_pattern_color = $bg['body_pattern_color'] ?? 'rgba(0, 0, 0, 0.02)';
+        $content_bg = $bg['content_bg'] ?? '#ffffff';
+        $sidebar_bg = $bg['sidebar_bg'] ?? '#f1f5f9';
+        $header_bg = $bg['header_bg'] ?? '#ffffff';
+        
+        // Legacy support for old keys
         $background_opacity = $bg['background_opacity'] ?? '1';
         $type = $bg['type'] ?? 'none';
         $gradient_type = $bg['gradient_type'] ?? 'linear';
@@ -1712,26 +1719,32 @@ class WOOW_CSS_Generator {
         $image_size = $bg['image_size'] ?? 'cover';
         $image_repeat = $bg['image_repeat'] ?? 'no-repeat';
         $image_position = $bg['image_position'] ?? 'center';
-        $wpbody_content_color = $bg['wpbody_content_color'] ?? 'transparent';
-        $wpbody_content_opacity = $bg['wpbody_content_opacity'] ?? '1';
         
-        // Convert hex to rgba with opacity
-        $background_rgba = $this->hex_to_rgba( $background_color, floatval( $background_opacity ) );
-        
-        // Style body (main background) - ALWAYS apply background_color with opacity
+        // Style body (main background) - use body_bg from palettes/templates
         $this->css .= "body.wp-admin {\n";
-        $this->css .= "    background-color: {$background_rgba} !important;\n";
+        $this->css .= "    background-color: {$body_bg} !important;\n";
         
-        // Add additional effects based on type
+        // Add pattern if specified
+        if ( $body_pattern !== 'none' ) {
+            if ( $body_pattern === 'grid' ) {
+                $this->css .= "    background-image: linear-gradient({$body_pattern_color} 1px, transparent 1px), linear-gradient(90deg, {$body_pattern_color} 1px, transparent 1px) !important;\n";
+                $this->css .= "    background-size: 20px 20px !important;\n";
+            } elseif ( $body_pattern === 'dots' ) {
+                $this->css .= "    background-image: radial-gradient(circle, {$body_pattern_color} 1px, transparent 1px) !important;\n";
+                $this->css .= "    background-size: 20px 20px !important;\n";
+            }
+        }
+        
+        // Add additional effects based on type (legacy support)
         if ( $type === 'image' && ! empty( $image_url ) ) {
-            // Image background (on top of background_color)
+            // Image background (on top of body_bg)
             $this->css .= "    background-image: url('{$image_url}') !important;\n";
             $this->css .= "    background-position: {$image_position} !important;\n";
             $this->css .= "    background-size: {$image_size} !important;\n";
             $this->css .= "    background-repeat: {$image_repeat} !important;\n";
             $this->css .= "    background-attachment: fixed !important;\n";
         } elseif ( $type === 'gradient' ) {
-            // Gradient background (replaces background_color)
+            // Gradient background (replaces body_bg)
             if ( $gradient_type === 'linear' ) {
                 $this->css .= "    background: linear-gradient({$gradient_angle}deg, {$gradient_start}, {$gradient_end}) !important;\n";
             } elseif ( $gradient_type === 'radial' ) {
@@ -1740,7 +1753,6 @@ class WOOW_CSS_Generator {
                 $this->css .= "    background: conic-gradient(from {$gradient_angle}deg, {$gradient_start}, {$gradient_end}) !important;\n";
             }
         }
-        // else: type === 'none' - just use background_color with opacity (already set above)
         
         $this->css .= "    min-height: 100vh !important;\n";
         $this->css .= "}\n\n";
@@ -1750,15 +1762,22 @@ class WOOW_CSS_Generator {
         $this->css .= "    background: transparent !important;\n";
         $this->css .= "}\n\n";
         
-        // Style #wpbody-content with opacity
-        $wpbody_rgba = ( $wpbody_content_color === 'transparent' ) 
-            ? 'transparent' 
-            : $this->hex_to_rgba( $wpbody_content_color, floatval( $wpbody_content_opacity ) );
+        // Style #wpcontent with content_bg
+        $this->css .= "#wpcontent {\n";
+        $this->css .= "    background: {$content_bg} !important;\n";
+        $this->css .= "}\n\n";
         
+        // Style #wpbody-content
         $this->css .= "#wpbody-content {\n";
         $this->css .= "    padding: 16px !important;\n";
         $this->css .= "    margin-left: 0 !important;\n";
-        $this->css .= "    background: {$wpbody_rgba} !important;\n";
+        $this->css .= "    background: transparent !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Style sidebar with sidebar_bg
+        $this->css .= "#adminmenuwrap,\n";
+        $this->css .= "#adminmenu {\n";
+        $this->css .= "    background: {$sidebar_bg} !important;\n";
         $this->css .= "}\n\n";
         
         // Custom CSS

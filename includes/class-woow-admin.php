@@ -54,6 +54,13 @@ class WOOW_Admin {
 	private WOOW_Template_Manager $template_manager;
 
 	/**
+	 * Palette manager instance
+	 *
+	 * @var WOOW_Palette_Manager
+	 */
+	private WOOW_Palette_Manager $palette_manager;
+
+	/**
 	 * Rate limit: requests per minute
 	 *
 	 * @var int
@@ -68,19 +75,22 @@ class WOOW_Admin {
 	 * @param WOOW_Cache_Manager     $cache             Cache manager.
 	 * @param WOOW_Backup_Manager    $backup_manager    Backup manager.
 	 * @param WOOW_Template_Manager  $template_manager  Template manager.
+	 * @param WOOW_Palette_Manager   $palette_manager   Palette manager.
 	 */
 	public function __construct(
 		WOOW_Settings $settings,
 		WOOW_CSS_Generator $css_generator,
 		WOOW_Cache_Manager $cache,
 		WOOW_Backup_Manager $backup_manager,
-		WOOW_Template_Manager $template_manager
+		WOOW_Template_Manager $template_manager,
+		WOOW_Palette_Manager $palette_manager
 	) {
 		$this->settings          = $settings;
 		$this->css_generator     = $css_generator;
 		$this->cache             = $cache;
 		$this->backup_manager    = $backup_manager;
 		$this->template_manager  = $template_manager;
+		$this->palette_manager   = $palette_manager;
 	}
 
 	/**
@@ -238,6 +248,42 @@ class WOOW_Admin {
 			true
 		);
 
+		// Get palettes and templates data
+		$palettes_data = array();
+		try {
+			$palettes = $this->palette_manager->get_all_palettes();
+			// Convert to array format expected by JavaScript
+			foreach ( $palettes as $palette_id => $palette ) {
+				$palettes_data[] = array(
+					'id'            => $palette['id'] ?? $palette_id,
+					'name'          => $palette['name'] ?? '',
+					'description'   => $palette['description'] ?? '',
+					'category'      => $palette['category'] ?? '',
+					'preview_image' => $palette['preview_image'] ?? '',
+					'colors'        => $palette['colors'] ?? array(),
+				);
+			}
+		} catch ( Exception $e ) {
+			error_log( '[WOOW Admin] Failed to load palettes: ' . $e->getMessage() );
+		}
+
+		$templates_data = array();
+		try {
+			$templates = $this->template_manager->get_all_templates();
+			// Convert to array format expected by JavaScript
+			foreach ( $templates as $template_id => $template ) {
+				$templates_data[] = array(
+					'id'            => $template['id'] ?? $template_id,
+					'name'          => $template['name'] ?? '',
+					'description'   => $template['description'] ?? '',
+					'category'      => $template['category'] ?? '',
+					'preview_image' => $template['preview_image'] ?? '',
+				);
+			}
+		} catch ( Exception $e ) {
+			error_log( '[WOOW Admin] Failed to load templates: ' . $e->getMessage() );
+		}
+
 		// Localize script with data
 		wp_localize_script(
 			'woow-admin-scripts',
@@ -245,9 +291,10 @@ class WOOW_Admin {
 			array(
 				'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
 				'nonce'      => wp_create_nonce( 'woow_admin_nonce' ),
-				'settings'   => $this->settings->get_all(),
-				'palettes'   => $this->settings->get_available_palettes(),
-				'templates'  => $this->settings->get_available_templates(),
+				'pluginUrl'  => WOOW_PLUGIN_URL,
+				'settings'   => $this->settings->get_all_settings(),
+				'palettes'   => $palettes_data,
+				'templates'  => $templates_data,
 				'i18n'       => array(
 					'saving'          => __( 'Saving...', 'woow-admin' ),
 					'saved'           => __( 'Saved!', 'woow-admin' ),
@@ -641,61 +688,101 @@ class WOOW_Admin {
 	 * @return void
 	 */
 	public function ajax_apply_palette(): void {
-		// Verify nonce
-		check_ajax_referer( 'woow_admin_nonce', 'nonce' );
+		// Clean output buffer to prevent any stray output
+		if ( ob_get_level() > 0 ) {
+			ob_clean();
+		}
+		
+		try {
+			// Log AJAX call for debugging
+			error_log( '[WOOW Admin] ajax_apply_palette called' );
+			
+			// Verify nonce
+			if ( ! check_ajax_referer( 'woow_admin_nonce', 'nonce', false ) ) {
+				error_log( '[WOOW Admin] Nonce verification failed' );
+				wp_send_json_error( array(
+					'message' => __( 'Security check failed', 'woow-admin' ),
+					'code'    => 'invalid_nonce',
+				) );
+			}
 
-		// Check capabilities
-		if ( ! current_user_can( 'manage_options' ) ) {
+			// Check capabilities
+			if ( ! current_user_can( 'manage_options' ) ) {
+				error_log( '[WOOW Admin] Insufficient permissions' );
+				wp_send_json_error( array(
+					'message' => __( 'Insufficient permissions', 'woow-admin' ),
+					'code'    => 'insufficient_permissions',
+				) );
+			}
+
+			// Check rate limit
+			if ( ! $this->check_rate_limit() ) {
+				error_log( '[WOOW Admin] Rate limit exceeded' );
+				wp_send_json_error( array(
+					'message' => __( 'Rate limit exceeded. Please try again later.', 'woow-admin' ),
+					'code'    => 'rate_limit_exceeded',
+				) );
+			}
+
+			$palette_id = isset( $_POST['palette_id'] ) ? sanitize_text_field( wp_unslash( $_POST['palette_id'] ) ) : '';
+
+			if ( empty( $palette_id ) ) {
+				error_log( '[WOOW Admin] No palette ID provided' );
+				wp_send_json_error( array(
+					'message' => __( 'No palette ID provided', 'woow-admin' ),
+					'code'    => 'no_palette_id',
+				) );
+			}
+
+			error_log( '[WOOW Admin] Applying palette: ' . $palette_id );
+
+			// Apply palette using palette manager (returns array with 'success' key)
+			$result = $this->palette_manager->apply_palette( $palette_id );
+
+			if ( ! $result['success'] ) {
+				error_log( '[WOOW Admin] Failed to apply palette: ' . $palette_id );
+				error_log( '[WOOW Admin] Error: ' . ( $result['message'] ?? 'Unknown error' ) );
+				wp_send_json_error( array(
+					'message' => $result['message'] ?? __( 'Failed to apply palette', 'woow-admin' ),
+					'code'    => $result['error_code'] ?? 'apply_failed',
+				) );
+			}
+
+			error_log( '[WOOW Admin] Palette applied successfully: ' . $palette_id );
+
+			// Clear CSS cache
+			$this->cache->flush();
+
+			// Get palette info
+			$palette = $this->palette_manager->get_palette( $palette_id );
+
+			// Get updated settings
+			$updated_settings = $this->settings->get_all();
+
+			wp_send_json_success( array(
+				'message'      => $result['message'] ?? sprintf(
+					/* translators: %s: Palette name */
+					__( 'Palette "%s" applied successfully!', 'woow-admin' ),
+					$palette['name'] ?? $palette_id
+				),
+				'palette_id'   => $palette_id,
+				'palette_name' => $palette['name'] ?? $palette_id,
+				'backup_id'    => $result['backup_id'] ?? null,
+				'settings'     => $updated_settings,
+			) );
+
+		} catch ( Exception $e ) {
+			error_log( '[WOOW Admin] Exception in ajax_apply_palette: ' . $e->getMessage() );
+			error_log( '[WOOW Admin] Stack trace: ' . $e->getTraceAsString() );
+
 			wp_send_json_error( array(
-				'message' => __( 'Insufficient permissions', 'woow-admin' ),
-				'code'    => 'insufficient_permissions',
+				'message' => __( 'An error occurred while applying palette', 'woow-admin' ),
+				'code'    => 'exception',
+				'error'   => $e->getMessage(),
 			) );
 		}
 
-		// Check rate limit
-		if ( ! $this->check_rate_limit() ) {
-			wp_send_json_error( array(
-				'message' => __( 'Rate limit exceeded. Please try again later.', 'woow-admin' ),
-				'code'    => 'rate_limit_exceeded',
-			) );
-		}
-
-		$palette_id = isset( $_POST['palette_id'] ) ? sanitize_text_field( $_POST['palette_id'] ) : '';
-
-		if ( empty( $palette_id ) ) {
-			wp_send_json_error( array(
-				'message' => __( 'No palette ID provided', 'woow-admin' ),
-				'code'    => 'no_palette_id',
-			) );
-		}
-
-		// Apply palette
-		$result = $this->settings->apply_palette( $palette_id );
-
-		if ( ! $result ) {
-			wp_send_json_error( array(
-				'message' => __( 'Failed to apply palette', 'woow-admin' ),
-				'code'    => 'apply_failed',
-			) );
-		}
-
-		// Clear CSS cache
-		$this->cache->flush();
-
-		// Generate new CSS
-		$css     = $this->css_generator->generate();
-		$metrics = $this->css_generator->get_metrics();
-
-		// Get updated settings
-		$updated_settings = $this->settings->get_all();
-
-		wp_send_json_success( array(
-			'message'  => __( 'Palette applied successfully', 'woow-admin' ),
-			'palette'  => $palette_id,
-			'css'      => $css,
-			'settings' => $updated_settings,
-			'metrics'  => $metrics,
-		) );
+		wp_die();
 	}
 
 	/**
@@ -704,61 +791,101 @@ class WOOW_Admin {
 	 * @return void
 	 */
 	public function ajax_apply_template(): void {
-		// Verify nonce
-		check_ajax_referer( 'woow_admin_nonce', 'nonce' );
+		// Clean output buffer to prevent any stray output
+		if ( ob_get_level() > 0 ) {
+			ob_clean();
+		}
+		
+		try {
+			// Log AJAX call for debugging
+			error_log( '[WOOW Admin] ajax_apply_template called' );
+			
+			// Verify nonce
+			if ( ! check_ajax_referer( 'woow_admin_nonce', 'nonce', false ) ) {
+				error_log( '[WOOW Admin] Nonce verification failed' );
+				wp_send_json_error( array(
+					'message' => __( 'Security check failed', 'woow-admin' ),
+					'code'    => 'invalid_nonce',
+				) );
+			}
 
-		// Check capabilities
-		if ( ! current_user_can( 'manage_options' ) ) {
+			// Check capabilities
+			if ( ! current_user_can( 'manage_options' ) ) {
+				error_log( '[WOOW Admin] Insufficient permissions' );
+				wp_send_json_error( array(
+					'message' => __( 'Insufficient permissions', 'woow-admin' ),
+					'code'    => 'insufficient_permissions',
+				) );
+			}
+
+			// Check rate limit
+			if ( ! $this->check_rate_limit() ) {
+				error_log( '[WOOW Admin] Rate limit exceeded' );
+				wp_send_json_error( array(
+					'message' => __( 'Rate limit exceeded. Please try again later.', 'woow-admin' ),
+					'code'    => 'rate_limit_exceeded',
+				) );
+			}
+
+			$template_id = isset( $_POST['template_id'] ) ? sanitize_text_field( wp_unslash( $_POST['template_id'] ) ) : '';
+
+			if ( empty( $template_id ) ) {
+				error_log( '[WOOW Admin] No template ID provided' );
+				wp_send_json_error( array(
+					'message' => __( 'No template ID provided', 'woow-admin' ),
+					'code'    => 'no_template_id',
+				) );
+			}
+
+			error_log( '[WOOW Admin] Applying template: ' . $template_id );
+
+			// Apply template using template manager (returns array with 'success' key)
+			$result = $this->template_manager->apply_template( $template_id );
+
+			if ( ! $result['success'] ) {
+				error_log( '[WOOW Admin] Failed to apply template: ' . $template_id );
+				error_log( '[WOOW Admin] Error: ' . ( $result['message'] ?? 'Unknown error' ) );
+				wp_send_json_error( array(
+					'message' => $result['message'] ?? __( 'Failed to apply template', 'woow-admin' ),
+					'code'    => $result['error_code'] ?? 'apply_failed',
+				) );
+			}
+
+			error_log( '[WOOW Admin] Template applied successfully: ' . $template_id );
+
+			// Clear CSS cache
+			$this->cache->flush();
+
+			// Get template info
+			$template = $this->template_manager->get_template( $template_id );
+
+			// Get updated settings
+			$updated_settings = $this->settings->get_all();
+
+			wp_send_json_success( array(
+				'message'       => $result['message'] ?? sprintf(
+					/* translators: %s: Template name */
+					__( 'Template "%s" applied successfully!', 'woow-admin' ),
+					$template['name'] ?? $template_id
+				),
+				'template_id'   => $template_id,
+				'template_name' => $template['name'] ?? $template_id,
+				'backup_id'     => $result['backup_id'] ?? null,
+				'settings'      => $updated_settings,
+			) );
+
+		} catch ( Exception $e ) {
+			error_log( '[WOOW Admin] Exception in ajax_apply_template: ' . $e->getMessage() );
+			error_log( '[WOOW Admin] Stack trace: ' . $e->getTraceAsString() );
+
 			wp_send_json_error( array(
-				'message' => __( 'Insufficient permissions', 'woow-admin' ),
-				'code'    => 'insufficient_permissions',
+				'message' => __( 'An error occurred while applying template', 'woow-admin' ),
+				'code'    => 'exception',
+				'error'   => $e->getMessage(),
 			) );
 		}
 
-		// Check rate limit
-		if ( ! $this->check_rate_limit() ) {
-			wp_send_json_error( array(
-				'message' => __( 'Rate limit exceeded. Please try again later.', 'woow-admin' ),
-				'code'    => 'rate_limit_exceeded',
-			) );
-		}
-
-		$template_id = isset( $_POST['template_id'] ) ? sanitize_text_field( $_POST['template_id'] ) : '';
-
-		if ( empty( $template_id ) ) {
-			wp_send_json_error( array(
-				'message' => __( 'No template ID provided', 'woow-admin' ),
-				'code'    => 'no_template_id',
-			) );
-		}
-
-		// Apply template
-		$result = $this->settings->apply_template( $template_id );
-
-		if ( ! $result ) {
-			wp_send_json_error( array(
-				'message' => __( 'Failed to apply template', 'woow-admin' ),
-				'code'    => 'apply_failed',
-			) );
-		}
-
-		// Clear CSS cache
-		$this->cache->flush();
-
-		// Generate new CSS
-		$css     = $this->css_generator->generate();
-		$metrics = $this->css_generator->get_metrics();
-
-		// Get updated settings
-		$updated_settings = $this->settings->get_all();
-
-		wp_send_json_success( array(
-			'message'  => __( 'Template applied successfully', 'woow-admin' ),
-			'template' => $template_id,
-			'css'      => $css,
-			'settings' => $updated_settings,
-			'metrics'  => $metrics,
-		) );
+		wp_die();
 	}
 
 	/**

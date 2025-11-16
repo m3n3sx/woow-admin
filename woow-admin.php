@@ -252,6 +252,7 @@ function woow_init(): void {
          class_exists( 'WOOW_Cache_Manager' ) &&
          class_exists( 'WOOW_Backup_Manager' ) &&
          class_exists( 'WOOW_Template_Manager' ) &&
+         class_exists( 'WOOW_Palette_Manager' ) &&
          class_exists( 'WOOW_Mobile_Optimizer' ) &&
          class_exists( 'WOOW_Admin' ) ) {
         
@@ -261,8 +262,18 @@ function woow_init(): void {
         $css_generator     = new WOOW_CSS_Generator( $settings );
         $backup_manager    = new WOOW_Backup_Manager( $settings );
         $template_manager  = new WOOW_Template_Manager( $settings );
+        $palette_manager   = new WOOW_Palette_Manager( $settings );
         $mobile_optimizer  = new WOOW_Mobile_Optimizer();
-        $admin             = new WOOW_Admin( $settings, $css_generator, $cache, $backup_manager, $template_manager );
+        
+        // Set dependencies for palette manager
+        $palette_manager->set_backup_manager( $backup_manager );
+        $palette_manager->set_css_generator( $css_generator );
+        
+        // Set dependencies for template manager
+        $template_manager->set_backup_manager( $backup_manager );
+        $template_manager->set_css_generator( $css_generator );
+        
+        $admin             = new WOOW_Admin( $settings, $css_generator, $cache, $backup_manager, $template_manager, $palette_manager );
         
         // Register hooks
         $admin->add_hooks();
@@ -270,6 +281,8 @@ function woow_init(): void {
         // Initialize REST API
         if ( class_exists( 'WOOW_REST_API' ) ) {
             $rest_api = new WOOW_REST_API( $settings );
+            $rest_api->set_palette_manager( $palette_manager );
+            $rest_api->set_template_manager( $template_manager );
             add_action( 'rest_api_init', array( $rest_api, 'register_routes' ) );
         }
         

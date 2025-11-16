@@ -10,7 +10,6 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-$palettes = $this->settings->get_available_palettes();
 $current_palette = $settings['general']['current_palette'] ?? 'professional_blue';
 ?>
 
@@ -116,25 +115,11 @@ $current_palette = $settings['general']['current_palette'] ?? 'professional_blue
         </div>
         <div class="woow-card-body">
             <div class="woow-palette-preview" id="active-palette-preview">
-                <?php
-                $active_palette = $palettes[ $current_palette ] ?? $palettes['professional_blue'];
-                ?>
+                <p class="woow-field-description">
+                    <?php esc_html_e( 'Select a palette above to see its colors here.', 'woow-admin' ); ?>
+                </p>
                 <div class="woow-preview-colors">
-                    <?php foreach ( $active_palette['colors'] as $color_key => $color_value ) : ?>
-                        <div class="woow-preview-color-item">
-                            <div class="woow-preview-color-swatch" 
-                                 style="background-color: <?php echo esc_attr( $color_value ); ?>;">
-                            </div>
-                            <div class="woow-preview-color-info">
-                                <span class="woow-preview-color-name">
-                                    <?php echo esc_html( ucwords( str_replace( '_', ' ', $color_key ) ) ); ?>
-                                </span>
-                                <span class="woow-preview-color-value">
-                                    <?php echo esc_html( $color_value ); ?>
-                                </span>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
+                    <!-- Colors will be dynamically displayed when a palette is selected -->
                 </div>
             </div>
         </div>

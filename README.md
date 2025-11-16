@@ -117,24 +117,37 @@ woow-admin/
 
 ## Usage
 
+### Quick Start
+
 1. Go to **WOOW! Admin** in WordPress admin menu
 2. Choose from 10 color palettes or 11 design templates
-3. Customize 13 configuration tabs:
-   - General settings
-   - Color palettes
-   - Design templates
-   - Admin bar styling
-   - Menu styling
-   - Dashboard widgets
-   - Form controls
-   - Universal buttons
-   - Backgrounds
-   - Typography
-   - Visual effects
-   - Login page
-   - Advanced settings
-4. See changes in real-time preview
-5. Save your configuration
+3. Click **Apply** to instantly transform your admin panel
+4. Customize any settings across 13 configuration tabs
+5. See changes in real-time preview
+6. Save your configuration with `Ctrl+S`
+
+### Documentation
+
+- 📖 **[User Guide](docs/USER-GUIDE.md)** - Complete documentation for all features
+- 🚀 **[Quick Start Guide](docs/QUICK-START.md)** - Get started in 5 minutes
+- 🎨 **[Visual Guide](docs/VISUAL-GUIDE.md)** - Visual examples and diagrams
+- ❓ **[FAQ](docs/FAQ.md)** - Frequently asked questions
+
+### Configuration Tabs
+
+- General settings
+- Color palettes (10 pre-configured palettes)
+- Design templates (11 complete templates)
+- Admin bar styling
+- Menu styling
+- Dashboard widgets
+- Form controls
+- Universal buttons
+- Backgrounds
+- Typography
+- Visual effects
+- Login page
+- Advanced settings
 
 ## Keyboard Shortcuts
 
