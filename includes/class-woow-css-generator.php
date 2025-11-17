@@ -323,13 +323,6 @@ class WOOW_CSS_Generator {
         $this->css .= "    padding-top: 0 !important;\n";
         $this->css .= "}\n\n";
         
-        // Prevent horizontal overflow
-        $this->css .= "html,\n";
-        $this->css .= "body {\n";
-        $this->css .= "    overflow-x: hidden !important;\n";
-        $this->css .= "    max-width: 100vw !important;\n";
-        $this->css .= "}\n\n";
-        
         // Admin bar toolbar - main flex container
         $this->css .= "#wpadminbar #wp-toolbar {\n";
         $this->css .= "    display: flex !important;\n";
@@ -636,22 +629,20 @@ class WOOW_CSS_Generator {
         }
         
         // Margin (external - menu container)
-        // Calculate top margin to align with wp-content (below adminbar)
+        // Align with #wpbody-content (which has 16px padding)
         $bar = $this->settings->get_section( 'admin_bar' );
         $adminbar_height = intval( $bar['height'] ?? '48' );
-        $adminbar_margin_top = intval( $bar['margin_top'] ?? '16' );
-        $spacing_between = 16; // Space between adminbar and adminmenu
-        $calculated_top = $adminbar_margin_top + $adminbar_height + $spacing_between;
+        $wpbody_content_padding = 16; // #wpbody-content padding-top
         
         $margin_mode = $menu['margin_mode'] ?? 'individual';
         if ( $margin_mode === 'all' ) {
             $margin_all = $menu['margin_all'] ?? '16';
-            $margin_top = $calculated_top; // Use calculated top instead
+            $margin_top = $wpbody_content_padding; // Align with #wpbody-content inner content
             $margin_right = $margin_all;
             $margin_bottom = $margin_all;
             $margin_left = $margin_all;
         } else {
-            $margin_top = $calculated_top; // Use calculated top instead
+            $margin_top = $wpbody_content_padding; // Align with #wpbody-content inner content
             $margin_right = $menu['margin_right'] ?? '0';
             $margin_bottom = $menu['margin_bottom'] ?? '16';
             $margin_left = $menu['margin_left'] ?? '16';
@@ -703,10 +694,10 @@ class WOOW_CSS_Generator {
         $this->css .= "}\n\n";
         
         // Style adminmenuwrap with settings from plugin
-        $this->css .= "#adminmenuwrap {\n";
-        $this->css .= "    position: fixed !important;\n";
+        // Use higher specificity to override WordPress default rules
+        $this->css .= "body.admin-bar #adminmenuwrap {\n";
+        $this->css .= "    position: absolute !important;\n"; // Changed from fixed - allows page scrolling
         $this->css .= "    left: {$margin_left}px !important;\n";
-        $this->css .= "    top: {$margin_top}px !important;\n";
         $this->css .= "    width: {$width}px !important;\n";
         
         // Background based on type
@@ -731,14 +722,13 @@ class WOOW_CSS_Generator {
         $this->css .= "    overflow: visible !important;\n";
         $this->css .= "}\n\n";
         
-        $this->css .= "#adminmenu {\n";
+        $this->css .= "body.admin-bar #adminmenu {\n";
         $this->css .= "    width: {$width}px !important;\n";
         $this->css .= "    padding: 8px !important;\n";
         $this->css .= "    margin: 0 !important;\n";
         $this->css .= "    border-radius: {$border_radius} !important;\n";
-        $this->css .= "    height: 85vh !important;\n";
         $this->css .= "    background: transparent !important;\n";
-        $this->css .= "    /* ✅ overflow: visible - no clipping */\n";
+        $this->css .= "    /* ✅ overflow: visible - no clipping, natural height */\n";
         $this->css .= "    overflow: visible !important;\n";
         $this->css .= "    box-sizing: border-box !important;\n";
         $this->css .= "    font-size: {$font_size}px !important;\n";
@@ -1149,15 +1139,21 @@ class WOOW_CSS_Generator {
         // Collapsed menu state (.folded class on body)
         $collapsed_width = 55; // Collapsed width in pixels (reduced from 80 to 55)
         $this->css .= "/* Collapsed Menu State */\n";
+        $this->css .= "body.folded #adminmenuwrap,\n";
         $this->css .= ".folded #adminmenuwrap {\n";
         $this->css .= "    width: {$collapsed_width}px !important;\n";
+        $this->css .= "    min-width: {$collapsed_width}px !important;\n";
         $this->css .= "}\n\n";
         
+        $this->css .= "body.folded #adminmenu,\n";
         $this->css .= ".folded #adminmenu {\n";
         $this->css .= "    width: {$collapsed_width}px !important;\n";
+        $this->css .= "    min-width: {$collapsed_width}px !important;\n";
         $this->css .= "}\n\n";
         
         // Hide text in collapsed state
+        $this->css .= "body.folded #adminmenu .wp-menu-name,\n";
+        $this->css .= "body.folded #adminmenu .wp-menu-arrow,\n";
         $this->css .= ".folded #adminmenu .wp-menu-name,\n";
         $this->css .= ".folded #adminmenu .wp-menu-arrow {\n";
         $this->css .= "    display: none !important;\n";
@@ -1258,7 +1254,13 @@ class WOOW_CSS_Generator {
         
         // Adjust content margin for collapsed state
         $collapsed_content_margin = $collapsed_width + $margin_left + 16;
+        $this->css .= "body.folded #wpcontent,\n";
         $this->css .= ".folded #wpcontent {\n";
+        $this->css .= "    margin-left: {$collapsed_content_margin}px !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= "body.folded #wpfooter,\n";
+        $this->css .= ".folded #wpfooter {\n";
         $this->css .= "    margin-left: {$collapsed_content_margin}px !important;\n";
         $this->css .= "}\n\n";
         
@@ -1320,6 +1322,24 @@ class WOOW_CSS_Generator {
         
         $this->css .= ".folded #collapse-menu:hover .collapse-button-icon {\n";
         $this->css .= "    transform: translateX(2px) !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Responsive: Auto-fold on smaller screens
+        $this->css .= "/* Responsive: Auto-fold on smaller screens */\n";
+        $this->css .= "@media only screen and (max-width: 960px) {\n";
+        $this->css .= "    #adminmenuwrap,\n";
+        $this->css .= "    #adminmenu {\n";
+        $this->css .= "        width: {$collapsed_width}px !important;\n";
+        $this->css .= "    }\n";
+        $this->css .= "    \n";
+        $this->css .= "    #adminmenu .wp-menu-name,\n";
+        $this->css .= "    #adminmenu .wp-menu-arrow {\n";
+        $this->css .= "        display: none !important;\n";
+        $this->css .= "    }\n";
+        $this->css .= "    \n";
+        $this->css .= "    #wpcontent {\n";
+        $this->css .= "        margin-left: {$collapsed_content_margin}px !important;\n";
+        $this->css .= "    }\n";
         $this->css .= "}\n\n";
         
         // Only add custom CSS if provided by user
@@ -1539,6 +1559,7 @@ class WOOW_CSS_Generator {
         $this->css .= "}\n\n";
         
         // Select
+        $this->css .= ".wp-core-ui select,\n";
         $this->css .= "select {\n";
         $this->css .= "    height: {$forms['input_height']} !important;\n";
         $this->css .= "    padding: 10px 14px !important;\n";
@@ -1546,6 +1567,7 @@ class WOOW_CSS_Generator {
         $this->css .= "    border-radius: {$forms['border_radius']} !important;\n";
         $this->css .= "    background: {$forms['background_color']} !important;\n";
         $this->css .= "    font-size: 15px !important;\n";
+        $this->css .= "    line-height: normal !important;\n"; // Added - remove line-height
         $this->css .= "    cursor: pointer !important;\n";
         
         if ( $forms['glassmorphism'] ) {
@@ -1600,6 +1622,129 @@ class WOOW_CSS_Generator {
         $this->css .= "    margin-top: 6px !important;\n";
         $this->css .= "}\n\n";
         
+        // Table Styling (Posts, Pages, etc.)
+        $this->css .= "/* WordPress Tables Styling */\n";
+        $this->css .= ".wp-list-table {\n";
+        $this->css .= "    background: rgba(255, 255, 255, 0.8) !important;\n";
+        $this->css .= "    backdrop-filter: blur(8px) !important;\n";
+        $this->css .= "    -webkit-backdrop-filter: blur(8px) !important;\n";
+        $this->css .= "    border: 1px solid rgba(226, 232, 240, 0.8) !important;\n";
+        $this->css .= "    border-radius: 12px !important;\n";
+        $this->css .= "    overflow: hidden !important;\n";
+        $this->css .= "    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".wp-list-table thead th,\n";
+        $this->css .= ".wp-list-table thead td {\n";
+        $this->css .= "    background: linear-gradient(to bottom, rgba(248, 250, 252, 0.9), rgba(241, 245, 249, 0.9)) !important;\n";
+        $this->css .= "    border-bottom: 2px solid rgba(226, 232, 240, 0.8) !important;\n";
+        $this->css .= "    color: #0f172a !important;\n";
+        $this->css .= "    font-weight: 600 !important;\n";
+        $this->css .= "    font-size: 13px !important;\n";
+        $this->css .= "    text-transform: uppercase !important;\n";
+        $this->css .= "    letter-spacing: 0.025em !important;\n";
+        $this->css .= "    padding: 12px 16px !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".wp-list-table tbody tr {\n";
+        $this->css .= "    background: rgba(255, 255, 255, 0.6) !important;\n";
+        $this->css .= "    transition: all 200ms ease !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".wp-list-table tbody tr:hover {\n";
+        $this->css .= "    background: rgba(238, 242, 255, 0.5) !important;\n";
+        $this->css .= "    transform: translateX(2px) !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".wp-list-table tbody tr:nth-child(even) {\n";
+        $this->css .= "    background: rgba(248, 250, 252, 0.4) !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".wp-list-table tbody tr:nth-child(even):hover {\n";
+        $this->css .= "    background: rgba(238, 242, 255, 0.5) !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".wp-list-table tbody td {\n";
+        $this->css .= "    border-bottom: 1px solid rgba(226, 232, 240, 0.5) !important;\n";
+        $this->css .= "    padding: 14px 16px !important;\n";
+        $this->css .= "    color: #334155 !important;\n";
+        $this->css .= "    font-size: 14px !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".wp-list-table tbody td.column-title strong,\n";
+        $this->css .= ".wp-list-table tbody td.post-title strong {\n";
+        $this->css .= "    color: #0f172a !important;\n";
+        $this->css .= "    font-weight: 600 !important;\n";
+        $this->css .= "    font-size: 14px !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".wp-list-table tbody td.column-title strong a,\n";
+        $this->css .= ".wp-list-table tbody td.post-title strong a {\n";
+        $this->css .= "    color: #6366f1 !important;\n";
+        $this->css .= "    transition: color 200ms ease !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".wp-list-table tbody td.column-title strong a:hover,\n";
+        $this->css .= ".wp-list-table tbody td.post-title strong a:hover {\n";
+        $this->css .= "    color: #4f46e5 !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".wp-list-table .row-actions {\n";
+        $this->css .= "    color: #64748b !important;\n";
+        $this->css .= "    font-size: 13px !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".wp-list-table .row-actions a {\n";
+        $this->css .= "    color: #6366f1 !important;\n";
+        $this->css .= "    transition: color 200ms ease !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".wp-list-table .row-actions a:hover {\n";
+        $this->css .= "    color: #4f46e5 !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".wp-list-table .row-actions .delete a,\n";
+        $this->css .= ".wp-list-table .row-actions .trash a {\n";
+        $this->css .= "    color: #ef4444 !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".wp-list-table .row-actions .delete a:hover,\n";
+        $this->css .= ".wp-list-table .row-actions .trash a:hover {\n";
+        $this->css .= "    color: #dc2626 !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Table navigation (pagination)
+        $this->css .= ".tablenav {\n";
+        $this->css .= "    background: transparent !important;\n";
+        $this->css .= "    padding: 12px 0 !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".tablenav .tablenav-pages {\n";
+        $this->css .= "    color: #64748b !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".tablenav .tablenav-pages a {\n";
+        $this->css .= "    background: rgba(255, 255, 255, 0.8) !important;\n";
+        $this->css .= "    border: 1px solid #e2e8f0 !important;\n";
+        $this->css .= "    border-radius: 8px !important;\n";
+        $this->css .= "    color: #6366f1 !important;\n";
+        $this->css .= "    padding: 6px 12px !important;\n";
+        $this->css .= "    transition: all 200ms ease !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".tablenav .tablenav-pages a:hover {\n";
+        $this->css .= "    background: rgba(99, 102, 241, 0.1) !important;\n";
+        $this->css .= "    border-color: #6366f1 !important;\n";
+        $this->css .= "    transform: translateY(-1px) !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".tablenav .tablenav-pages .current-page {\n";
+        $this->css .= "    background: rgba(255, 255, 255, 0.8) !important;\n";
+        $this->css .= "    border: 1px solid #e2e8f0 !important;\n";
+        $this->css .= "    border-radius: 8px !important;\n";
+        $this->css .= "    padding: 6px 12px !important;\n";
+        $this->css .= "}\n\n";
+        
         // Custom CSS
         if ( ! empty( $forms['custom_css'] ) ) {
             $this->css .= "/* Form Controls Custom CSS */\n";
@@ -1618,7 +1763,7 @@ class WOOW_CSS_Generator {
         $this->css .= "/* Button Styling */\n";
         
         // Primary button
-        $this->css .= ".button-primary {\n";
+        $this->css .= ".wp-core-ui .button-primary {\n";
         $this->css .= "    height: {$buttons['height']} !important;\n";
         $this->css .= "    padding: 10px 16px !important;\n";
         $this->css .= "    border: none !important;\n";
@@ -1627,7 +1772,7 @@ class WOOW_CSS_Generator {
         $this->css .= "    color: {$buttons['primary_text']} !important;\n";
         $this->css .= "    font-size: 14px !important;\n";
         $this->css .= "    font-weight: 600 !important;\n";
-        $this->css .= "    line-height: 1.5 !important;\n";
+        $this->css .= "    line-height: normal !important;\n"; // Changed from 1.5 to normal
         $this->css .= "    box-shadow: none !important;\n";
         $this->css .= "    transition: all {$buttons['transition_speed']} var(--woow-easing) !important;\n";
         $this->css .= "    cursor: pointer !important;\n";
@@ -1649,8 +1794,8 @@ class WOOW_CSS_Generator {
         $this->css .= "}\n\n";
         
         // Secondary button
-        $this->css .= ".button,\n";
-        $this->css .= ".button-secondary {\n";
+        $this->css .= ".wp-core-ui .button,\n";
+        $this->css .= ".wp-core-ui .button-secondary {\n";
         $this->css .= "    height: {$buttons['height']} !important;\n";
         $this->css .= "    padding: 10px 16px !important;\n";
         $this->css .= "    border: 1px solid {$buttons['secondary_border']} !important;\n";
@@ -1659,6 +1804,7 @@ class WOOW_CSS_Generator {
         $this->css .= "    color: {$buttons['secondary_text']} !important;\n";
         $this->css .= "    font-size: 14px !important;\n";
         $this->css .= "    font-weight: 600 !important;\n";
+        $this->css .= "    line-height: normal !important;\n"; // Added - remove line-height
         $this->css .= "    transition: all {$buttons['transition_speed']} var(--woow-easing) !important;\n";
         $this->css .= "    cursor: pointer !important;\n";
         $this->css .= "}\n\n";
@@ -1762,16 +1908,37 @@ class WOOW_CSS_Generator {
         $this->css .= "    background: transparent !important;\n";
         $this->css .= "}\n\n";
         
-        // Style #wpcontent with content_bg
+        // Style #wpcontent with custom background (main content area wrapper)
+        $wpbody_content_color = $bg['wpbody_content_color'] ?? 'transparent';
+        $wpbody_content_opacity = $bg['wpbody_content_opacity'] ?? '1';
+        
+        // Convert color to rgba if not transparent and opacity < 1
+        if ( $wpbody_content_color !== 'transparent' && floatval( $wpbody_content_opacity ) < 1 ) {
+            $wpbody_content_bg = WOOW_Admin::hex_to_rgba( $wpbody_content_color, floatval( $wpbody_content_opacity ) );
+        } else {
+            $wpbody_content_bg = $wpbody_content_color;
+        }
+        
+        // Make #wpcontent transparent so body background shows through
         $this->css .= "#wpcontent {\n";
-        $this->css .= "    background: {$content_bg} !important;\n";
+        $this->css .= "    background: transparent !important;\n";
+        $this->css .= "    padding-top: 0 !important;\n";
+        $this->css .= "    overflow: visible !important;\n";
         $this->css .= "}\n\n";
         
-        // Style #wpbody-content
+        // Apply background to #wpbody-content (main content area)
         $this->css .= "#wpbody-content {\n";
         $this->css .= "    padding: 16px !important;\n";
+        $this->css .= "    margin-top: 0 !important;\n";
         $this->css .= "    margin-left: 0 !important;\n";
-        $this->css .= "    background: transparent !important;\n";
+        $this->css .= "    background: {$wpbody_content_bg} !important;\n";
+        $this->css .= "    border-radius: 12px !important;\n";
+        $this->css .= "    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Remove default WordPress padding/margin that creates gap
+        $this->css .= "#wpbody {\n";
+        $this->css .= "    padding-top: 0 !important;\n";
         $this->css .= "}\n\n";
         
         // Style sidebar with sidebar_bg

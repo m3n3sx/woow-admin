@@ -49,13 +49,8 @@ export class ConditionalFields {
             
             console.log(`[ConditionalFields] Processing: ${fieldName} = ${expectedValue}`);
             
-            // Find the controlling field
-            let controlField = this.findControlField(fieldName);
-            
-            if (!controlField) {
-                // Try with section prefix if not found
-                controlField = this.findControlField(`admin_menu[${fieldName}]`);
-            }
+            // Find the controlling field (pass the conditional field for context)
+            const controlField = this.findControlField(fieldName, field);
             
             if (controlField) {
                 console.log(`[ConditionalFields] Found control field for ${fieldName}:`, controlField.name, '=', controlField.value);
@@ -99,43 +94,35 @@ export class ConditionalFields {
      * Find control field by name
      * 
      * @param {string} fieldName - Field name to search for
+     * @param {HTMLElement} conditionalField - The conditional field element (to determine context)
      * @returns {HTMLElement|null} - Found field element
      */
-    findControlField(fieldName) {
-        // Get current active tab to prioritize fields from that section
-        const activeTab = document.querySelector('.woow-tab-pane:not([style*="display: none"])');
-        const searchContext = activeTab || document;
-        
-        // Try different name patterns - order matters!
-        const patterns = [
-            `[name*="[${fieldName}]"]`,  // admin_menu[background_type], backgrounds[type]
-            `[name$="[${fieldName}]"]`,  // ends with [fieldName]
-            `[name="${fieldName}"]`,     // exact match: background_type
-        ];
-        
+    findControlField(fieldName, conditionalField = null) {
         console.log(`[ConditionalFields] Searching for field: ${fieldName}`);
         
-        // First try in active tab
-        if (activeTab) {
-            for (const pattern of patterns) {
-                try {
-                    const field = activeTab.querySelector(pattern);
-                    if (field) {
-                        console.log(`[ConditionalFields] Found in active tab with pattern: ${pattern}`, field.name);
-                        return field;
-                    }
-                } catch (e) {
-                    console.warn(`[ConditionalFields] Invalid selector pattern: ${pattern}`, e.message);
-                }
+        // Determine search context from the conditional field's parent tab
+        let searchContext = document;
+        if (conditionalField) {
+            const parentTab = conditionalField.closest('.woow-tab-pane');
+            if (parentTab) {
+                searchContext = parentTab;
+                console.log(`[ConditionalFields] Searching in parent tab:`, parentTab.id);
             }
         }
         
-        // Then try in entire document
+        // Try different name patterns - order matters!
+        const patterns = [
+            `[name$="[${fieldName}]"]`,  // ends with [fieldName] - most specific
+            `[name*="[${fieldName}]"]`,  // contains [fieldName]
+            `[name="${fieldName}"]`,     // exact match: background_type
+        ];
+        
+        // Search in context (tab or document)
         for (const pattern of patterns) {
             try {
-                const field = document.querySelector(pattern);
+                const field = searchContext.querySelector(pattern);
                 if (field) {
-                    console.log(`[ConditionalFields] Found in document with pattern: ${pattern}`, field.name);
+                    console.log(`[ConditionalFields] Found with pattern: ${pattern}`, field.name);
                     return field;
                 }
             } catch (e) {

@@ -48,14 +48,46 @@ export class ColorPicker {
      */
     bindColorInput(colorInput, textInput) {
         colorInput.addEventListener('input', (e) => {
-            const color = e.target.value;
-            textInput.value = color;
+            const hexColor = e.target.value;
+            // Check if text input already has rgba value - preserve it
+            const currentValue = textInput.value.trim();
+            if (currentValue.startsWith('rgba(')) {
+                // Extract opacity from current rgba value
+                const opacityMatch = currentValue.match(/rgba\([^,]+,[^,]+,[^,]+,\s*([\d.]+)\)/);
+                const opacity = opacityMatch ? opacityMatch[1] : '0.9';
+                // Convert hex to rgba with preserved opacity
+                const rgb = this.hexToRgb(hexColor);
+                if (rgb) {
+                    textInput.value = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity})`;
+                } else {
+                    textInput.value = hexColor;
+                }
+            } else {
+                // No rgba value yet, just use hex
+                textInput.value = hexColor;
+            }
             this.woow.debouncedPreview();
         });
 
         colorInput.addEventListener('change', (e) => {
-            const color = e.target.value;
-            textInput.value = color;
+            const hexColor = e.target.value;
+            // Check if text input already has rgba value - preserve it
+            const currentValue = textInput.value.trim();
+            if (currentValue.startsWith('rgba(')) {
+                // Extract opacity from current rgba value
+                const opacityMatch = currentValue.match(/rgba\([^,]+,[^,]+,[^,]+,\s*([\d.]+)\)/);
+                const opacity = opacityMatch ? opacityMatch[1] : '0.9';
+                // Convert hex to rgba with preserved opacity
+                const rgb = this.hexToRgb(hexColor);
+                if (rgb) {
+                    textInput.value = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity})`;
+                } else {
+                    textInput.value = hexColor;
+                }
+            } else {
+                // No rgba value yet, just use hex
+                textInput.value = hexColor;
+            }
         });
     }
 

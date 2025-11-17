@@ -126,6 +126,11 @@ class WOOW_Admin {
 
 		// Ensure we have a string
 		$color = (string) $color;
+		
+		// Handle "transparent" keyword - return default
+		if ( strtolower( trim( $color ) ) === 'transparent' ) {
+			return $default;
+		}
 
 		// If already hex, validate and return
 		if ( strpos( $color, '#' ) === 0 ) {
@@ -621,6 +626,11 @@ class WOOW_Admin {
 			}
 
 			error_log( '[WOOW Admin] Settings received: ' . print_r( array_keys( $settings ), true ) );
+			
+			// DEBUG: Log admin_menu data
+			if ( isset( $settings['admin_menu'] ) ) {
+				error_log( '[WOOW Admin] admin_menu data received: ' . print_r( $settings['admin_menu'], true ) );
+			}
 
 			// Validate settings
 			$validation = $this->settings->validate_settings( $settings );
@@ -1253,5 +1263,37 @@ class WOOW_Admin {
 			'url' => $upload['url'],
 			'id'  => $attach_id,
 		) );
+	}
+
+	/**
+	 * Convert HEX color to RGBA (for CSS generation with opacity)
+	 *
+	 * @param string $hex     HEX color value.
+	 * @param float  $opacity Opacity value (0-1).
+	 * @return string RGBA color value.
+	 */
+	public static function hex_to_rgba( string $hex, float $opacity = 1.0 ): string {
+		// Handle transparent
+		if ( $hex === 'transparent' || empty( $hex ) ) {
+			return 'transparent';
+		}
+
+		// Remove # if present
+		$hex = ltrim( $hex, '#' );
+
+		// Convert 3-digit hex to 6-digit
+		if ( strlen( $hex ) === 3 ) {
+			$hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+		}
+
+		// Parse hex
+		if ( strlen( $hex ) === 6 ) {
+			$r = hexdec( substr( $hex, 0, 2 ) );
+			$g = hexdec( substr( $hex, 2, 2 ) );
+			$b = hexdec( substr( $hex, 4, 2 ) );
+			return sprintf( 'rgba(%d, %d, %d, %.2f)', $r, $g, $b, $opacity );
+		}
+
+		return $hex;
 	}
 }

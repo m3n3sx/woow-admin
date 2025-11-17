@@ -10,6 +10,7 @@ const FIELD_TYPES = {
     LINE_HEIGHT: 'lineheight',    // Unitless number (1.0-3.0)
     SIZE: 'size',                 // With unit (px, %, em, rem)
     PERCENTAGE: 'percentage',     // 0-100
+    NUMBER: 'number',             // Any positive number (unitless)
     
     // Keywords
     KEYWORD: 'keyword',           // cover, contain, auto, etc.
@@ -138,6 +139,20 @@ const FIELD_TYPE_MAP = {
     'admin_bar.border_radius_bottom_right': FIELD_TYPES.PERCENTAGE,
     'admin_bar.border_radius_bottom_left': FIELD_TYPES.PERCENTAGE,
     
+    // Background fields
+    'backgrounds.background_opacity': FIELD_TYPES.OPACITY,
+    'backgrounds.wpbody_content_opacity': FIELD_TYPES.OPACITY,
+    'backgrounds.wpbody_content_color': FIELD_TYPES.COLOR,
+    'backgrounds.background_color': FIELD_TYPES.COLOR,
+    'backgrounds.gradient_start': FIELD_TYPES.COLOR,
+    'backgrounds.gradient_end': FIELD_TYPES.COLOR,
+    'backgrounds.gradient_angle': FIELD_TYPES.NUMBER,
+    'backgrounds.type': FIELD_TYPES.KEYWORD,
+    'backgrounds.gradient_type': FIELD_TYPES.KEYWORD,
+    'backgrounds.image_size': FIELD_TYPES.KEYWORD,
+    'backgrounds.image_position': FIELD_TYPES.KEYWORD,
+    'backgrounds.image_repeat': FIELD_TYPES.KEYWORD,
+    
     // Size fields (need unit)
     'height': FIELD_TYPES.SIZE,
     'width': FIELD_TYPES.SIZE,
@@ -165,6 +180,77 @@ const FIELD_TYPE_MAP = {
     'use_gradient': FIELD_TYPES.BOOLEAN,
     'glassmorphism': FIELD_TYPES.BOOLEAN,
     'enable_animations': FIELD_TYPES.BOOLEAN,
+    
+    // Typography fields (unitless, unit added in CSS)
+    'typography.body_size': FIELD_TYPES.NUMBER,
+    'typography.h1_size': FIELD_TYPES.NUMBER,
+    'typography.h2_size': FIELD_TYPES.NUMBER,
+    'typography.h3_size': FIELD_TYPES.NUMBER,
+    'typography.h4_size': FIELD_TYPES.NUMBER,
+    'typography.h5_size': FIELD_TYPES.NUMBER,
+    'typography.h6_size': FIELD_TYPES.NUMBER,
+    'typography.body_line_height': FIELD_TYPES.LINE_HEIGHT,
+    'typography.heading_line_height': FIELD_TYPES.LINE_HEIGHT,
+    'typography.body_font': FIELD_TYPES.KEYWORD,
+    'typography.heading_font': FIELD_TYPES.KEYWORD,
+    'typography.heading_weight': FIELD_TYPES.KEYWORD,
+    
+    // Effects fields
+    'effects.glassmorphism_blur': FIELD_TYPES.NUMBER,
+    'effects.hover_lift': FIELD_TYPES.NUMBER,
+    'effects.hover_scale': FIELD_TYPES.LINE_HEIGHT,  // Float value like 1.03
+    'effects.glassmorphism_opacity': FIELD_TYPES.OPACITY,
+    
+    // Dashboard Widgets fields (unitless, unit added in CSS)
+    'dashboard_widgets.border_radius': FIELD_TYPES.NUMBER,
+    'dashboard_widgets.padding': FIELD_TYPES.NUMBER,
+    'dashboard_widgets.margin': FIELD_TYPES.NUMBER,
+    'dashboard_widgets.title_size': FIELD_TYPES.NUMBER,
+    'dashboard_widgets.margin_bottom': FIELD_TYPES.NUMBER,
+    
+    // Form Controls fields (unitless, unit added in CSS)
+    'form_controls.input_border_radius': FIELD_TYPES.NUMBER,
+    'form_controls.label_size': FIELD_TYPES.NUMBER,
+    'form_controls.blur_strength': FIELD_TYPES.NUMBER,
+    'form_controls.checkbox_size': FIELD_TYPES.NUMBER,
+    
+    // Buttons fields (unitless, unit added in CSS)
+    'buttons.primary_border_radius': FIELD_TYPES.NUMBER,
+    'buttons.secondary_border_radius': FIELD_TYPES.NUMBER,
+    'buttons.danger_border_radius': FIELD_TYPES.NUMBER,
+    
+    // Login Page fields (unitless, unit added in CSS)
+    'login_page.form_border_radius': FIELD_TYPES.NUMBER,
+    'login_page.form_blur_strength': FIELD_TYPES.NUMBER,
+    'login_page.background_type': FIELD_TYPES.KEYWORD,
+    
+    // Backgrounds fields
+    'backgrounds.gradient_angle': FIELD_TYPES.NUMBER,  // 0-360 degrees
+    'backgrounds.type': FIELD_TYPES.KEYWORD,
+    'backgrounds.gradient_type': FIELD_TYPES.KEYWORD,
+    
+    // Admin Bar additional fields
+    'admin_bar.height': FIELD_TYPES.NUMBER,
+    'admin_bar.font_size': FIELD_TYPES.NUMBER,
+    'admin_bar.blur_strength': FIELD_TYPES.NUMBER,
+    'admin_bar.top_offset': FIELD_TYPES.NUMBER,
+    'admin_bar.submenu_font_size': FIELD_TYPES.NUMBER,
+    'admin_bar.font_weight': FIELD_TYPES.KEYWORD,
+    'admin_bar.shadow_style': FIELD_TYPES.KEYWORD,
+    'admin_bar.background_type': FIELD_TYPES.KEYWORD,
+    'admin_bar.hover_style': FIELD_TYPES.KEYWORD,
+    'admin_bar.position': FIELD_TYPES.KEYWORD,
+    
+    // Admin Menu additional fields
+    'admin_menu.item_spacing': FIELD_TYPES.NUMBER,
+    'admin_menu.submenu_indent': FIELD_TYPES.NUMBER,
+    'admin_menu.submenu_font_size': FIELD_TYPES.NUMBER,
+    'admin_menu.submenu_item_height': FIELD_TYPES.NUMBER,
+    'admin_menu.submenu_item_border_radius': FIELD_TYPES.NUMBER,
+    'admin_menu.submenu_font_weight': FIELD_TYPES.KEYWORD,
+    'admin_menu.inline_submenu_font_size': FIELD_TYPES.NUMBER,
+    'admin_menu.inline_submenu_font_weight': FIELD_TYPES.KEYWORD,
+    'admin_menu.border_radius': FIELD_TYPES.NUMBER,
 };
 
 /**
@@ -208,6 +294,9 @@ class Validator {
                 
             case FIELD_TYPES.PERCENTAGE:
                 return this.validatePercentage(value, key);
+                
+            case FIELD_TYPES.NUMBER:
+                return this.validateNumber(value, key);
                 
             case FIELD_TYPES.KEYWORD:
                 return this.validateKeyword(value, key);
@@ -341,6 +430,23 @@ class Validator {
         }
         
         return percent;
+    }
+    
+    /**
+     * Validate number (any positive number, unitless)
+     */
+    static validateNumber(value, key) {
+        const num = parseFloat(value);
+        
+        if (isNaN(num)) {
+            throw new Error(`Invalid number for '${key}': ${value}. Must be a number.`);
+        }
+        
+        if (num < 0) {
+            throw new Error(`Number for '${key}' must be positive. Got: ${num}`);
+        }
+        
+        return num;
     }
     
     /**

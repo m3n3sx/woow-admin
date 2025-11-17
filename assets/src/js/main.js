@@ -681,8 +681,8 @@ class WoowAdmin {
             // ✅ FIX: Skip ONLY conditional fields that are hidden
             // DO NOT skip fields from inactive tabs - we need all tabs data!
             if (input.type !== 'hidden') {
-                // Check if this is a conditional field (has .woow-conditional parent)
-                const conditionalParent = input.closest('.woow-conditional');
+                // Check if this is a conditional field (has .woow-conditional or .woow-conditional-field parent)
+                const conditionalParent = input.closest('.woow-conditional, .woow-conditional-field');
                 
                 if (conditionalParent) {
                     // This is a conditional field - check if it's hidden
@@ -1013,6 +1013,18 @@ class WoowAdmin {
 
             // Collect form data
             const formData = this.collectFormData();
+            
+            // DEBUG: Log admin_menu data
+            console.log('[WOOW Admin] Collected form data:', formData);
+            if (formData.admin_menu) {
+                console.log('[WOOW Admin] admin_menu data:', {
+                    background_type: formData.admin_menu.background_type,
+                    background_color: formData.admin_menu.background_color,
+                    gradient_start: formData.admin_menu.gradient_start,
+                    gradient_end: formData.admin_menu.gradient_end,
+                    glass_base_color: formData.admin_menu.glass_base_color
+                });
+            }
 
             // Save form data to localStorage before attempting save
             this.saveFormDataToStorage(formData);

@@ -15,7 +15,7 @@
 @media (max-width: 767px) {
   /* Layout */
   .woow-admin-wrap {
-    padding: var(--woow-spacing-md);
+    padding: 0;
   }
 
   .woow-content {
@@ -198,7 +198,7 @@
 @media (min-width: 768px) and (max-width: 1023px) {
   /* Layout */
   .woow-admin-wrap {
-    padding: var(--woow-spacing-md);
+    padding: 0;
   }
 
   .woow-content {
@@ -248,7 +248,7 @@
 @media (min-width: 1024px) {
   /* Layout */
   .woow-admin-wrap {
-    padding: var(--woow-spacing-lg);
+    padding: 0;
   }
 
   .woow-content {
@@ -321,7 +321,7 @@
 
   /* More Spacing */
   .woow-admin-wrap {
-    padding: var(--woow-spacing-2xl);
+    padding: 0;
   }
 
   .woow-content {

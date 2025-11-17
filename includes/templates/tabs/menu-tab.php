@@ -173,7 +173,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
             </div>
 
             <!-- Solid Color Option -->
-            <div class="woow-form-group woow-conditional" data-show-when="admin_menu[background_type]=solid">
+            <div class="woow-form-group woow-conditional" data-show-when="background_type=solid">
                 <label class="woow-label">
                     <?php esc_html_e( 'Background Color', 'woow-admin' ); ?>
                 </label>
@@ -181,7 +181,6 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                     <input 
                         type="color" 
                         id="menu-bg-color-solid"
-                        name="admin_menu[background_color]" 
                         value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_menu['background_color'] ?? '', 'rgba(255,255,255,0.9)' ) ); ?>"
                         data-default="rgba(255,255,255,0.9)"
                         class="woow-color-input"
@@ -189,6 +188,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                     />
                     <input 
                         type="text" 
+                        name="admin_menu[background_color]"
                         value="<?php echo esc_attr( $admin_menu['background_color'] ?? 'rgba(255,255,255,0.9)' ); ?>"
                         class="woow-color-text"
                         placeholder="rgba(255,255,255,0.9)"
@@ -203,14 +203,13 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
             </div>
 
             <!-- Gradient Options -->
-            <div class="woow-form-group woow-conditional" data-show-when="admin_menu[background_type]=gradient">
+            <div class="woow-form-group woow-conditional" data-show-when="background_type=gradient">
                 <label class="woow-label">
                     <?php esc_html_e( 'Gradient Start Color', 'woow-admin' ); ?>
                 </label>
                 <div class="woow-color-picker-group">
                     <input 
                         type="color" 
-                        name="admin_menu[gradient_start]" 
                         value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_menu['gradient_start'] ?? '', '#ffffff' ) ); ?>"
                         data-default="#ffffff"
                         class="woow-color-input"
@@ -218,6 +217,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                     />
                     <input 
                         type="text" 
+                        name="admin_menu[gradient_start]"
                         value="<?php echo esc_attr( $admin_menu['gradient_start'] ); ?>"
                         class="woow-color-text"
                     />
@@ -225,14 +225,13 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                 </div>
             </div>
 
-            <div class="woow-form-group woow-conditional" data-show-when="admin_menu[background_type]=gradient">
+            <div class="woow-form-group woow-conditional" data-show-when="background_type=gradient">
                 <label class="woow-label">
                     <?php esc_html_e( 'Gradient End Color', 'woow-admin' ); ?>
                 </label>
                 <div class="woow-color-picker-group">
                     <input 
                         type="color" 
-                        name="admin_menu[gradient_end]" 
                         value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_menu['gradient_end'] ?? '', '#f8fafc' ) ); ?>"
                         data-default="#f8fafc"
                         class="woow-color-input"
@@ -240,6 +239,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                     />
                     <input 
                         type="text" 
+                        name="admin_menu[gradient_end]"
                         value="<?php echo esc_attr( $admin_menu['gradient_end'] ); ?>"
                         class="woow-color-text"
                     />
@@ -248,7 +248,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
             </div>
 
             <!-- Glassmorphism Options -->
-            <div class="woow-form-group woow-conditional" data-show-when="admin_menu[background_type]=glass">
+            <div class="woow-form-group woow-conditional" data-show-when="background_type=glass">
                 <label class="woow-label">
                     <?php esc_html_e( 'Base Color', 'woow-admin' ); ?>
                 </label>
@@ -256,7 +256,6 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                     <input 
                         type="color" 
                         id="menu-bg-color-glass"
-                        name="admin_menu[glass_base_color]" 
                         value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_menu['glass_base_color'] ?? $admin_menu['background_color'] ?? '', '#ffffff' ) ); ?>"
                         data-default="#ffffff"
                         class="woow-color-input"
@@ -264,6 +263,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                     />
                     <input 
                         type="text" 
+                        name="admin_menu[glass_base_color]"
                         value="<?php echo esc_attr( $admin_menu['glass_base_color'] ?? $admin_menu['background_color'] ?? '#ffffff' ); ?>"
                         class="woow-color-text"
                     />
@@ -274,7 +274,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                 </p>
             </div>
 
-            <div class="woow-form-row woow-conditional" data-show-when="admin_menu[background_type]=glass">
+            <div class="woow-form-row woow-conditional" data-show-when="background_type=glass">
                 <div class="woow-form-group">
                     <label class="woow-label">
                         <?php esc_html_e( 'Opacity', 'woow-admin' ); ?>
@@ -329,7 +329,6 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                 <div class="woow-color-picker-group">
                     <input 
                         type="color" 
-                        name="admin_menu[text_color]" 
                         value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_menu['text_color'] ?? '', '#0f172a' ) ); ?>"
                         data-default="#0f172a"
                         class="woow-color-input"
@@ -337,6 +336,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                     />
                     <input 
                         type="text" 
+                        name="admin_menu[text_color]"
                         value="<?php echo esc_attr( $admin_menu['text_color'] ); ?>"
                         class="woow-color-text"
                     />
@@ -382,7 +382,6 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                     <div class="woow-color-picker-group">
                         <input 
                             type="color" 
-                            name="admin_menu[hover_bg_color]" 
                             value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_menu['hover_bg_color'] ?? '', '#f8fafc' ) ); ?>"
                             data-default="#f8fafc"
                             class="woow-color-input"
@@ -390,6 +389,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                         />
                         <input 
                             type="text" 
+                            name="admin_menu[hover_bg_color]"
                             value="<?php echo esc_attr( $admin_menu['hover_bg_color'] ); ?>"
                             class="woow-color-text"
                         />
@@ -404,7 +404,6 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                     <div class="woow-color-picker-group">
                         <input 
                             type="color" 
-                            name="admin_menu[hover_text_color]" 
                             value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_menu['hover_text_color'] ?? '', '#6366f1' ) ); ?>"
                             data-default="#6366f1"
                             class="woow-color-input"
@@ -412,6 +411,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                         />
                         <input 
                             type="text" 
+                            name="admin_menu[hover_text_color]"
                             value="<?php echo esc_attr( $admin_menu['hover_text_color'] ); ?>"
                             class="woow-color-text"
                         />
@@ -446,7 +446,6 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                 <div class="woow-color-picker-group">
                     <input 
                         type="color" 
-                        name="admin_menu[active_bg_solid]" 
                         value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_menu['active_bg_solid'] ?? '', '#6366f1' ) ); ?>"
                         data-default="#6366f1"
                         class="woow-color-input"
@@ -454,6 +453,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                     />
                     <input 
                         type="text" 
+                        name="admin_menu[active_bg_solid]"
                         value="<?php echo esc_attr( $admin_menu['active_bg_solid'] ?? '#6366f1' ); ?>"
                         class="woow-color-text"
                     />
@@ -473,7 +473,6 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                     <div class="woow-color-picker-group">
                         <input 
                             type="color" 
-                            name="admin_menu[active_bg_start]" 
                             value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_menu['active_bg_start'] ?? '', '#6366f1' ) ); ?>"
                             data-default="#6366f1"
                             class="woow-color-input"
@@ -481,6 +480,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                         />
                         <input 
                             type="text" 
+                            name="admin_menu[active_bg_start]"
                             value="<?php echo esc_attr( $admin_menu['active_bg_start'] ); ?>"
                             class="woow-color-text"
                         />
@@ -498,7 +498,6 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                     <div class="woow-color-picker-group">
                         <input 
                             type="color" 
-                            name="admin_menu[active_bg_end]" 
                             value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_menu['active_bg_end'] ?? '', '#8b5cf6' ) ); ?>"
                             data-default="#8b5cf6"
                             class="woow-color-input"
@@ -506,6 +505,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                         />
                         <input 
                             type="text" 
+                            name="admin_menu[active_bg_end]"
                             value="<?php echo esc_attr( $admin_menu['active_bg_end'] ); ?>"
                             class="woow-color-text"
                         />
@@ -525,7 +525,6 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                 <div class="woow-color-picker-group">
                     <input 
                         type="color" 
-                        name="admin_menu[active_text_color]" 
                         value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_menu['active_text_color'] ?? '', '#ffffff' ) ); ?>"
                         data-default="#ffffff"
                         class="woow-color-input"
@@ -533,6 +532,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                     />
                     <input 
                         type="text" 
+                        name="admin_menu[active_text_color]"
                         value="<?php echo esc_attr( $admin_menu['active_text_color'] ); ?>"
                         class="woow-color-text"
                     />
@@ -604,7 +604,6 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                     <div class="woow-color-picker-group">
                         <input 
                             type="color" 
-                            name="admin_menu[submenu_bg_color]" 
                             value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_menu['submenu_bg_color'] ?? '', '#f8fafc' ) ); ?>"
                             data-default="#f8fafc"
                             class="woow-color-input"
@@ -612,6 +611,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                         />
                         <input 
                             type="text" 
+                            name="admin_menu[submenu_bg_color]"
                             value="<?php echo esc_attr( $admin_menu['submenu_bg_color'] ); ?>"
                             class="woow-color-text"
                         />
@@ -626,7 +626,6 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                     <div class="woow-color-picker-group">
                         <input 
                             type="color" 
-                            name="admin_menu[submenu_text_color]" 
                             value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_menu['submenu_text_color'] ?? '', '#0f172a' ) ); ?>"
                             data-default="#0f172a"
                             class="woow-color-input"
@@ -634,6 +633,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                         />
                         <input 
                             type="text" 
+                            name="admin_menu[submenu_text_color]"
                             value="<?php echo esc_attr( $admin_menu['submenu_text_color'] ); ?>"
                             class="woow-color-text"
                         />
@@ -650,7 +650,6 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                     <div class="woow-color-picker-group">
                         <input 
                             type="color" 
-                            name="admin_menu[submenu_hover_bg_color]" 
                             value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_menu['submenu_hover_bg_color'] ?? '', '#f1f5f9' ) ); ?>"
                             data-default="#f1f5f9"
                             class="woow-color-input"
@@ -658,6 +657,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                         />
                         <input 
                             type="text" 
+                            name="admin_menu[submenu_hover_bg_color]"
                             value="<?php echo esc_attr( $admin_menu['submenu_hover_bg_color'] ); ?>"
                             class="woow-color-text"
                         />
@@ -672,7 +672,6 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                     <div class="woow-color-picker-group">
                         <input 
                             type="color" 
-                            name="admin_menu[submenu_hover_text_color]" 
                             value="<?php echo esc_attr( WOOW_Admin::rgba_to_hex( $admin_menu['submenu_hover_text_color'] ?? '', '#6366f1' ) ); ?>"
                             data-default="#6366f1"
                             class="woow-color-input"
@@ -680,6 +679,7 @@ $admin_menu = array_merge( $defaults, $this->settings->get_section( 'admin_menu'
                         />
                         <input 
                             type="text" 
+                            name="admin_menu[submenu_hover_text_color]"
                             value="<?php echo esc_attr( $admin_menu['submenu_hover_text_color'] ?? '#6366f1' ); ?>"
                             class="woow-color-text"
                         />

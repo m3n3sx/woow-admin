@@ -824,59 +824,67 @@ class WOOW_Settings {
     }
 
     /**
-     * Apply color palette to settings
+     * Apply palette settings
      *
-     * @param string $palette_id Palette ID
-     * @return bool Success status
+     * Merges palette settings with current settings, preserving non-color values.
+     * This method is called by WOOW_Palette_Manager::apply_palette().
+     *
+     * @param string $palette_id Palette identifier.
+     * @return bool True on success, false on failure.
      */
     public function apply_palette( string $palette_id ): bool {
-        $palettes = $this->get_available_palettes();
+        // Load palette data
+        $palettes_file = WOOW_PLUGIN_DIR . 'includes/data/palettes.php';
         
-        if ( ! isset( $palettes[ $palette_id ] ) ) {
+        if ( ! file_exists( $palettes_file ) ) {
+            error_log( '[WOOW Settings] Palettes file not found: ' . $palettes_file );
             return false;
         }
-
+        
+        $palettes = require $palettes_file;
+        
+        if ( ! isset( $palettes[ $palette_id ] ) ) {
+            error_log( '[WOOW Settings] Palette not found: ' . $palette_id );
+            return false;
+        }
+        
         $palette = $palettes[ $palette_id ];
-        $colors = $palette['colors'];
-        $gradients = $palette['gradients'];
-
-        // Update admin bar colors
-        $this->settings['admin_bar']['background_color'] = $colors['card'];
-        $this->settings['admin_bar']['gradient_start'] = $gradients['primary'][0];
-        $this->settings['admin_bar']['gradient_end'] = $gradients['primary'][1];
-        $this->settings['admin_bar']['text_color'] = $colors['foreground'];
-
-        // Update admin menu colors
-        $this->settings['admin_menu']['background_color'] = $colors['card'];
-        $this->settings['admin_menu']['active_gradient_start'] = $gradients['primary'][0];
-        $this->settings['admin_menu']['active_gradient_end'] = $gradients['primary'][1];
-        $this->settings['admin_menu']['hover_bg_color'] = 'rgba(' . $this->hex_to_rgb( $colors['primary'] ) . ',0.05)';
-
-        // Update dashboard widgets colors
-        $this->settings['dashboard_widgets']['background_color'] = $colors['card'];
-        $this->settings['dashboard_widgets']['header_text_color'] = $colors['foreground'];
-
-        // Update form controls colors
-        $this->settings['form_controls']['background_color'] = 'rgba(' . $this->hex_to_rgb( $colors['card'] ) . ',0.6)';
-        $this->settings['form_controls']['border_color'] = $colors['border'];
-        $this->settings['form_controls']['text_color'] = $colors['foreground'];
-        $this->settings['form_controls']['focus_ring_color'] = $colors['primary'];
-
-        // Update button colors
-        $this->settings['buttons']['primary_bg'] = $colors['primary'];
-        $this->settings['buttons']['primary_text'] = '#ffffff';
-        $this->settings['buttons']['secondary_text'] = $colors['primary'];
-        $this->settings['buttons']['destructive_bg'] = $colors['destructive'];
-
-        // Update background colors
-        $this->settings['backgrounds']['background_color'] = $colors['background'];
-
+        
+        if ( ! isset( $palette['settings'] ) || ! is_array( $palette['settings'] ) ) {
+            error_log( '[WOOW Settings] Invalid palette structure for: ' . $palette_id );
+            return false;
+        }
+        
+        // Merge palette settings with current settings
+        // This preserves all existing settings and only updates what's in the palette
+        foreach ( $palette['settings'] as $section => $section_data ) {
+            if ( ! isset( $this->settings[ $section ] ) ) {
+                // Section doesn't exist - create it
+                $this->settings[ $section ] = $section_data;
+            } elseif ( is_array( $section_data ) ) {
+                // Section exists - merge settings
+                $this->settings[ $section ] = array_merge( 
+                    $this->settings[ $section ], 
+                    $section_data 
+                );
+            }
+        }
+        
         // Clear CSS cache after applying palette
         if ( function_exists( 'delete_transient' ) ) {
             delete_transient( 'woow_generated_css' );
         }
-
-        return $this->persist_settings();
+        
+        // Persist to database
+        $result = $this->persist_settings();
+        
+        if ( $result ) {
+            error_log( '[WOOW Settings] Successfully applied palette: ' . $palette_id );
+        } else {
+            error_log( '[WOOW Settings] Failed to persist palette settings: ' . $palette_id );
+        }
+        
+        return $result;
     }
 
     /**
@@ -1050,6 +1058,39 @@ class WOOW_Settings {
                         $error_message = "Value must be a positive number";
                     }
                 }
+                // Admin Bar specific unitless fields (BEFORE general patterns!)
+                elseif ( $section === 'admin_bar' && ( 
+                    $key === 'height' || 
+                    $key === 'width' || 
+                    $key === 'font_size' || 
+                    $key === 'blur_strength' || 
+                    $key === 'top_offset' || 
+                    $key === 'submenu_border_radius' || 
+                    $key === 'submenu_font_size' || 
+                    $key === 'spacing_all' || 
+                    $key === 'spacing_top' || 
+                    $key === 'spacing_right' || 
+                    $key === 'spacing_bottom' || 
+                    $key === 'spacing_left' || 
+                    $key === 'margin_all' || 
+                    $key === 'margin_top' || 
+                    $key === 'margin_right' || 
+                    $key === 'margin_bottom' || 
+                    $key === 'margin_left' || 
+                    $key === 'border_radius_all' || 
+                    $key === 'border_radius_top_left' || 
+                    $key === 'border_radius_top_right' || 
+                    $key === 'border_radius_bottom_right' || 
+                    $key === 'border_radius_bottom_left'
+                ) ) {
+                    // These are unitless numbers (unit added in CSS generation)
+                    // Strip unit if present (values may come with 'px' from database)
+                    $numeric_value = is_string( $value ) ? preg_replace( '/[^0-9.]/', '', $value ) : $value;
+                    if ( ! is_numeric( $numeric_value ) || $numeric_value < 0 ) {
+                        $is_valid = false;
+                        $error_message = "Value must be a positive number";
+                    }
+                }
                 // Admin Menu specific unitless fields (BEFORE general patterns!)
                 elseif ( $section === 'admin_menu' && ( 
                     $key === 'width' || 
@@ -1063,10 +1104,60 @@ class WOOW_Settings {
                     $key === 'submenu_item_height' || 
                     $key === 'submenu_font_size' || 
                     $key === 'submenu_item_border_radius' || 
-                    $key === 'inline_submenu_font_size' 
+                    $key === 'inline_submenu_font_size' || 
+                    $key === 'border_radius' || 
+                    $key === 'item_spacing' || 
+                    $key === 'submenu_indent'
                 ) ) {
                     // These are unitless numbers (unit added in CSS generation)
-                    if ( ! is_numeric( $value ) || $value < 0 ) {
+                    // Strip unit if present (values may come with 'px' from database)
+                    $numeric_value = is_string( $value ) ? preg_replace( '/[^0-9.]/', '', $value ) : $value;
+                    if ( ! is_numeric( $numeric_value ) || $numeric_value < 0 ) {
+                        $is_valid = false;
+                        $error_message = "Value must be a positive number";
+                    }
+                }
+                // Dashboard Widgets specific unitless fields
+                elseif ( $section === 'dashboard_widgets' && ( 
+                    $key === 'border_radius' || 
+                    $key === 'padding' || 
+                    $key === 'margin' || 
+                    $key === 'title_size' || 
+                    $key === 'margin_bottom'
+                ) ) {
+                    // These are unitless numbers (unit added in CSS generation)
+                    // Strip unit if present (values may come with 'px' from database)
+                    $numeric_value = is_string( $value ) ? preg_replace( '/[^0-9.]/', '', $value ) : $value;
+                    if ( ! is_numeric( $numeric_value ) || $numeric_value < 0 ) {
+                        $is_valid = false;
+                        $error_message = "Value must be a positive number";
+                    }
+                }
+                // Form Controls specific unitless fields
+                elseif ( $section === 'form_controls' && ( 
+                    $key === 'input_border_radius' || 
+                    $key === 'label_size' || 
+                    $key === 'blur_strength' || 
+                    $key === 'checkbox_size'
+                ) ) {
+                    // These are unitless numbers (unit added in CSS generation)
+                    // Strip unit if present (values may come with 'px' from database)
+                    $numeric_value = is_string( $value ) ? preg_replace( '/[^0-9.]/', '', $value ) : $value;
+                    if ( ! is_numeric( $numeric_value ) || $numeric_value < 0 ) {
+                        $is_valid = false;
+                        $error_message = "Value must be a positive number";
+                    }
+                }
+                // Buttons specific unitless fields
+                elseif ( $section === 'buttons' && ( 
+                    $key === 'primary_border_radius' || 
+                    $key === 'secondary_border_radius' || 
+                    $key === 'danger_border_radius'
+                ) ) {
+                    // These are unitless numbers (unit added in CSS generation)
+                    // Strip unit if present (values may come with 'px' from database)
+                    $numeric_value = is_string( $value ) ? preg_replace( '/[^0-9.]/', '', $value ) : $value;
+                    if ( ! is_numeric( $numeric_value ) || $numeric_value < 0 ) {
                         $is_valid = false;
                         $error_message = "Value must be a positive number";
                     }
@@ -1079,6 +1170,161 @@ class WOOW_Settings {
                     $key === 'hover_style' || 
                     $key === 'submenu_font_weight' || 
                     $key === 'inline_submenu_font_weight' 
+                ) ) {
+                    // These are keyword values
+                    if ( ! is_string( $value ) ) {
+                        $is_valid = false;
+                        $error_message = "Value must be a string";
+                    }
+                }
+                // Typography specific unitless fields
+                elseif ( $section === 'typography' && ( 
+                    $key === 'body_size' || 
+                    $key === 'h1_size' || 
+                    $key === 'h2_size' || 
+                    $key === 'h3_size' || 
+                    $key === 'h4_size' || 
+                    $key === 'h5_size' || 
+                    $key === 'h6_size'
+                ) ) {
+                    // These are unitless numbers (unit added in CSS generation)
+                    // Strip unit if present (values may come with 'px' from database)
+                    $numeric_value = is_string( $value ) ? preg_replace( '/[^0-9.]/', '', $value ) : $value;
+                    if ( ! is_numeric( $numeric_value ) || $numeric_value < 0 ) {
+                        $is_valid = false;
+                        $error_message = "Value must be a positive number";
+                    }
+                }
+                // Typography line-height fields (float values)
+                elseif ( $section === 'typography' && ( 
+                    $key === 'body_line_height' || 
+                    $key === 'heading_line_height' || 
+                    strpos( $key, 'line_height' ) !== false
+                ) ) {
+                    // Line height is unitless float (e.g., 1.3, 1.5)
+                    if ( ! is_numeric( $value ) || $value < 0.5 || $value > 3.0 ) {
+                        $is_valid = false;
+                        $error_message = "Line height must be between 0.5 and 3.0";
+                    }
+                }
+                // Effects specific unitless fields
+                elseif ( $section === 'effects' && ( 
+                    $key === 'glassmorphism_blur' || 
+                    $key === 'hover_lift'
+                ) ) {
+                    // These are unitless numbers (unit added in CSS generation)
+                    // Strip unit if present (values may come with 'px' from database)
+                    $numeric_value = is_string( $value ) ? preg_replace( '/[^0-9.]/', '', $value ) : $value;
+                    if ( ! is_numeric( $numeric_value ) || $numeric_value < 0 ) {
+                        $is_valid = false;
+                        $error_message = "Value must be a positive number";
+                    }
+                }
+                // Effects specific float fields
+                elseif ( $section === 'effects' && ( 
+                    $key === 'hover_scale' || 
+                    $key === 'glassmorphism_opacity'
+                ) ) {
+                    // These are float values (e.g., 1.03, 0.9)
+                    if ( ! is_numeric( $value ) || $value < 0 ) {
+                        $is_valid = false;
+                        $error_message = "Value must be a positive number";
+                    }
+                }
+                // Login Page specific unitless fields
+                elseif ( $section === 'login_page' && ( 
+                    $key === 'form_border_radius' || 
+                    $key === 'form_blur_strength'
+                ) ) {
+                    // These are unitless numbers (unit added in CSS generation)
+                    // Strip unit if present (values may come with 'px' from database)
+                    $numeric_value = is_string( $value ) ? preg_replace( '/[^0-9.]/', '', $value ) : $value;
+                    if ( ! is_numeric( $numeric_value ) || $numeric_value < 0 ) {
+                        $is_valid = false;
+                        $error_message = "Value must be a positive number";
+                    }
+                }
+                // Backgrounds specific unitless fields
+                elseif ( $section === 'backgrounds' && ( 
+                    $key === 'gradient_angle'
+                ) ) {
+                    // These are unitless numbers (degrees for gradients)
+                    if ( ! is_numeric( $value ) || $value < 0 || $value > 360 ) {
+                        $is_valid = false;
+                        $error_message = "Gradient angle must be between 0 and 360";
+                    }
+                }
+                // Backgrounds opacity fields (0-1 float)
+                elseif ( $section === 'backgrounds' && ( 
+                    $key === 'background_opacity' || 
+                    $key === 'wpbody_content_opacity'
+                ) ) {
+                    // Opacity values are 0-1 floats
+                    if ( ! is_numeric( $value ) || $value < 0 || $value > 1 ) {
+                        $is_valid = false;
+                        $error_message = "Opacity must be between 0 and 1";
+                    }
+                }
+                // Admin Menu keyword fields
+                elseif ( $section === 'admin_menu' && ( 
+                    $key === 'font_weight' || 
+                    $key === 'shadow_style' || 
+                    $key === 'background_type' || 
+                    $key === 'hover_style' || 
+                    $key === 'submenu_font_weight' || 
+                    $key === 'inline_submenu_font_weight' 
+                ) ) {
+                    // These are keyword values
+                    if ( ! is_string( $value ) ) {
+                        $is_valid = false;
+                        $error_message = "Value must be a string";
+                    }
+                }
+                // Admin Bar keyword fields
+                elseif ( $section === 'admin_bar' && ( 
+                    $key === 'font_weight' || 
+                    $key === 'shadow_style' || 
+                    $key === 'background_type' || 
+                    $key === 'hover_style' || 
+                    $key === 'position' || 
+                    $key === 'width_unit' || 
+                    $key === 'spacing_mode' || 
+                    $key === 'margin_mode' || 
+                    $key === 'border_radius_mode'
+                ) ) {
+                    // These are keyword values
+                    if ( ! is_string( $value ) ) {
+                        $is_valid = false;
+                        $error_message = "Value must be a string";
+                    }
+                }
+                // Backgrounds keyword fields
+                elseif ( $section === 'backgrounds' && ( 
+                    $key === 'type' || 
+                    $key === 'gradient_type' || 
+                    $key === 'background_type'
+                ) ) {
+                    // These are keyword values
+                    if ( ! is_string( $value ) ) {
+                        $is_valid = false;
+                        $error_message = "Value must be a string";
+                    }
+                }
+                // Login Page keyword fields
+                elseif ( $section === 'login_page' && ( 
+                    $key === 'background_type'
+                ) ) {
+                    // These are keyword values
+                    if ( ! is_string( $value ) ) {
+                        $is_valid = false;
+                        $error_message = "Value must be a string";
+                    }
+                }
+                // Typography keyword fields
+                elseif ( $section === 'typography' && ( 
+                    $key === 'body_font' || 
+                    $key === 'heading_font' || 
+                    $key === 'heading_weight'
                 ) ) {
                     // These are keyword values
                     if ( ! is_string( $value ) ) {
@@ -1411,13 +1657,23 @@ class WOOW_Settings {
      * @return bool Success status
      */
     public function save_settings( array $settings ): bool {
-        error_log( '[WOOW Admin] save_settings called with: ' . print_r( $settings['admin_bar'] ?? 'no admin_bar', true ) );
-        error_log( '[WOOW Admin] Current background_color: ' . ( $this->settings['admin_bar']['background_color'] ?? 'not set' ) );
+        error_log( '[WOOW Admin] save_settings called with: ' . print_r( $settings['admin_menu'] ?? 'no admin_menu', true ) );
+        error_log( '[WOOW Admin] Current admin_menu background_color: ' . ( $this->settings['admin_menu']['background_color'] ?? 'not set' ) );
         
         // Merge with existing settings to preserve structure
-        $this->settings = array_replace_recursive( $this->settings, $settings );
+        // Use array_merge for each section to ensure all fields are preserved
+        foreach ( $settings as $section => $section_data ) {
+            if ( isset( $this->settings[ $section ] ) && is_array( $section_data ) ) {
+                // Merge section data - new values override old ones
+                $this->settings[ $section ] = array_merge( $this->settings[ $section ], $section_data );
+            } else {
+                // Section doesn't exist or data is not array - just set it
+                $this->settings[ $section ] = $section_data;
+            }
+        }
         
-        error_log( '[WOOW Admin] After merge background_color: ' . ( $this->settings['admin_bar']['background_color'] ?? 'not set' ) );
+        error_log( '[WOOW Admin] After merge admin_menu background_color: ' . ( $this->settings['admin_menu']['background_color'] ?? 'not set' ) );
+        error_log( '[WOOW Admin] After merge admin_menu data: ' . print_r( $this->settings['admin_menu'] ?? 'no admin_menu', true ) );
         
         // Save to database
         // Note: update_option() returns false if value hasn't changed

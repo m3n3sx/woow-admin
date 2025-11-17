@@ -424,25 +424,11 @@ class WOOW_Palette_Manager {
 				error_log( '[WOOW Palette Manager] Warning: Backup manager not available, proceeding without backup' );
 			}
 
-			// Get current settings
-			$current_settings = $this->settings->get_all_settings();
-			if ( empty( $current_settings ) ) {
-				throw new Exception( 'Failed to retrieve current settings' );
-			}
-
-			// Merge palette settings with current settings
-			$merged_settings = $this->merge_palette_settings( $current_settings, $palette['settings'] );
-			
-			// Note: We skip strict validation for palette settings because:
-			// 1. Palettes are pre-defined and trusted
-			// 2. Palette values are stored without units (e.g., '52' not '52px')
-			// 3. Units are added during CSS generation
-			// 4. Strict validation would reject valid palette values
-			
-			// Update settings directly (validation happens during CSS generation)
-			$update_success = $this->settings->update_all_settings( $merged_settings );
-			if ( ! $update_success ) {
-				throw new Exception( 'Failed to update settings in database' );
+			// Apply palette using settings manager
+			// This will handle merging and validation
+			$apply_success = $this->settings->apply_palette( $palette_id );
+			if ( ! $apply_success ) {
+				throw new Exception( 'Failed to apply palette settings' );
 			}
 
 			// Regenerate CSS

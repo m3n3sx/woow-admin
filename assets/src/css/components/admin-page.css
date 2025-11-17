@@ -10,13 +10,8 @@
    MAIN WRAPPER
    =========================== */
 .woow-admin-wrap {
-  /* Background gradient zgodny z Figma */
-  background: linear-gradient(
-    to bottom right,
-    #f8fafc,  /* slate-50 */
-    rgba(238, 242, 255, 0.3),  /* indigo-50/30 */
-    rgba(250, 245, 255, 0.3)   /* purple-50/30 */
-  );
+  /* No background - transparent */
+  background: transparent;
   min-height: calc(100vh - 32px); /* Account for WP admin bar */
   display: flex;
   flex-direction: row; /* Sidebar + Right Container side by side */
