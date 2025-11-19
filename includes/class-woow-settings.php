@@ -1244,6 +1244,26 @@ class WOOW_Settings {
                         $error_message = "Value must be a positive number";
                     }
                 }
+                // Content Styling specific unitless fields
+                elseif ( $section === 'content_styling' && ( 
+                    $key === 'wpbody_content_border_radius' || 
+                    $key === 'wpbody_content_blur_strength' || 
+                    $key === 'wp_list_table_border_radius'
+                ) ) {
+                    // These are unitless numbers (unit added in CSS generation)
+                    if ( ! is_numeric( $value ) || $value < 0 ) {
+                        $is_valid = false;
+                        $error_message = "Value must be a positive number";
+                    }
+                }
+                // Content Styling opacity field
+                elseif ( $section === 'content_styling' && $key === 'wpbody_content_opacity' ) {
+                    // Opacity is 0-1 float
+                    if ( ! is_numeric( $value ) || $value < 0 || $value > 1 ) {
+                        $is_valid = false;
+                        $error_message = "Opacity must be between 0 and 1";
+                    }
+                }
                 // Backgrounds specific unitless fields
                 elseif ( $section === 'backgrounds' && ( 
                     $key === 'gradient_angle'
@@ -1344,7 +1364,14 @@ class WOOW_Settings {
                         $is_valid = false;
                         $error_message = "Opacity must be between 0 and 1";
                     }
-                } elseif ( strpos( $key, 'enabled' ) !== false || strpos( $key, 'glassmorphism' ) !== false || strpos( $key, 'hover_transform' ) !== false ) {
+                } elseif ( strpos( $key, 'enabled' ) !== false || strpos( $key, 'glassmorphism' ) !== false || strpos( $key, 'hover_transform' ) !== false || $key === 'rounded_style' || $key === 'glass_style' ) {
+                    // Convert string "1" or "0" to boolean (from form checkboxes)
+                    if ( $value === '1' || $value === 1 ) {
+                        $value = true;
+                    } elseif ( $value === '0' || $value === 0 || $value === '' ) {
+                        $value = false;
+                    }
+                    
                     if ( ! is_bool( $value ) ) {
                         $is_valid = false;
                         $error_message = "Value must be boolean (true/false)";

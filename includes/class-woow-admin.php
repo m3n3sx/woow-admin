@@ -801,10 +801,13 @@ class WOOW_Admin {
 	 * @return void
 	 */
 	public function ajax_apply_template(): void {
-		// Clean output buffer to prevent any stray output
-		if ( ob_get_level() > 0 ) {
-			ob_clean();
+		// Clean ALL output buffers to prevent any stray output
+		while ( ob_get_level() > 0 ) {
+			ob_end_clean();
 		}
+		
+		// Start fresh output buffer
+		ob_start();
 		
 		try {
 			// Log AJAX call for debugging
@@ -813,6 +816,7 @@ class WOOW_Admin {
 			// Verify nonce
 			if ( ! check_ajax_referer( 'woow_admin_nonce', 'nonce', false ) ) {
 				error_log( '[WOOW Admin] Nonce verification failed' );
+				ob_end_clean();
 				wp_send_json_error( array(
 					'message' => __( 'Security check failed', 'woow-admin' ),
 					'code'    => 'invalid_nonce',
@@ -822,6 +826,7 @@ class WOOW_Admin {
 			// Check capabilities
 			if ( ! current_user_can( 'manage_options' ) ) {
 				error_log( '[WOOW Admin] Insufficient permissions' );
+				ob_end_clean();
 				wp_send_json_error( array(
 					'message' => __( 'Insufficient permissions', 'woow-admin' ),
 					'code'    => 'insufficient_permissions',
@@ -831,6 +836,7 @@ class WOOW_Admin {
 			// Check rate limit
 			if ( ! $this->check_rate_limit() ) {
 				error_log( '[WOOW Admin] Rate limit exceeded' );
+				ob_end_clean();
 				wp_send_json_error( array(
 					'message' => __( 'Rate limit exceeded. Please try again later.', 'woow-admin' ),
 					'code'    => 'rate_limit_exceeded',
@@ -841,6 +847,7 @@ class WOOW_Admin {
 
 			if ( empty( $template_id ) ) {
 				error_log( '[WOOW Admin] No template ID provided' );
+				ob_end_clean();
 				wp_send_json_error( array(
 					'message' => __( 'No template ID provided', 'woow-admin' ),
 					'code'    => 'no_template_id',
@@ -855,6 +862,7 @@ class WOOW_Admin {
 			if ( ! $result['success'] ) {
 				error_log( '[WOOW Admin] Failed to apply template: ' . $template_id );
 				error_log( '[WOOW Admin] Error: ' . ( $result['message'] ?? 'Unknown error' ) );
+				ob_end_clean();
 				wp_send_json_error( array(
 					'message' => $result['message'] ?? __( 'Failed to apply template', 'woow-admin' ),
 					'code'    => $result['error_code'] ?? 'apply_failed',
@@ -872,6 +880,11 @@ class WOOW_Admin {
 			// Get updated settings
 			$updated_settings = $this->settings->get_all();
 
+			// Clean output buffer before sending JSON
+			if ( ob_get_level() > 0 ) {
+				ob_end_clean();
+			}
+
 			wp_send_json_success( array(
 				'message'       => $result['message'] ?? sprintf(
 					/* translators: %s: Template name */
@@ -887,6 +900,11 @@ class WOOW_Admin {
 		} catch ( Exception $e ) {
 			error_log( '[WOOW Admin] Exception in ajax_apply_template: ' . $e->getMessage() );
 			error_log( '[WOOW Admin] Stack trace: ' . $e->getTraceAsString() );
+
+			// Clean output buffer before sending JSON
+			if ( ob_get_level() > 0 ) {
+				ob_end_clean();
+			}
 
 			wp_send_json_error( array(
 				'message' => __( 'An error occurred while applying template', 'woow-admin' ),

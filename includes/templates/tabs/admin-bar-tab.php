@@ -259,9 +259,10 @@ $admin_bar = array_merge( $defaults, $this->settings->get_section( 'admin_bar' )
                             max="50" 
                             step="2"
                             class="woow-slider"
+                            data-type="unitless"
                             data-unit="px"
                         />
-                        <span class="woow-slider-value"><?php echo esc_html( $admin_bar['blur_strength'] ?? '12px' ); ?></span>
+                        <span class="woow-slider-value"><?php echo esc_html( intval( $admin_bar['blur_strength'] ?? 12 ) ); ?>px</span>
                     </div>
                     <p class="woow-field-description">
                         <?php esc_html_e( 'Default: 12px. Backdrop blur effect', 'woow-admin' ); ?>
@@ -1202,87 +1203,6 @@ $admin_bar = array_merge( $defaults, $this->settings->get_section( 'admin_bar' )
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Glassmorphism Card -->
-    <div class="woow-card">
-        <div class="woow-card-header">
-            <h3>
-                <?php esc_html_e( 'Glassmorphism Effect', 'woow-admin' ); ?>
-                <span class="woow-badge woow-badge-primary">
-                    <?php esc_html_e( 'Recommended', 'woow-admin' ); ?>
-                </span>
-            </h3>
-        </div>
-        <div class="woow-card-body">
-            <!-- Enable Glassmorphism -->
-            <div class="woow-form-group">
-                <label class="woow-toggle">
-                    <input 
-                        type="checkbox" 
-                        name="admin_bar[glassmorphism]" 
-                        value="1"
-                        <?php checked( $admin_bar['glassmorphism'], true ); ?>
-                        class="woow-toggle-input"
-                        id="admin-bar-glass-toggle"
-                    />
-                    <span class="woow-toggle-slider"></span>
-                    <span class="woow-toggle-label">
-                        <?php esc_html_e( 'Enable glass effect', 'woow-admin' ); ?>
-                    </span>
-                </label>
-                <p class="woow-field-description">
-                    <?php esc_html_e( 'Adds backdrop blur and semi-transparent background', 'woow-admin' ); ?>
-                </p>
-            </div>
-
-            <!-- Blur Strength (conditional) -->
-            <div class="woow-form-group woow-conditional" data-show-when="#admin-bar-glass-toggle:checked">
-                <label class="woow-label">
-                    <?php esc_html_e( 'Blur Strength', 'woow-admin' ); ?>
-                </label>
-                <div class="woow-slider-group">
-                    <input 
-                        type="range" 
-                        name="admin_bar[blur_strength]" 
-                        value="<?php echo esc_attr( intval( $admin_bar['blur_strength'] ) ); ?>"
-                        min="0" 
-                        max="24" 
-                        step="2"
-                        class="woow-slider"
-                        data-unit="px"
-                    />
-                    <span class="woow-slider-value"><?php echo esc_html( $admin_bar['blur_strength'] ); ?></span>
-                </div>
-                <p class="woow-field-description">
-                    <?php esc_html_e( 'Default: 12px. Higher = more blur', 'woow-admin' ); ?>
-                </p>
-            </div>
-
-            <!-- Opacity (conditional) -->
-            <div class="woow-form-group woow-conditional" data-show-when="#admin-bar-glass-toggle:checked">
-                <label class="woow-label">
-                    <?php esc_html_e( 'Background Opacity', 'woow-admin' ); ?>
-                </label>
-                <div class="woow-slider-group">
-                    <input 
-                        type="range" 
-                        name="admin_bar[opacity]" 
-                        value="<?php echo esc_attr( floatval( $admin_bar['opacity'] ) * 100 ); ?>"
-                        min="50" 
-                        max="100" 
-                        step="5"
-                        class="woow-slider"
-                        data-type="opacity"
-                        data-unit="%"
-                    />
-                    <span class="woow-slider-value"><?php echo esc_html( floatval( $admin_bar['opacity'] ) * 100 ); ?>%</span>
-                </div>
-                <p class="woow-field-description">
-                    <?php esc_html_e( 'Default: 90%. Lower = more transparent', 'woow-admin' ); ?>
-                </p>
             </div>
         </div>
     </div>

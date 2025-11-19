@@ -191,6 +191,9 @@ class WoowAdmin {
         
         // Handle slider value display updates
         this.setupSliderValueDisplay();
+        
+        // Handle Glass Style toggle with event delegation
+        this.setupGlassStyleToggle();
     }
     
     /**
@@ -1725,6 +1728,134 @@ class WoowAdmin {
             );
             return false;
         }
+    }
+    
+    
+    /**
+     * Setup Glass Style toggle using event delegation
+     */
+    setupGlassStyleToggle() {
+        // Use event delegation on the form
+        const form = document.querySelector('#woow-settings-form');
+        if (!form) {
+            console.warn('[WOOW Admin] Form not found for Glass Style toggle');
+            return;
+        }
+        
+        // Listen for changes on the entire form
+        form.addEventListener('change', (e) => {
+            // Check if the changed element is the glass_style checkbox
+            if (e.target.name === 'general[glass_style]' && e.target.type === 'checkbox') {
+                console.log('[WOOW Admin] Glass Style changed:', e.target.checked);
+                
+                if (e.target.checked) {
+                    // Apply glassmorphism settings
+                    this.applyGlassStyle();
+                }
+            }
+        });
+        
+        console.log('[WOOW Admin] Glass Style toggle initialized with event delegation');
+    }
+    
+    /**
+     * Apply Glass Style settings to all sections
+     */
+    applyGlassStyle() {
+        console.log('[WOOW Admin] Applying Glass Style...');
+        
+        // Admin Bar
+        const adminBarType = document.querySelector('select[name="admin_bar[background_type]"]');
+        if (adminBarType) {
+            adminBarType.value = 'glass';
+            adminBarType.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        
+        const adminBarColor = document.querySelector('input[name="admin_bar[background_color]"]');
+        if (adminBarColor) adminBarColor.value = '#ffffff';
+        
+        const adminBarOpacity = document.querySelector('input[name="admin_bar[opacity]"]');
+        if (adminBarOpacity) {
+            adminBarOpacity.value = '20';
+            const valueSpan = adminBarOpacity.nextElementSibling;
+            if (valueSpan && valueSpan.classList.contains('woow-slider-value')) {
+                valueSpan.textContent = '20%';
+            }
+        }
+        
+        const adminBarBlur = document.querySelector('input[name="admin_bar[blur_strength]"]');
+        if (adminBarBlur) {
+            adminBarBlur.value = '12';
+            const valueSpan = adminBarBlur.nextElementSibling;
+            if (valueSpan && valueSpan.classList.contains('woow-slider-value')) {
+                valueSpan.textContent = '12px';
+            }
+        }
+        
+        // Admin Menu
+        const adminMenuType = document.querySelector('select[name="admin_menu[background_type]"]');
+        if (adminMenuType) {
+            adminMenuType.value = 'glass';
+            adminMenuType.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        
+        const adminMenuColor = document.querySelector('input[name="admin_menu[glass_base_color]"]');
+        if (adminMenuColor) adminMenuColor.value = '#ffffff';
+        
+        const adminMenuOpacity = document.querySelector('input[name="admin_menu[opacity]"]');
+        if (adminMenuOpacity) {
+            adminMenuOpacity.value = '20';
+            const valueSpan = adminMenuOpacity.nextElementSibling;
+            if (valueSpan && valueSpan.classList.contains('woow-slider-value')) {
+                valueSpan.textContent = '20%';
+            }
+        }
+        
+        const adminMenuBlur = document.querySelector('input[name="admin_menu[blur_strength]"]');
+        if (adminMenuBlur) {
+            adminMenuBlur.value = '12';
+            const valueSpan = adminMenuBlur.nextElementSibling;
+            if (valueSpan && valueSpan.classList.contains('woow-slider-value')) {
+                valueSpan.textContent = '12px';
+            }
+        }
+        
+        // Content Styling
+        const contentGlass = document.querySelector('input[name="content_styling[wpbody_content_glassmorphism]"][type="checkbox"]');
+        console.log('[WOOW Admin] Content glass checkbox:', contentGlass);
+        
+        if (contentGlass) {
+            contentGlass.checked = true;
+            contentGlass.dispatchEvent(new Event('change', { bubbles: true }));
+            console.log('[WOOW Admin] Content glass enabled');
+        }
+        
+        const contentOpacity = document.querySelector('input[name="content_styling[wpbody_content_opacity]"]');
+        console.log('[WOOW Admin] Content opacity slider:', contentOpacity);
+        
+        if (contentOpacity) {
+            contentOpacity.value = '20';
+            const valueSpan = contentOpacity.nextElementSibling;
+            if (valueSpan && valueSpan.classList.contains('woow-slider-value')) {
+                valueSpan.textContent = '20%';
+            }
+            console.log('[WOOW Admin] Content opacity set to 20');
+        }
+        
+        const contentBlur = document.querySelector('input[name="content_styling[wpbody_content_blur_strength]"]');
+        console.log('[WOOW Admin] Content blur slider:', contentBlur);
+        
+        if (contentBlur) {
+            contentBlur.value = '12';
+            const valueSpan = contentBlur.nextElementSibling;
+            if (valueSpan && valueSpan.classList.contains('woow-slider-value')) {
+                valueSpan.textContent = '12px';
+            }
+            console.log('[WOOW Admin] Content blur set to 12');
+        }
+        
+        console.log('[WOOW Admin] Glass Style applied successfully');
+        this.showNotification('Glass Style applied! Glassmorphism enabled for Admin Bar, Menu, and Content.', 'success');
     }
 }
 

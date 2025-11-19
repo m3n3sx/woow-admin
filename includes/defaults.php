@@ -20,6 +20,8 @@ function woow_get_default_settings() {
             'enabled' => true,
             'current_palette' => 'professional_blue',
             'current_template' => 'default',
+            'rounded_style' => true,  // Global rounded corners
+            'glass_style' => false,   // Global glassmorphism
         ),
         
         'admin_bar' => array(
@@ -360,6 +362,19 @@ function woow_get_default_settings() {
             'custom_logo' => '',
             'logo_width' => '84',
             'logo_height' => '84',
+        ),
+        
+        'content_styling' => array(
+            'enabled' => true,
+            
+            // WPBody Content
+            'wpbody_content_border_radius' => '24',
+            'wpbody_content_glassmorphism' => false,
+            'wpbody_content_opacity' => 0.9,
+            'wpbody_content_blur_strength' => '12',
+            
+            // WP List Table
+            'wp_list_table_border_radius' => '12',
         ),
     );
 }

@@ -34,6 +34,12 @@ const FIELD_TYPE_MAP = {
     'admin_menu.opacity': FIELD_TYPES.OPACITY,
     'dashboard_widgets.opacity': FIELD_TYPES.OPACITY,
     
+    // Blur strength fields (unitless, unit added in CSS)
+    'blur_strength': FIELD_TYPES.NUMBER,
+    'admin_bar.blur_strength': FIELD_TYPES.NUMBER,
+    'admin_menu.blur_strength': FIELD_TYPES.NUMBER,
+    'dashboard_widgets.blur_strength': FIELD_TYPES.NUMBER,
+    
     // Line height fields
     'h1_line_height': FIELD_TYPES.LINE_HEIGHT,
     'h2_line_height': FIELD_TYPES.LINE_HEIGHT,
@@ -46,6 +52,12 @@ const FIELD_TYPE_MAP = {
     'image_repeat': FIELD_TYPES.KEYWORD,
     'image_position': FIELD_TYPES.KEYWORD,
     'image_attachment': FIELD_TYPES.KEYWORD,
+    
+    // Global style toggles
+    'general.rounded_style': FIELD_TYPES.BOOLEAN,
+    'general.glass_style': FIELD_TYPES.BOOLEAN,
+    'rounded_style': FIELD_TYPES.BOOLEAN,
+    'glass_style': FIELD_TYPES.BOOLEAN,
     
     // Unit selectors (not size values)
     'width_unit': FIELD_TYPES.KEYWORD,
@@ -142,6 +154,13 @@ const FIELD_TYPE_MAP = {
     // Background fields
     'backgrounds.background_opacity': FIELD_TYPES.OPACITY,
     'backgrounds.wpbody_content_opacity': FIELD_TYPES.OPACITY,
+    
+    // Content Styling fields (unitless, unit added in CSS)
+    'content_styling.wpbody_content_border_radius': FIELD_TYPES.NUMBER,
+    'content_styling.wpbody_content_glassmorphism': FIELD_TYPES.BOOLEAN,
+    'content_styling.wpbody_content_opacity': FIELD_TYPES.OPACITY,
+    'content_styling.wpbody_content_blur_strength': FIELD_TYPES.NUMBER,
+    'content_styling.wp_list_table_border_radius': FIELD_TYPES.NUMBER,
     'backgrounds.wpbody_content_color': FIELD_TYPES.COLOR,
     'backgrounds.background_color': FIELD_TYPES.COLOR,
     'backgrounds.gradient_start': FIELD_TYPES.COLOR,

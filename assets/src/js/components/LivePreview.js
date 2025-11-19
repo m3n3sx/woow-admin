@@ -100,21 +100,45 @@ export class LivePreview {
         const el = this.previewElements.adminBar;
         if (!el) return;
 
-        if (settings.background_color) {
-            el.style.background = settings.background_color;
+        console.log('[LivePreview] Admin Bar settings:', settings);
+
+        // Background handling based on type
+        if (settings.background_type === 'glass') {
+            // Glassmorphism effect
+            el.style.background = settings.background_color || '#1e293b';
+            
+            // Apply blur and opacity
+            const blurValue = settings.blur_strength || '12';
+            const blurUnit = blurValue.toString().includes('px') ? '' : 'px';
+            el.style.backdropFilter = `blur(${blurValue}${blurUnit})`;
+            
+            const opacity = settings.opacity || 0.9;
+            console.log('[LivePreview] Applying glass effect - blur:', `${blurValue}${blurUnit}`, 'opacity:', opacity);
+            el.style.opacity = opacity;
+        } else if (settings.background_type === 'gradient') {
+            // Gradient background
+            const start = settings.gradient_start || '#1e293b';
+            const end = settings.gradient_end || '#0f172a';
+            el.style.background = `linear-gradient(to right, ${start}, ${end})`;
+            el.style.backdropFilter = 'none';
+            el.style.opacity = '1';
+        } else {
+            // Solid color
+            el.style.background = settings.background_color || '#1e293b';
+            el.style.backdropFilter = 'none';
+            el.style.opacity = '1';
         }
+        
         if (settings.text_color) {
             el.style.color = settings.text_color;
         }
         if (settings.height) {
-            el.style.height = settings.height;
+            const heightValue = settings.height.toString().includes('px') ? settings.height : settings.height + 'px';
+            el.style.height = heightValue;
         }
-        if (settings.border_radius) {
-            el.style.borderRadius = settings.border_radius;
-        }
-        if (settings.glassmorphism && settings.blur_strength) {
-            el.style.backdropFilter = `blur(${settings.blur_strength})`;
-            el.style.opacity = settings.opacity || 0.9;
+        if (settings.border_radius_all) {
+            const radiusValue = settings.border_radius_all.toString().includes('px') ? settings.border_radius_all : settings.border_radius_all + 'px';
+            el.style.borderRadius = radiusValue;
         }
     }
 

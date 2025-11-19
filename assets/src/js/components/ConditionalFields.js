@@ -165,9 +165,21 @@ export class ConditionalFields {
             currentValue = controlField.value;
         }
         
-        if (currentValue === expectedValue) {
+        const shouldShow = currentValue === expectedValue;
+        const wasHidden = field.style.display === 'none' || field.classList.contains('woow-hidden');
+        
+        if (shouldShow) {
             field.style.display = '';
             field.classList.remove('woow-hidden');
+            
+            // If field was just shown, trigger input event on all sliders to update their display
+            if (wasHidden) {
+                const sliders = field.querySelectorAll('input[type="range"].woow-slider');
+                sliders.forEach(slider => {
+                    // Trigger input event to update display
+                    slider.dispatchEvent(new Event('input', { bubbles: true }));
+                });
+            }
         } else {
             field.style.display = 'none';
             field.classList.add('woow-hidden');

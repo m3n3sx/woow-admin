@@ -11,9 +11,77 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $settings = $this->settings->get_all();
+$general = array_merge(
+    array(
+        'rounded_style' => true,
+        'glass_style' => false,
+    ),
+    $settings['general'] ?? array()
+);
 ?>
 
 <div class="woow-tab-pane" id="tab-general">
+    <!-- Global Style Toggles -->
+    <div class="woow-grid woow-grid-2" style="margin-bottom: 24px;">
+        <!-- Rounded Style Toggle -->
+        <div class="woow-card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%); border: 1px solid rgba(99, 102, 241, 0.1);">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <div style="width: 48px; height: 48px; border-radius: 16px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <span class="dashicons dashicons-admin-appearance" style="font-size: 24px; width: 24px; height: 24px; color: white;"></span>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 16px; font-weight: 600; color: #0f172a; margin: 0 0 4px 0;">
+                            <?php esc_html_e( 'Rounded Style', 'woow-admin' ); ?>
+                        </h3>
+                        <p style="font-size: 13px; color: #6b7280; margin: 0;">
+                            <?php esc_html_e( 'Enable rounded corners everywhere', 'woow-admin' ); ?>
+                        </p>
+                    </div>
+                </div>
+                <label class="woow-switch">
+                    <input type="hidden" name="general[rounded_style]" value="0" />
+                    <input 
+                        type="checkbox" 
+                        name="general[rounded_style]" 
+                        value="1"
+                        <?php checked( $general['rounded_style'], true ); ?>
+                    />
+                    <span class="woow-switch-slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Glass Style Toggle -->
+        <div class="woow-card" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(147, 197, 253, 0.05) 100%); border: 1px solid rgba(59, 130, 246, 0.1);">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <div style="width: 48px; height: 48px; border-radius: 16px; background: linear-gradient(135deg, #3b82f6 0%, #93c5fd 100%); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <span class="dashicons dashicons-visibility" style="font-size: 24px; width: 24px; height: 24px; color: white;"></span>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 16px; font-weight: 600; color: #0f172a; margin: 0 0 4px 0;">
+                            <?php esc_html_e( 'Glass Style', 'woow-admin' ); ?>
+                        </h3>
+                        <p style="font-size: 13px; color: #6b7280; margin: 0;">
+                            <?php esc_html_e( 'Enable glassmorphism effect', 'woow-admin' ); ?>
+                        </p>
+                    </div>
+                </div>
+                <label class="woow-switch">
+                    <input type="hidden" name="general[glass_style]" value="0" />
+                    <input 
+                        type="checkbox" 
+                        name="general[glass_style]" 
+                        value="1"
+                        <?php checked( $general['glass_style'], true ); ?>
+                    />
+                    <span class="woow-switch-slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
     <!-- Hej Admin Card (zgodnie z Figma) -->
     <div class="woow-card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%); border: 1px solid rgba(99, 102, 241, 0.1);">
         <div style="display: flex; align-items: center; gap: 16px;">

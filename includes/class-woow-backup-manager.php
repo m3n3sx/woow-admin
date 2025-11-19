@@ -90,10 +90,21 @@ class WOOW_Backup_Manager {
 		);
 
 		// Store backup
-		$result = update_option( $backup_id, $backup_data, false );
+		// Note: update_option returns false if value hasn't changed, but we're using unique IDs
+		// so this should always be a new option. Use add_option instead for new backups.
+		$result = add_option( $backup_id, $backup_data, '', 'no' );
 
 		if ( ! $result ) {
-			throw new Exception( 'Failed to create backup' );
+			// If add_option fails (option already exists), try update_option
+			$result = update_option( $backup_id, $backup_data, false );
+			if ( ! $result ) {
+				// Check if option exists and has correct data
+				$existing = get_option( $backup_id );
+				if ( ! $existing || ! is_array( $existing ) ) {
+					throw new Exception( 'Failed to create backup: unable to store backup data' );
+				}
+				// Option exists with data, consider it success
+			}
 		}
 
 		// Update backup index

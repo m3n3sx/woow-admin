@@ -92,6 +92,12 @@ $current_template = $settings['general']['current_template'] ?? 'default';
                         'badge' => null
                     ],
                     [
+                        'id' => 'content',
+                        'label' => __( 'Content Styling', 'woow-admin' ),
+                        'icon' => 'dashicons-admin-page',
+                        'badge' => null
+                    ],
+                    [
                         'id' => 'typography',
                         'label' => __( 'Typography', 'woow-admin' ),
                         'icon' => 'dashicons-editor-textcolor',
@@ -125,6 +131,7 @@ $current_template = $settings['general']['current_template'] ?? 'default';
                         type="button" 
                         class="woow-nav-item<?php echo esc_attr( $active_class ); ?>" 
                         data-tab="<?php echo esc_attr( $item['id'] ); ?>"
+                        data-label="<?php echo esc_attr( $item['label'] ); ?>"
                     >
                         <span class="dashicons <?php echo esc_attr( $item['icon'] ); ?>"></span>
                         <span class="woow-nav-label"><?php echo esc_html( $item['label'] ); ?></span>
@@ -254,6 +261,7 @@ $current_template = $settings['general']['current_template'] ?? 'default';
                         'forms',
                         'buttons',
                         'backgrounds',
+                        'content',
                         'typography',
                         'effects',
                         'login',

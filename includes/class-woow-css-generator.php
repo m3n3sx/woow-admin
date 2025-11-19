@@ -59,6 +59,7 @@ class WOOW_CSS_Generator {
 
         // Generate CSS sections
         $this->add_css_variables();
+        $this->add_global_styles();
         
         if ( $this->settings->get_option( 'admin_bar.enabled', true ) ) {
             $this->add_admin_bar_styles();
@@ -82,6 +83,10 @@ class WOOW_CSS_Generator {
         
         if ( $this->settings->get_option( 'backgrounds.enabled', true ) ) {
             $this->add_background_styles();
+        }
+        
+        if ( $this->settings->get_option( 'content_styling.enabled', true ) ) {
+            $this->add_content_styling_styles();
         }
         
         if ( $this->settings->get_option( 'typography.enabled', true ) ) {
@@ -174,6 +179,55 @@ class WOOW_CSS_Generator {
     }
 
     /**
+     * Add global styles (rounded corners, glassmorphism)
+     *
+     * @return void
+     */
+    private function add_global_styles(): void {
+        $general = $this->settings->get_section( 'general' );
+        
+        $rounded_style = $general['rounded_style'] ?? true;
+        $glass_style = $general['glass_style'] ?? false;
+        
+        $this->css .= "/* Global Styles */\n";
+        
+        // Rounded Style - Tables and filter buttons
+        if ( ! $rounded_style ) {
+            $this->css .= "/* Disable Rounded Corners - Tables & Filters */\n";
+            
+            // Tables (strony, wpisy, wtyczki)
+            $this->css .= ".wp-list-table,\n";
+            $this->css .= ".widefat,\n";
+            $this->css .= ".wp-list-table thead,\n";
+            $this->css .= ".wp-list-table tbody,\n";
+            $this->css .= ".wp-list-table tr,\n";
+            $this->css .= ".wp-list-table th,\n";
+            $this->css .= ".wp-list-table td {\n";
+            $this->css .= "    border-radius: 0 !important;\n";
+            $this->css .= "}\n\n";
+            
+            // Przyciski filtrowania
+            $this->css .= ".tablenav .actions select,\n";
+            $this->css .= ".tablenav .button,\n";
+            $this->css .= ".tablenav .button-secondary,\n";
+            $this->css .= ".subsubsub a,\n";
+            $this->css .= ".view-switch a {\n";
+            $this->css .= "    border-radius: 0 !important;\n";
+            $this->css .= "}\n\n";
+            
+            // Search box
+            $this->css .= ".search-box input[type='search'],\n";
+            $this->css .= ".search-box .button {\n";
+            $this->css .= "    border-radius: 0 !important;\n";
+            $this->css .= "}\n\n";
+        }
+        
+        // Glass Style - REMOVED global override
+        // Now glass_style only triggers setting background_type='glass' in save_settings
+        // Individual sections handle their own glassmorphism rendering
+    }
+
+    /**
      * Add admin bar styles
      *
      * @return void
@@ -188,17 +242,27 @@ class WOOW_CSS_Generator {
         $top_offset = $bar['top_offset'] ?? '16px';
         
         // Border Radius - handle mode (all or individual)
-        $border_radius_mode = $bar['border_radius_mode'] ?? 'all';
-        if ( $border_radius_mode === 'all' ) {
-            $border_radius_all = $bar['border_radius_all'] ?? '24';
-            $border_radius = $border_radius_all . 'px';
+        // Check global rounded_style setting
+        $general = $this->settings->get_section( 'general' );
+        $rounded_style = $general['rounded_style'] ?? true;
+        
+        if ( ! $rounded_style ) {
+            // Global rounded style disabled - force zero radius
+            $border_radius = '0';
         } else {
-            // Individual corners
-            $border_radius_top_left = $bar['border_radius_top_left'] ?? '24';
-            $border_radius_top_right = $bar['border_radius_top_right'] ?? '24';
-            $border_radius_bottom_right = $bar['border_radius_bottom_right'] ?? '24';
-            $border_radius_bottom_left = $bar['border_radius_bottom_left'] ?? '24';
-            $border_radius = "{$border_radius_top_left}px {$border_radius_top_right}px {$border_radius_bottom_right}px {$border_radius_bottom_left}px";
+            // Use configured border radius
+            $border_radius_mode = $bar['border_radius_mode'] ?? 'all';
+            if ( $border_radius_mode === 'all' ) {
+                $border_radius_all = $bar['border_radius_all'] ?? '24';
+                $border_radius = $border_radius_all . 'px';
+            } else {
+                // Individual corners
+                $border_radius_top_left = $bar['border_radius_top_left'] ?? '24';
+                $border_radius_top_right = $bar['border_radius_top_right'] ?? '24';
+                $border_radius_bottom_right = $bar['border_radius_bottom_right'] ?? '24';
+                $border_radius_bottom_left = $bar['border_radius_bottom_left'] ?? '24';
+                $border_radius = "{$border_radius_top_left}px {$border_radius_top_right}px {$border_radius_bottom_right}px {$border_radius_bottom_left}px";
+            }
         }
         
         // Get position and shadow settings
@@ -293,7 +357,7 @@ class WOOW_CSS_Generator {
         // Background based on type
         $background_type = $bar['background_type'] ?? 'solid';
         $opacity = $bar['opacity'] ?? 0.9;
-        $blur_strength = $bar['blur_strength'] ?? '12px';
+        $blur_strength = $bar['blur_strength'] ?? '12';
         $glassmorphism_enabled = $bar['glassmorphism'] ?? true;
         
         // Apply background based on selected type
@@ -301,8 +365,9 @@ class WOOW_CSS_Generator {
             // Glassmorphism: transparent background + blur
             $bg_rgba = $this->hex_to_rgba( $bar['background_color'], $opacity );
             $this->css .= "    background: {$bg_rgba} !important;\n";
-            $this->css .= "    backdrop-filter: blur({$blur_strength}) !important;\n";
-            $this->css .= "    -webkit-backdrop-filter: blur({$blur_strength}) !important;\n";
+            $this->css .= "    backdrop-filter: blur({$blur_strength}px) !important;\n";
+            $this->css .= "    -webkit-backdrop-filter: blur({$blur_strength}px) !important;\n";
+            $this->css .= "    border: 1px solid rgba(0, 0, 0, 0.1) !important;\n";
         } elseif ( $background_type === 'gradient' ) {
             // Gradient background (solid, no transparency)
             $this->css .= "    background: linear-gradient(to right, {$bar['gradient_start']}, {$bar['gradient_end']}) !important;\n";
@@ -390,12 +455,15 @@ class WOOW_CSS_Generator {
         $hover_bg = $bar['hover_bg_color'] ?? 'rgba(255, 255, 255, 0.1)';
         $hover_text = $bar['hover_text_color'] ?? '#ffffff';
         
+        // Determine hover border radius based on global rounded_style
+        $hover_border_radius = $rounded_style ? '12px' : '0';
+        
         if ( $hover_style === 'compact' ) {
             // Compact hover: padding from edges
             $this->css .= "#wpadminbar .ab-item:hover {\n";
             $this->css .= "    background: {$hover_bg} !important;\n";
             $this->css .= "    color: {$hover_text} !important;\n";
-            $this->css .= "    border-radius: 12px;\n";
+            $this->css .= "    border-radius: {$hover_border_radius};\n";
             $this->css .= "    margin: 6px 0 !important;\n";
             $this->css .= "    height: calc(100% - 12px) !important;\n";
             $this->css .= "}\n\n";
@@ -404,7 +472,7 @@ class WOOW_CSS_Generator {
             $this->css .= "#wpadminbar .ab-item:hover {\n";
             $this->css .= "    background: {$hover_bg} !important;\n";
             $this->css .= "    color: {$hover_text} !important;\n";
-            $this->css .= "    border-radius: 12px;\n";
+            $this->css .= "    border-radius: {$hover_border_radius};\n";
             $this->css .= "}\n\n";
         }
         
@@ -443,13 +511,17 @@ class WOOW_CSS_Generator {
             $submenu_hover_bg = $bar['hover_bg_color'];
             $submenu_hover_text = $bar['hover_text_color'];
             
-            // Get border radius from admin bar (handle mode)
-            $border_radius_mode = $bar['border_radius_mode'] ?? 'all';
-            if ( $border_radius_mode === 'all' ) {
-                $submenu_radius = $bar['border_radius_all'] ?? '24';
+            // Get border radius from admin bar (handle mode) - respects global rounded_style
+            if ( ! $rounded_style ) {
+                $submenu_radius = '0';
             } else {
-                // Use top-left corner for submenu when individual mode
-                $submenu_radius = $bar['border_radius_top_left'] ?? '24';
+                $border_radius_mode = $bar['border_radius_mode'] ?? 'all';
+                if ( $border_radius_mode === 'all' ) {
+                    $submenu_radius = $bar['border_radius_all'] ?? '24';
+                } else {
+                    // Use top-left corner for submenu when individual mode
+                    $submenu_radius = $bar['border_radius_top_left'] ?? '24';
+                }
             }
             
             $submenu_font_size = $bar['font_size'] ?? '14';
@@ -457,16 +529,16 @@ class WOOW_CSS_Generator {
             $submenu_item_height = $bar['height'] ?? '48';
             $submenu_item_border_radius = $submenu_radius;
         } else {
-            // Custom submenu styles
+            // Custom submenu styles - apply global rounded_style
             $submenu_bg = $bar['submenu_bg_color'] ?? 'rgba(255, 255, 255, 0.98)';
             $submenu_text = $bar['submenu_text_color'] ?? '#0f172a';
             $submenu_hover_bg = $bar['submenu_hover_bg_color'] ?? '#f1f5f9';
             $submenu_hover_text = $bar['submenu_hover_text_color'] ?? '#6366f1';
-            $submenu_radius = $bar['submenu_border_radius'] ?? '12';
+            $submenu_radius = $rounded_style ? ( $bar['submenu_border_radius'] ?? '12' ) : '0';
             $submenu_font_size = $bar['submenu_font_size'] ?? '14';
             $submenu_font_weight = $bar['submenu_font_weight'] ?? '400';
             $submenu_item_height = $bar['submenu_item_height'] ?? '36';
-            $submenu_item_border_radius = $bar['submenu_item_border_radius'] ?? '8';
+            $submenu_item_border_radius = $rounded_style ? ( $bar['submenu_item_border_radius'] ?? '8' ) : '0';
         }
         
         // Distance from menu
@@ -571,6 +643,10 @@ class WOOW_CSS_Generator {
     private function add_admin_menu_styles(): void {
         $menu = $this->settings->get_section( 'admin_menu' );
         
+        // Check global rounded_style setting
+        $general = $this->settings->get_section( 'general' );
+        $rounded_style = $general['rounded_style'] ?? true;
+        
         // Get settings with defaults
         $width = $menu['width'] ?? '256';
         $item_height = $menu['item_height'] ?? '48';
@@ -579,20 +655,27 @@ class WOOW_CSS_Generator {
         $hover_text_color = $menu['hover_text_color'] ?? '#6366f1';
         $hover_bg_color = $menu['hover_bg_color'] ?? '#f8fafc';
         
-        // Border Radius - handle mode (all or individual)
-        $border_radius_mode = $menu['border_radius_mode'] ?? 'all';
-        if ( $border_radius_mode === 'all' ) {
-            $border_radius_all = $menu['border_radius_all'] ?? '12';
-            $border_radius = $border_radius_all . 'px';
+        // Border Radius - handle mode (all or individual) and global rounded_style
+        if ( ! $rounded_style ) {
+            // Global rounded style disabled - force zero radius
+            $border_radius = '0';
+            $item_border_radius = '0';
         } else {
-            $border_radius_top_left = $menu['border_radius_top_left'] ?? '12';
-            $border_radius_top_right = $menu['border_radius_top_right'] ?? '12';
-            $border_radius_bottom_right = $menu['border_radius_bottom_right'] ?? '12';
-            $border_radius_bottom_left = $menu['border_radius_bottom_left'] ?? '12';
-            $border_radius = "{$border_radius_top_left}px {$border_radius_top_right}px {$border_radius_bottom_right}px {$border_radius_bottom_left}px";
+            // Use configured border radius
+            $border_radius_mode = $menu['border_radius_mode'] ?? 'all';
+            if ( $border_radius_mode === 'all' ) {
+                $border_radius_all = $menu['border_radius_all'] ?? '12';
+                $border_radius = $border_radius_all . 'px';
+            } else {
+                $border_radius_top_left = $menu['border_radius_top_left'] ?? '12';
+                $border_radius_top_right = $menu['border_radius_top_right'] ?? '12';
+                $border_radius_bottom_right = $menu['border_radius_bottom_right'] ?? '12';
+                $border_radius_bottom_left = $menu['border_radius_bottom_left'] ?? '12';
+                $border_radius = "{$border_radius_top_left}px {$border_radius_top_right}px {$border_radius_bottom_right}px {$border_radius_bottom_left}px";
+            }
+            
+            $item_border_radius = $menu['item_border_radius'] ?? '12';
         }
-        
-        $item_border_radius = $menu['item_border_radius'] ?? '12';
         
         // Typography
         $font_size = $menu['font_size'] ?? '14';
@@ -669,7 +752,7 @@ class WOOW_CSS_Generator {
             $submenu_text_color = $text_color; // Main menu text
             $submenu_hover_text_color = $hover_text_color; // Main menu hover text
             $submenu_hover_bg_color = $hover_bg_color; // Main menu hover bg
-            $submenu_border_radius = $item_border_radius; // Parent item radius
+            $submenu_border_radius = $item_border_radius; // Parent item radius (already respects rounded_style)
             $submenu_font_size = $font_size; // Parent font size
             $submenu_font_weight = $font_weight; // Parent font weight
         } else {
@@ -677,14 +760,15 @@ class WOOW_CSS_Generator {
             $submenu_text_color = $menu['submenu_text_color'] ?? '#0f172a';
             $submenu_hover_text_color = $menu['submenu_hover_text_color'] ?? '#6366f1';
             $submenu_hover_bg_color = $menu['submenu_hover_bg_color'] ?? '#f1f5f9';
-            $submenu_border_radius = $menu['submenu_border_radius'] ?? '12';
+            // Apply global rounded_style to submenu
+            $submenu_border_radius = $rounded_style ? ( $menu['submenu_border_radius'] ?? '12' ) : '0';
             $submenu_font_size = $menu['submenu_font_size'] ?? '13';
             $submenu_font_weight = $menu['submenu_font_weight'] ?? '400';
         }
         
-        // Submenu item settings (not affected by inherit)
+        // Submenu item settings (not affected by inherit) - apply global rounded_style
         $submenu_item_height = $menu['submenu_item_height'] ?? '36';
-        $submenu_item_border_radius = $menu['submenu_item_border_radius'] ?? '8';
+        $submenu_item_border_radius = $rounded_style ? ( $menu['submenu_item_border_radius'] ?? '8' ) : '0';
 
         $this->css .= "/* Admin Menu Styling - Customizable */\n";
         
@@ -696,18 +780,22 @@ class WOOW_CSS_Generator {
         // Style adminmenuwrap with settings from plugin
         // Use higher specificity to override WordPress default rules
         $this->css .= "body.admin-bar #adminmenuwrap {\n";
-        $this->css .= "    position: absolute !important;\n"; // Changed from fixed - allows page scrolling
+        $this->css .= "    position: fixed !important;\n"; // Fixed - stays in place during scrolling
         $this->css .= "    left: {$margin_left}px !important;\n";
         $this->css .= "    width: {$width}px !important;\n";
+        $this->css .= "    height: 85vh !important;\n"; // 85% of viewport height
+        $this->css .= "    z-index: 9990 !important;\n"; // Below admin bar (9999) but above content
         
         // Background based on type
         if ( $background_type === 'glass' ) {
+            // Glassmorphism: transparent background + blur
             // Use glass_base_color if available, fallback to background_color
             $glass_color = $menu['glass_base_color'] ?? $background_color;
             $bg_rgba = $this->hex_to_rgba( $glass_color, $opacity );
             $this->css .= "    background: {$bg_rgba} !important;\n";
             $this->css .= "    backdrop-filter: blur({$blur_strength}px) !important;\n";
             $this->css .= "    -webkit-backdrop-filter: blur({$blur_strength}px) !important;\n";
+            $this->css .= "    border: 1px solid rgba(0, 0, 0, 0.1) !important;\n";
         } elseif ( $background_type === 'gradient' ) {
             $gradient_start = $menu['gradient_start'] ?? '#ffffff';
             $gradient_end = $menu['gradient_end'] ?? '#f8fafc';
@@ -727,7 +815,11 @@ class WOOW_CSS_Generator {
         $this->css .= "    padding: 8px !important;\n";
         $this->css .= "    margin: 0 !important;\n";
         $this->css .= "    border-radius: {$border_radius} !important;\n";
+        
+        // IMPORTANT: #adminmenu should always be transparent to show #adminmenuwrap background
+        // This allows glassmorphism from global styles OR local styles to work
         $this->css .= "    background: transparent !important;\n";
+        
         $this->css .= "    /* ✅ overflow: visible - no clipping, natural height */\n";
         $this->css .= "    overflow: visible !important;\n";
         $this->css .= "    box-sizing: border-box !important;\n";
@@ -738,7 +830,6 @@ class WOOW_CSS_Generator {
         // Fix menu items to stay within bounds (exclude separators)
         $this->css .= "#adminmenu li:not(.wp-menu-separator),\n";
         $this->css .= "#adminmenu li.menu-top:not(.wp-menu-separator) {\n";
-        $this->css .= "    width: 100% !important;\n";
         $this->css .= "    box-sizing: border-box !important;\n";
         $this->css .= "    min-height: {$item_height}px !important;\n";
         $this->css .= "}\n\n";
@@ -1265,59 +1356,78 @@ class WOOW_CSS_Generator {
         $this->css .= "}\n\n";
         
         // ✨ Collapse Button Styling (Figma Design)
-        $this->css .= "/* Collapse Menu Button - Modern Design */\n";
+        $this->css .= "/* Collapse Menu Button - Icon Only (Chevron) */\n";
         $this->css .= "#collapse-menu {\n";
+        $this->css .= "    position: absolute !important;\n";
+        $this->css .= "    bottom: 16px !important;\n";
+        $this->css .= "    left: 8px !important;\n";
+        $this->css .= "    right: 8px !important;\n";
         $this->css .= "    display: flex !important;\n";
         $this->css .= "    align-items: center !important;\n";
-        $this->css .= "    gap: 8px !important;\n";
-        $this->css .= "    padding: 10px 16px !important;\n";
-        $this->css .= "    margin: 8px !important;\n";
-        $this->css .= "    background: rgba(99, 102, 241, 0.08) !important;\n";
-        $this->css .= "    border: 1px solid rgba(99, 102, 241, 0.2) !important;\n";
-        $this->css .= "    border-radius: 12px !important;\n";
+        $this->css .= "    justify-content: center !important;\n";
+        $this->css .= "    padding: 12px !important;\n";
+        $this->css .= "    background: rgba(226, 232, 240, 0.5) !important;\n";
+        $this->css .= "    border: none !important;\n";
+        $this->css .= "    border-radius: 16px !important;\n";
         $this->css .= "    color: #6366f1 !important;\n";
-        $this->css .= "    font-size: 13px !important;\n";
-        $this->css .= "    font-weight: 600 !important;\n";
         $this->css .= "    cursor: pointer !important;\n";
         $this->css .= "    transition: all 0.2s ease !important;\n";
         $this->css .= "    text-decoration: none !important;\n";
+        $this->css .= "    box-shadow: none !important;\n";
         $this->css .= "}\n\n";
         
         $this->css .= "#collapse-menu:hover {\n";
-        $this->css .= "    background: rgba(99, 102, 241, 0.15) !important;\n";
-        $this->css .= "    border-color: rgba(99, 102, 241, 0.3) !important;\n";
-        $this->css .= "    transform: translateY(-1px) !important;\n";
-        $this->css .= "    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15) !important;\n";
+        $this->css .= "    background: rgba(226, 232, 240, 0.8) !important;\n";
+        $this->css .= "    transform: none !important;\n";
+        $this->css .= "    box-shadow: none !important;\n";
         $this->css .= "}\n\n";
         
         $this->css .= "#collapse-menu:active {\n";
-        $this->css .= "    transform: translateY(0) !important;\n";
-        $this->css .= "    box-shadow: 0 1px 3px rgba(99, 102, 241, 0.1) !important;\n";
+        $this->css .= "    background: rgba(226, 232, 240, 1) !important;\n";
+        $this->css .= "    transform: none !important;\n";
         $this->css .= "}\n\n";
         
-        // Collapse button icon
+        // Hide text label - show only icon
+        $this->css .= "#collapse-menu .collapse-button-label {\n";
+        $this->css .= "    display: none !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Replace icon with chevron (triangular bracket)
         $this->css .= "#collapse-menu .collapse-button-icon {\n";
-        $this->css .= "    width: 16px !important;\n";
-        $this->css .= "    height: 16px !important;\n";
+        $this->css .= "    width: 20px !important;\n";
+        $this->css .= "    height: 20px !important;\n";
         $this->css .= "    display: flex !important;\n";
         $this->css .= "    align-items: center !important;\n";
         $this->css .= "    justify-content: center !important;\n";
         $this->css .= "    transition: transform 0.2s ease !important;\n";
         $this->css .= "}\n\n";
         
+        // Hide default dashicon and use CSS chevron
+        $this->css .= "#collapse-menu .collapse-button-icon::before {\n";
+        $this->css .= "    content: '' !important;\n";
+        $this->css .= "    display: block !important;\n";
+        $this->css .= "    width: 8px !important;\n";
+        $this->css .= "    height: 8px !important;\n";
+        $this->css .= "    border-left: 2px solid currentColor !important;\n";
+        $this->css .= "    border-bottom: 2px solid currentColor !important;\n";
+        $this->css .= "    transform: rotate(45deg) !important;\n";
+        $this->css .= "    margin-right: -2px !important;\n";
+        $this->css .= "}\n\n";
+        
         $this->css .= "#collapse-menu:hover .collapse-button-icon {\n";
         $this->css .= "    transform: translateX(-2px) !important;\n";
         $this->css .= "}\n\n";
         
-        // Collapsed state - show only icon
-        $this->css .= ".folded #collapse-menu {\n";
-        $this->css .= "    justify-content: center !important;\n";
-        $this->css .= "    padding: 12px !important;\n";
-        $this->css .= "    width: calc(100% - 16px) !important;\n";
+        // Make room for collapse button at bottom
+        $this->css .= "#adminmenu {\n";
+        $this->css .= "    padding-bottom: 72px !important;\n";
         $this->css .= "}\n\n";
         
-        $this->css .= ".folded #collapse-menu .collapse-button-label {\n";
-        $this->css .= "    display: none !important;\n";
+        // Collapsed state - flip chevron direction
+        $this->css .= ".folded #collapse-menu .collapse-button-icon::before {\n";
+        $this->css .= "    transform: rotate(-135deg) !important;\n";
+        $this->css .= "    margin-right: 0 !important;\n";
+        $this->css .= "    margin-left: -2px !important;\n";
         $this->css .= "}\n\n";
         
         $this->css .= ".folded #collapse-menu:hover .collapse-button-icon {\n";
@@ -1357,14 +1467,18 @@ class WOOW_CSS_Generator {
     private function add_dashboard_widget_styles(): void {
         $widgets = $this->settings->get_section( 'dashboard_widgets' );
         
+        // Check global rounded_style setting
+        $general = $this->settings->get_section( 'general' );
+        $rounded_style = $general['rounded_style'] ?? true;
+        
         // Get colors with defaults
         $background_color = $widgets['background_color'] ?? '#ffffff';
         $border_color = $widgets['border_color'] ?? '#e2e8f0';
         $text_color = $widgets['text_color'] ?? '#0f172a';
         $heading_color = $widgets['heading_color'] ?? '#0f172a';
         
-        // Get dimensions
-        $border_radius = $widgets['border_radius'] ?? '24px';
+        // Get dimensions - apply global rounded_style
+        $border_radius = $rounded_style ? ( $widgets['border_radius'] ?? '24px' ) : '0';
         $padding = $widgets['padding'] ?? '24px';
         
         // Get shadow
@@ -1501,6 +1615,11 @@ class WOOW_CSS_Generator {
      */
     private function add_form_control_styles(): void {
         $forms = $this->settings->get_section( 'form_controls' );
+        
+        // Check global rounded_style setting
+        $general = $this->settings->get_section( 'general' );
+        $rounded_style = $general['rounded_style'] ?? true;
+        $form_border_radius = $rounded_style ? ( $forms['border_radius'] ?? '12px' ) : '0';
 
         $this->css .= "/* Form Controls Styling */\n";
         $this->css .= "input[type=\"text\"],\n";
@@ -1515,7 +1634,7 @@ class WOOW_CSS_Generator {
         $this->css .= "    height: {$forms['input_height']} !important;\n";
         $this->css .= "    padding: 10px 14px !important;\n";
         $this->css .= "    border: 1px solid {$forms['border_color']} !important;\n";
-        $this->css .= "    border-radius: {$forms['border_radius']} !important;\n";
+        $this->css .= "    border-radius: {$form_border_radius} !important;\n";
         $this->css .= "    color: {$forms['text_color']} !important;\n";
         $this->css .= "    font-size: 15px !important;\n";
         $this->css .= "    font-weight: 400 !important;\n";
@@ -1546,7 +1665,7 @@ class WOOW_CSS_Generator {
         $this->css .= "textarea {\n";
         $this->css .= "    padding: 14px !important;\n";
         $this->css .= "    border: 1px solid {$forms['border_color']} !important;\n";
-        $this->css .= "    border-radius: {$forms['border_radius']} !important;\n";
+        $this->css .= "    border-radius: {$form_border_radius} !important;\n";
         $this->css .= "    background: {$forms['background_color']} !important;\n";
         $this->css .= "    font-size: 15px !important;\n";
         $this->css .= "    min-height: 120px !important;\n";
@@ -1564,7 +1683,7 @@ class WOOW_CSS_Generator {
         $this->css .= "    height: {$forms['input_height']} !important;\n";
         $this->css .= "    padding: 10px 14px !important;\n";
         $this->css .= "    border: 1px solid {$forms['border_color']} !important;\n";
-        $this->css .= "    border-radius: {$forms['border_radius']} !important;\n";
+        $this->css .= "    border-radius: {$form_border_radius} !important;\n";
         $this->css .= "    background: {$forms['background_color']} !important;\n";
         $this->css .= "    font-size: 15px !important;\n";
         $this->css .= "    line-height: normal !important;\n"; // Added - remove line-height
@@ -1576,12 +1695,13 @@ class WOOW_CSS_Generator {
         
         $this->css .= "}\n\n";
         
-        // Checkbox
+        // Checkbox - apply global rounded_style
+        $checkbox_radius = $rounded_style ? '6px' : '0';
         $this->css .= "input[type=\"checkbox\"] {\n";
         $this->css .= "    width: {$forms['checkbox_size']} !important;\n";
         $this->css .= "    height: {$forms['checkbox_size']} !important;\n";
         $this->css .= "    border: 2px solid #e2e8f0 !important;\n";
-        $this->css .= "    border-radius: 6px !important;\n";
+        $this->css .= "    border-radius: {$checkbox_radius} !important;\n";
         $this->css .= "    background: #ffffff !important;\n";
         $this->css .= "    cursor: pointer !important;\n";
         $this->css .= "    transition: all 200ms var(--woow-easing) !important;\n";
@@ -1622,14 +1742,15 @@ class WOOW_CSS_Generator {
         $this->css .= "    margin-top: 6px !important;\n";
         $this->css .= "}\n\n";
         
-        // Table Styling (Posts, Pages, etc.)
+        // Table Styling (Posts, Pages, etc.) - apply global rounded_style
+        $table_radius = $rounded_style ? '12px' : '0';
         $this->css .= "/* WordPress Tables Styling */\n";
         $this->css .= ".wp-list-table {\n";
         $this->css .= "    background: rgba(255, 255, 255, 0.8) !important;\n";
         $this->css .= "    backdrop-filter: blur(8px) !important;\n";
         $this->css .= "    -webkit-backdrop-filter: blur(8px) !important;\n";
         $this->css .= "    border: 1px solid rgba(226, 232, 240, 0.8) !important;\n";
-        $this->css .= "    border-radius: 12px !important;\n";
+        $this->css .= "    border-radius: {$table_radius} !important;\n";
         $this->css .= "    overflow: hidden !important;\n";
         $this->css .= "    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;\n";
         $this->css .= "}\n\n";
@@ -1759,6 +1880,11 @@ class WOOW_CSS_Generator {
      */
     private function add_button_styles(): void {
         $buttons = $this->settings->get_section( 'buttons' );
+        
+        // Check global rounded_style setting
+        $general = $this->settings->get_section( 'general' );
+        $rounded_style = $general['rounded_style'] ?? true;
+        $button_border_radius = $rounded_style ? ( $buttons['border_radius'] ?? '12px' ) : '0';
 
         $this->css .= "/* Button Styling */\n";
         
@@ -1767,7 +1893,7 @@ class WOOW_CSS_Generator {
         $this->css .= "    height: {$buttons['height']} !important;\n";
         $this->css .= "    padding: 10px 16px !important;\n";
         $this->css .= "    border: none !important;\n";
-        $this->css .= "    border-radius: {$buttons['border_radius']} !important;\n";
+        $this->css .= "    border-radius: {$button_border_radius} !important;\n";
         $this->css .= "    background: {$buttons['primary_bg']} !important;\n";
         $this->css .= "    color: {$buttons['primary_text']} !important;\n";
         $this->css .= "    font-size: 14px !important;\n";
@@ -1787,11 +1913,20 @@ class WOOW_CSS_Generator {
         $this->css .= "    transform: scale(1);\n";
         $this->css .= "}\n\n";
         
-        $rgb = $this->hex_to_rgb( $buttons['primary_bg'] );
-        $this->css .= ".button-primary:focus {\n";
-        $this->css .= "    outline: none !important;\n";
-        $this->css .= "    box-shadow: 0 0 0 4px rgba({$rgb}, 0.2) !important;\n";
-        $this->css .= "}\n\n";
+        // Only add focus shadow if primary_bg is a valid hex color (not gradient)
+        if ( strpos( $buttons['primary_bg'], 'gradient' ) === false && strpos( $buttons['primary_bg'], 'rgba' ) === false ) {
+            $rgb = $this->hex_to_rgb( $buttons['primary_bg'] );
+            $this->css .= ".button-primary:focus {\n";
+            $this->css .= "    outline: none !important;\n";
+            $this->css .= "    box-shadow: 0 0 0 4px rgba({$rgb}, 0.2) !important;\n";
+            $this->css .= "}\n\n";
+        } else {
+            // Fallback for gradient/rgba - use generic indigo color
+            $this->css .= ".button-primary:focus {\n";
+            $this->css .= "    outline: none !important;\n";
+            $this->css .= "    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2) !important;\n";
+            $this->css .= "}\n\n";
+        }
         
         // Secondary button
         $this->css .= ".wp-core-ui .button,\n";
@@ -1799,7 +1934,7 @@ class WOOW_CSS_Generator {
         $this->css .= "    height: {$buttons['height']} !important;\n";
         $this->css .= "    padding: 10px 16px !important;\n";
         $this->css .= "    border: 1px solid {$buttons['secondary_border']} !important;\n";
-        $this->css .= "    border-radius: {$buttons['border_radius']} !important;\n";
+        $this->css .= "    border-radius: {$button_border_radius} !important;\n";
         $this->css .= "    background: {$buttons['secondary_bg']} !important;\n";
         $this->css .= "    color: {$buttons['secondary_text']} !important;\n";
         $this->css .= "    font-size: 14px !important;\n";
@@ -1926,13 +2061,17 @@ class WOOW_CSS_Generator {
         $this->css .= "    overflow: visible !important;\n";
         $this->css .= "}\n\n";
         
-        // Apply background to #wpbody-content (main content area)
+        // Apply background to #wpbody-content (main content area) - apply global rounded_style
+        $general = $this->settings->get_section( 'general' );
+        $rounded_style = $general['rounded_style'] ?? true;
+        $content_radius = $rounded_style ? '12px' : '0';
+        
         $this->css .= "#wpbody-content {\n";
         $this->css .= "    padding: 16px !important;\n";
         $this->css .= "    margin-top: 0 !important;\n";
         $this->css .= "    margin-left: 0 !important;\n";
         $this->css .= "    background: {$wpbody_content_bg} !important;\n";
-        $this->css .= "    border-radius: 12px !important;\n";
+        $this->css .= "    border-radius: {$content_radius} !important;\n";
         $this->css .= "    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;\n";
         $this->css .= "}\n\n";
         
@@ -1952,6 +2091,67 @@ class WOOW_CSS_Generator {
             $this->css .= "/* Background Custom CSS */\n";
             $this->css .= $this->sanitize_css( $bg['custom_css'] ) . "\n\n";
         }
+    }
+
+    /**
+     * Add content styling styles
+     *
+     * @return void
+     */
+    private function add_content_styling_styles(): void {
+        $content = $this->settings->get_section( 'content_styling' );
+        
+        // Check global rounded_style setting
+        $general = $this->settings->get_section( 'general' );
+        $rounded_style = $general['rounded_style'] ?? true;
+        
+        // Get settings with defaults - apply global rounded_style
+        $wpbody_border_radius = $rounded_style ? ( $content['wpbody_content_border_radius'] ?? '24' ) : '0';
+        $wpbody_glassmorphism = $content['wpbody_content_glassmorphism'] ?? false;
+        $wpbody_opacity = $content['wpbody_content_opacity'] ?? 0.9;
+        $wpbody_blur = $content['wpbody_content_blur_strength'] ?? '12';
+        
+        $table_border_radius = $rounded_style ? ( $content['wp_list_table_border_radius'] ?? '12' ) : '0';
+        
+        $this->css .= "/* Content Styling */\n";
+        
+        // WPBody Content
+        $this->css .= "#wpbody-content {\n";
+        $this->css .= "    border-radius: {$wpbody_border_radius}px !important;\n";
+        
+        // Apply glassmorphism if local setting is enabled
+        if ( $wpbody_glassmorphism ) {
+            $this->css .= "    backdrop-filter: blur({$wpbody_blur}px) !important;\n";
+            $this->css .= "    -webkit-backdrop-filter: blur({$wpbody_blur}px) !important;\n";
+            $this->css .= "    background: rgba(255, 255, 255, {$wpbody_opacity}) !important;\n";
+            $this->css .= "    border: 1px solid rgba(0, 0, 0, 0.1) !important;\n";
+        }
+        
+        $this->css .= "}\n\n";
+        
+        // WP List Table
+        $this->css .= ".wp-list-table,\n";
+        $this->css .= ".widefat {\n";
+        $this->css .= "    border-radius: {$table_border_radius}px !important;\n";
+        $this->css .= "    overflow: hidden !important;\n";
+        $this->css .= "}\n\n";
+        
+        // Table header
+        $this->css .= ".wp-list-table thead th,\n";
+        $this->css .= ".widefat thead th {\n";
+        $this->css .= "    border-radius: 0 !important;\n";
+        $this->css .= "}\n\n";
+        
+        // First and last header cells
+        $this->css .= ".wp-list-table thead th:first-child,\n";
+        $this->css .= ".widefat thead th:first-child {\n";
+        $this->css .= "    border-top-left-radius: {$table_border_radius}px !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".wp-list-table thead th:last-child,\n";
+        $this->css .= ".widefat thead th:last-child {\n";
+        $this->css .= "    border-top-right-radius: {$table_border_radius}px !important;\n";
+        $this->css .= "}\n\n";
     }
 
     /**
@@ -2165,7 +2365,19 @@ class WOOW_CSS_Generator {
      * @return string RGB values as comma-separated string
      */
     private function hex_to_rgb( string $hex ): string {
+        // Validate input - must be hex color, not gradient or rgba
+        if ( strpos( $hex, 'gradient' ) !== false || strpos( $hex, 'rgba' ) !== false || strpos( $hex, 'rgb' ) !== false ) {
+            // Return default indigo color for invalid input
+            return '99,102,241';
+        }
+        
         $hex = ltrim( $hex, '#' );
+        
+        // Validate hex format
+        if ( ! preg_match( '/^[0-9A-Fa-f]{3}$|^[0-9A-Fa-f]{6}$/', $hex ) ) {
+            // Return default indigo color for invalid hex
+            return '99,102,241';
+        }
         
         if ( strlen( $hex ) === 3 ) {
             $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
