@@ -26,6 +26,7 @@
 @import './components/template-grid.css';
 @import './components/toast.css';
 @import './components/preview.css';
+@import './components/typography-tab.css';
 
 /* WordPress Overrides */
 @import './wordpress-overrides/admin-bar.css';

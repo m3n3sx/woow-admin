@@ -316,8 +316,12 @@ class WOOW_CSS_Generator {
         }
         
         $this->css .= "/* Admin Bar Styling - Customizable */\n";
+        $this->css .= "/* Ensure admin bar is always positioned relative to viewport */\n";
+        $this->css .= "html {\n";
+        $this->css .= "    position: relative !important;\n";
+        $this->css .= "}\n\n";
         $this->css .= "#wpadminbar {\n";
-        $this->css .= "    /* Position and spacing */\n";
+        $this->css .= "    /* Position and spacing - ALWAYS relative to viewport */\n";
         $this->css .= "    position: {$position} !important;\n";
         $this->css .= "    top: {$margin_top}px !important;\n";
         $this->css .= "    left: {$final_left} !important;\n";
@@ -328,7 +332,9 @@ class WOOW_CSS_Generator {
         $this->css .= "    height: {$height} !important;\n";
         $this->css .= "    margin: 0 !important;\n";
         $this->css .= "    box-sizing: border-box !important;\n";
-        $this->css .= "    z-index: 99999 !important;\n";
+        $this->css .= "    z-index: 999999 !important;\n";
+        $this->css .= "    transform: translateZ(0) !important;\n";
+        $this->css .= "    will-change: transform !important;\n";
         $this->css .= "    \n";
         $this->css .= "    /* Flexbox for vertical centering */\n";
         $this->css .= "    display: flex !important;\n";
@@ -376,6 +382,28 @@ class WOOW_CSS_Generator {
             $this->css .= "    background: {$bar['background_color']} !important;\n";
         }
         
+        $this->css .= "}\n\n";
+        
+        // Fix for WOOW Admin plugin page - ensure admin bar is at top of viewport
+        $this->css .= "/* Fix admin bar positioning on WOOW Admin plugin page */\n";
+        $this->css .= ".toplevel_page_woow-admin #wpadminbar {\n";
+        $this->css .= "    position: fixed !important;\n";
+        $this->css .= "    top: {$margin_top}px !important;\n";
+        $this->css .= "    left: {$final_left} !important;\n";
+        $this->css .= "    right: {$final_right} !important;\n";
+        $this->css .= "    z-index: 999999 !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".toplevel_page_woow-admin #wpcontent,\n";
+        $this->css .= ".toplevel_page_woow-admin #wpbody,\n";
+        $this->css .= ".toplevel_page_woow-admin #wpbody-content {\n";
+        $this->css .= "    padding-top: 0 !important;\n";
+        $this->css .= "    margin-top: 0 !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".toplevel_page_woow-admin .woow-admin-wrap {\n";
+        $this->css .= "    margin-top: 0 !important;\n";
+        $this->css .= "    padding-top: 0 !important;\n";
         $this->css .= "}\n\n";
         
         // Adjust body padding to account for floating admin bar
@@ -2163,6 +2191,71 @@ class WOOW_CSS_Generator {
         $typo = $this->settings->get_section( 'typography' );
 
         $this->css .= "/* Typography Styling */\n";
+        
+        // Get font settings
+        $body_font = $typo['body_font'] ?? 'system';
+        $heading_font = $typo['heading_font'] ?? 'system';
+        $body_weights = $typo['body_weights'] ?? [400, 600, 700];
+        $heading_weights = $typo['heading_weights'] ?? [600, 700];
+        
+        // Initialize Google Fonts manager
+        $google_fonts = new WOOW_Google_Fonts();
+        
+        // Track fonts to load (for deduplication)
+        $fonts_to_load = [];
+        
+        // Collect body font if not system
+        if ( $body_font !== 'system' && $google_fonts->is_valid_font( $body_font ) ) {
+            $fonts_to_load[ $body_font ] = isset( $fonts_to_load[ $body_font ] ) 
+                ? array_unique( array_merge( $fonts_to_load[ $body_font ], $body_weights ) )
+                : $body_weights;
+        }
+        
+        // Collect heading font if not system
+        if ( $heading_font !== 'system' && $google_fonts->is_valid_font( $heading_font ) ) {
+            $fonts_to_load[ $heading_font ] = isset( $fonts_to_load[ $heading_font ] )
+                ? array_unique( array_merge( $fonts_to_load[ $heading_font ], $heading_weights ) )
+                : $heading_weights;
+        }
+        
+        // Generate @import statements for Google Fonts (deduplicated)
+        if ( ! empty( $fonts_to_load ) ) {
+            foreach ( $fonts_to_load as $font_name => $weights ) {
+                $font_url = $google_fonts->get_font_url( $font_name, $weights );
+                if ( ! empty( $font_url ) ) {
+                    $this->css .= "@import url('{$font_url}');\n";
+                }
+            }
+            $this->css .= "\n";
+        }
+        
+        // Generate font-family rules for body elements
+        if ( $body_font !== 'system' && $google_fonts->is_valid_font( $body_font ) ) {
+            $body_font_family = $google_fonts->get_font_family_css( $body_font );
+            
+            $this->css .= "/* Body Font Application */\n";
+            $this->css .= "body,\n";
+            $this->css .= "input,\n";
+            $this->css .= "textarea,\n";
+            $this->css .= "select {\n";
+            $this->css .= "    font-family: {$body_font_family} !important;\n";
+            $this->css .= "}\n\n";
+        }
+        
+        // Generate font-family rules for heading elements
+        if ( $heading_font !== 'system' && $google_fonts->is_valid_font( $heading_font ) ) {
+            $heading_font_family = $google_fonts->get_font_family_css( $heading_font );
+            
+            $this->css .= "/* Heading Font Application */\n";
+            $this->css .= "h1,\n";
+            $this->css .= "h2,\n";
+            $this->css .= "h3,\n";
+            $this->css .= "h4,\n";
+            $this->css .= "h5,\n";
+            $this->css .= "h6 {\n";
+            $this->css .= "    font-family: {$heading_font_family} !important;\n";
+            $this->css .= "}\n\n";
+        }
         
         // H1
         $this->css .= "h1 {\n";

@@ -19,6 +19,7 @@ import { HeaderController } from './components/HeaderController.js';
 import { LayoutController } from './components/LayoutController.js';
 import { ConditionalFields } from './components/ConditionalFields.js';
 import { MediaUploader } from './components/MediaUploader.js';
+import { GoogleFontsLoader } from './components/GoogleFontsLoader.js';
 import { Validator } from './utils/Validator.js';
 
 /**
@@ -86,6 +87,7 @@ class WoowAdmin {
             this.components.keyboardShortcuts = new KeyboardShortcuts(this);
             this.components.conditionalFields = new ConditionalFields(this);
             this.components.mediaUploader = new MediaUploader(this);
+            this.components.googleFontsLoader = new GoogleFontsLoader(this);
 
             // Check for unsaved data and offer to restore
             this.checkUnsavedData();
@@ -194,6 +196,9 @@ class WoowAdmin {
         
         // Handle Glass Style toggle with event delegation
         this.setupGlassStyleToggle();
+        
+        // Handle typography font changes for live preview
+        this.setupTypographyLivePreview();
     }
     
     /**
@@ -1856,6 +1861,55 @@ class WoowAdmin {
         
         console.log('[WOOW Admin] Glass Style applied successfully');
         this.showNotification('Glass Style applied! Glassmorphism enabled for Admin Bar, Menu, and Content.', 'success');
+    }
+    
+    /**
+     * Setup typography live preview integration
+     * Triggers live preview updates when fonts or weights change
+     */
+    setupTypographyLivePreview() {
+        console.log('[WOOW Admin] Setting up typography live preview...');
+        
+        // Font selector change events
+        const fontSelectors = document.querySelectorAll('.woow-font-selector');
+        fontSelectors.forEach(selector => {
+            selector.addEventListener('change', () => {
+                console.log('[WOOW Admin] Font selector changed, triggering live preview');
+                
+                // Mark as unsaved
+                this.state.unsavedChanges = true;
+                this.updateSaveButtonState();
+                
+                // Trigger live preview if real-time is enabled
+                if (this.state.realtimeEnabled) {
+                    this.debouncedPreview();
+                }
+            });
+        });
+        
+        // Weight checkbox change events
+        const weightCheckboxes = document.querySelectorAll(
+            'input[name="typography[body_weights][]"], input[name="typography[heading_weights][]"]'
+        );
+        weightCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                console.log('[WOOW Admin] Font weight changed, triggering live preview');
+                
+                // Mark as unsaved
+                this.state.unsavedChanges = true;
+                this.updateSaveButtonState();
+                
+                // Trigger live preview if real-time is enabled
+                if (this.state.realtimeEnabled) {
+                    this.debouncedPreview();
+                }
+            });
+        });
+        
+        console.log('[WOOW Admin] Typography live preview initialized:', {
+            fontSelectors: fontSelectors.length,
+            weightCheckboxes: weightCheckboxes.length
+        });
     }
 }
 

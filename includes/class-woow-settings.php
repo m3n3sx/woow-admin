@@ -1351,6 +1351,40 @@ class WOOW_Settings {
                         $is_valid = false;
                         $error_message = "Value must be a string";
                     }
+                    
+                    // Validate font names against approved Google Fonts library
+                    if ( ( $key === 'body_font' || $key === 'heading_font' ) && $value !== 'system' ) {
+                        // Load Google Fonts class if not already loaded
+                        if ( ! class_exists( 'WOOW_Google_Fonts' ) ) {
+                            require_once WOOW_PLUGIN_DIR . 'includes/class-woow-google-fonts.php';
+                        }
+                        
+                        $google_fonts = new WOOW_Google_Fonts();
+                        if ( ! $google_fonts->is_valid_font( $value ) ) {
+                            $is_valid = false;
+                            $error_message = "Invalid font name (not in approved Google Fonts library)";
+                        }
+                    }
+                }
+                // Typography weight arrays validation
+                elseif ( $section === 'typography' && ( 
+                    $key === 'body_weights' || 
+                    $key === 'heading_weights'
+                ) ) {
+                    // These must be arrays of numeric weight values
+                    if ( ! is_array( $value ) ) {
+                        $is_valid = false;
+                        $error_message = "Value must be an array of font weights";
+                    } else {
+                        // Validate each weight in the array
+                        foreach ( $value as $weight ) {
+                            if ( ! is_numeric( $weight ) || $weight < 100 || $weight > 900 || $weight % 100 !== 0 ) {
+                                $is_valid = false;
+                                $error_message = "Font weights must be numeric values between 100 and 900 in increments of 100";
+                                break;
+                            }
+                        }
+                    }
                 }
                 elseif ( strpos( $key, 'height' ) !== false || strpos( $key, 'size' ) !== false || strpos( $key, 'radius' ) !== false || strpos( $key, 'padding' ) !== false || strpos( $key, 'margin' ) !== false || strpos( $key, 'offset' ) !== false || strpos( $key, 'blur' ) !== false ) {
                     // Convert to string if numeric (for validation)
@@ -1405,6 +1439,56 @@ class WOOW_Settings {
      * @return mixed Sanitized value
      */
     public function sanitize_value( string $key, $value ) {
+        // Typography font name sanitization
+        if ( $key === 'body_font' || $key === 'heading_font' ) {
+            // Sanitize as text field
+            $sanitized = sanitize_text_field( $value );
+            
+            // Validate against approved fonts
+            if ( $sanitized !== 'system' ) {
+                if ( ! class_exists( 'WOOW_Google_Fonts' ) ) {
+                    require_once WOOW_PLUGIN_DIR . 'includes/class-woow-google-fonts.php';
+                }
+                
+                $google_fonts = new WOOW_Google_Fonts();
+                if ( ! $google_fonts->is_valid_font( $sanitized ) ) {
+                    // Invalid font - return 'system' as fallback
+                    return 'system';
+                }
+            }
+            
+            return $sanitized;
+        }
+        
+        // Typography weight arrays sanitization
+        if ( $key === 'body_weights' || $key === 'heading_weights' ) {
+            // Ensure it's an array
+            if ( ! is_array( $value ) ) {
+                return [400]; // Default to regular weight
+            }
+            
+            // Sanitize each weight
+            $sanitized_weights = [];
+            foreach ( $value as $weight ) {
+                $weight = intval( $weight );
+                // Validate range and increment
+                if ( $weight >= 100 && $weight <= 900 && $weight % 100 === 0 ) {
+                    $sanitized_weights[] = $weight;
+                }
+            }
+            
+            // If no valid weights, return default
+            if ( empty( $sanitized_weights ) ) {
+                return [400];
+            }
+            
+            // Remove duplicates and sort
+            $sanitized_weights = array_unique( $sanitized_weights );
+            sort( $sanitized_weights );
+            
+            return $sanitized_weights;
+        }
+        
         // Color sanitization
         if ( strpos( $key, 'color' ) !== false || strpos( $key, '_bg' ) !== false || strpos( $key, '_text' ) !== false ) {
             return $this->sanitize_color( $value );

@@ -1,0 +1,882 @@
+/**
+ * Dark Mode System - CSS Variables and Styles
+ * 
+ * Comprehensive dark mode implementation for WordPress admin interface.
+ * Includes color tokens, transitions, and WordPress-specific overrides.
+ * 
+ * @package WoowAdmin
+ * @since 1.0.0
+ */
+
+/* ============================================================================
+   LIGHT THEME (Default)
+   ============================================================================ */
+
+:root {
+  /* Background Colors */
+  --woow-dm-bg-primary: #ffffff;
+  --woow-dm-bg-secondary: #f9fafb;
+  --woow-dm-bg-tertiary: #f3f4f6;
+  --woow-dm-bg-elevated: #ffffff;
+  
+  /* Text Colors */
+  --woow-dm-text-primary: #111827;
+  --woow-dm-text-secondary: #6b7280;
+  --woow-dm-text-tertiary: #9ca3af;
+  --woow-dm-text-inverse: #ffffff;
+  
+  /* Border Colors */
+  --woow-dm-border-primary: #e5e7eb;
+  --woow-dm-border-secondary: #d1d5db;
+  --woow-dm-border-focus: #6366f1;
+  
+  /* Shadow Colors */
+  --woow-dm-shadow-sm: rgba(0, 0, 0, 0.05);
+  --woow-dm-shadow-md: rgba(0, 0, 0, 0.1);
+  --woow-dm-shadow-lg: rgba(0, 0, 0, 0.15);
+  --woow-dm-shadow-xl: rgba(0, 0, 0, 0.2);
+  
+  /* Form Input Colors */
+  --woow-dm-input-bg: #ffffff;
+  --woow-dm-input-border: #d1d5db;
+  --woow-dm-input-text: #111827;
+  --woow-dm-input-placeholder: #9ca3af;
+  --woow-dm-input-focus-border: #6366f1;
+  --woow-dm-input-focus-ring: rgba(99, 102, 241, 0.2);
+  
+  /* Button Colors */
+  --woow-dm-button-primary-bg: #6366f1;
+  --woow-dm-button-primary-text: #ffffff;
+  --woow-dm-button-primary-hover: #4f46e5;
+  --woow-dm-button-secondary-bg: #f3f4f6;
+  --woow-dm-button-secondary-text: #374151;
+  --woow-dm-button-secondary-hover: #e5e7eb;
+  
+  /* WordPress Admin Bar */
+  --woow-dm-adminbar-bg: #23282d;
+  --woow-dm-adminbar-text: #ffffff;
+  --woow-dm-adminbar-hover-bg: #32373c;
+  --woow-dm-adminbar-hover-text: #72aee6;
+  --woow-dm-adminbar-submenu-bg: #32373c;
+  
+  /* WordPress Admin Menu */
+  --woow-dm-adminmenu-bg: #23282d;
+  --woow-dm-adminmenu-text: #eee;
+  --woow-dm-adminmenu-hover-bg: #1d2327;
+  --woow-dm-adminmenu-hover-text: #72aee6;
+  --woow-dm-adminmenu-current-bg: #0073aa;
+  --woow-dm-adminmenu-current-text: #ffffff;
+  --woow-dm-adminmenu-submenu-bg: #32373c;
+  --woow-dm-adminmenu-submenu-text: #eee;
+  
+  /* WordPress Content Area */
+  --woow-dm-content-bg: #f0f0f1;
+  --woow-dm-content-text: #2c3338;
+  --woow-dm-content-heading: #1d2327;
+  
+  /* WordPress Cards/Panels */
+  --woow-dm-card-bg: #ffffff;
+  --woow-dm-card-border: #c3c4c7;
+  --woow-dm-card-shadow: rgba(0, 0, 0, 0.04);
+  
+  /* WordPress Tables */
+  --woow-dm-table-bg: #ffffff;
+  --woow-dm-table-border: #c3c4c7;
+  --woow-dm-table-stripe: #f6f7f7;
+  --woow-dm-table-hover: #f0f0f1;
+  
+  /* WordPress Notices */
+  --woow-dm-notice-info-bg: #e5f5fa;
+  --woow-dm-notice-info-border: #72aee6;
+  --woow-dm-notice-success-bg: #ecf7ed;
+  --woow-dm-notice-success-border: #46b450;
+  --woow-dm-notice-warning-bg: #fcf9e8;
+  --woow-dm-notice-warning-border: #f0b849;
+  --woow-dm-notice-error-bg: #f8d7da;
+  --woow-dm-notice-error-border: #d63638;
+  
+  /* Glassmorphism Effects */
+  --woow-dm-glass-bg: rgba(255, 255, 255, 0.6);
+  --woow-dm-glass-bg-strong: rgba(255, 255, 255, 0.9);
+  --woow-dm-glass-border: rgba(255, 255, 255, 0.4);
+  --woow-dm-glass-shadow: rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================================================
+   DARK THEME
+   ============================================================================ */
+
+body.woow-dark-mode,
+.woow-dark-mode {
+  /* Background Colors */
+  --woow-dm-bg-primary: #1f2937;
+  --woow-dm-bg-secondary: #111827;
+  --woow-dm-bg-tertiary: #0f172a;
+  --woow-dm-bg-elevated: #374151;
+  
+  /* Text Colors */
+  --woow-dm-text-primary: #f9fafb;
+  --woow-dm-text-secondary: #d1d5db;
+  --woow-dm-text-tertiary: #9ca3af;
+  --woow-dm-text-inverse: #111827;
+  
+  /* Border Colors */
+  --woow-dm-border-primary: #374151;
+  --woow-dm-border-secondary: #4b5563;
+  --woow-dm-border-focus: #818cf8;
+  
+  /* Shadow Colors */
+  --woow-dm-shadow-sm: rgba(0, 0, 0, 0.2);
+  --woow-dm-shadow-md: rgba(0, 0, 0, 0.3);
+  --woow-dm-shadow-lg: rgba(0, 0, 0, 0.4);
+  --woow-dm-shadow-xl: rgba(0, 0, 0, 0.5);
+  
+  /* Form Input Colors */
+  --woow-dm-input-bg: #374151;
+  --woow-dm-input-border: #4b5563;
+  --woow-dm-input-text: #f9fafb;
+  --woow-dm-input-placeholder: #9ca3af;
+  --woow-dm-input-focus-border: #818cf8;
+  --woow-dm-input-focus-ring: rgba(129, 140, 248, 0.3);
+  
+  /* Button Colors */
+  --woow-dm-button-primary-bg: #818cf8;
+  --woow-dm-button-primary-text: #ffffff;
+  --woow-dm-button-primary-hover: #6366f1;
+  --woow-dm-button-secondary-bg: #374151;
+  --woow-dm-button-secondary-text: #f9fafb;
+  --woow-dm-button-secondary-hover: #4b5563;
+  
+  /* WordPress Admin Bar */
+  --woow-dm-adminbar-bg: #1f2937;
+  --woow-dm-adminbar-text: #f9fafb;
+  --woow-dm-adminbar-hover-bg: #374151;
+  --woow-dm-adminbar-hover-text: #818cf8;
+  --woow-dm-adminbar-submenu-bg: #374151;
+  
+  /* WordPress Admin Menu */
+  --woow-dm-adminmenu-bg: #1f2937;
+  --woow-dm-adminmenu-text: #d1d5db;
+  --woow-dm-adminmenu-hover-bg: #111827;
+  --woow-dm-adminmenu-hover-text: #818cf8;
+  --woow-dm-adminmenu-current-bg: #6366f1;
+  --woow-dm-adminmenu-current-text: #ffffff;
+  --woow-dm-adminmenu-submenu-bg: #374151;
+  --woow-dm-adminmenu-submenu-text: #d1d5db;
+  
+  /* WordPress Content Area */
+  --woow-dm-content-bg: #111827;
+  --woow-dm-content-text: #e5e7eb;
+  --woow-dm-content-heading: #f9fafb;
+  
+  /* WordPress Cards/Panels */
+  --woow-dm-card-bg: #1f2937;
+  --woow-dm-card-border: #374151;
+  --woow-dm-card-shadow: rgba(0, 0, 0, 0.3);
+  
+  /* WordPress Tables */
+  --woow-dm-table-bg: #1f2937;
+  --woow-dm-table-border: #374151;
+  --woow-dm-table-stripe: #111827;
+  --woow-dm-table-hover: #374151;
+  
+  /* WordPress Notices */
+  --woow-dm-notice-info-bg: #1e3a5f;
+  --woow-dm-notice-info-border: #3b82f6;
+  --woow-dm-notice-success-bg: #1e4620;
+  --woow-dm-notice-success-border: #22c55e;
+  --woow-dm-notice-warning-bg: #4a3c1e;
+  --woow-dm-notice-warning-border: #f59e0b;
+  --woow-dm-notice-error-bg: #4a1e1e;
+  --woow-dm-notice-error-border: #ef4444;
+  
+  /* Glassmorphism Effects */
+  --woow-dm-glass-bg: rgba(31, 41, 59, 0.6);
+  --woow-dm-glass-bg-strong: rgba(31, 41, 59, 0.9);
+  --woow-dm-glass-border: rgba(55, 65, 81, 0.4);
+  --woow-dm-glass-shadow: rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================================================
+   SMOOTH TRANSITIONS
+   ============================================================================ */
+
+/**
+ * Smooth Transitions Implementation
+ * 
+ * Requirements 6.1, 6.2, 6.4, 6.5:
+ * - 300ms transition duration with ease timing
+ * - All color properties transition simultaneously
+ * - Smooth visual experience during theme switches
+ */
+
+/* Apply smooth transitions to all color properties (Requirements 6.1, 6.2, 6.5) */
+body,
+body *,
+#wpadminbar,
+#wpadminbar *,
+#adminmenu,
+#adminmenu *,
+#wpcontent,
+#wpcontent * {
+  transition-property: background-color, color, border-color, box-shadow, opacity, background;
+  transition-duration: 300ms;
+  transition-timing-function: ease;
+}
+
+/* Prevent transition on page load (Requirement 6.3) */
+body.woow-preload,
+body.woow-preload * {
+  transition: none !important;
+}
+
+/* Disable transitions for reduced motion preference (Accessibility) */
+@media (prefers-reduced-motion: reduce) {
+  body,
+  body *,
+  #wpadminbar,
+  #wpadminbar *,
+  #adminmenu,
+  #adminmenu *,
+  #wpcontent,
+  #wpcontent * {
+    transition-duration: 0ms !important;
+  }
+}
+
+/* ============================================================================
+   WORDPRESS ADMIN BAR STYLES
+   ============================================================================ */
+
+body.woow-dark-mode #wpadminbar {
+  background-color: var(--woow-dm-adminbar-bg) !important;
+  color: var(--woow-dm-adminbar-text) !important;
+}
+
+body.woow-dark-mode #wpadminbar .ab-item,
+body.woow-dark-mode #wpadminbar a.ab-item,
+body.woow-dark-mode #wpadminbar > #wp-toolbar span.ab-label,
+body.woow-dark-mode #wpadminbar > #wp-toolbar span.noticon {
+  color: var(--woow-dm-adminbar-text) !important;
+}
+
+body.woow-dark-mode #wpadminbar .ab-item:hover,
+body.woow-dark-mode #wpadminbar a.ab-item:hover,
+body.woow-dark-mode #wpadminbar .ab-submenu .ab-item:hover {
+  background-color: var(--woow-dm-adminbar-hover-bg) !important;
+  color: var(--woow-dm-adminbar-hover-text) !important;
+}
+
+body.woow-dark-mode #wpadminbar .ab-submenu {
+  background-color: var(--woow-dm-adminbar-submenu-bg) !important;
+  border-color: var(--woow-dm-border-primary) !important;
+}
+
+body.woow-dark-mode #wpadminbar .quicklinks .menupop ul li .ab-item,
+body.woow-dark-mode #wpadminbar .quicklinks .menupop ul li a {
+  color: var(--woow-dm-adminbar-text) !important;
+}
+
+/* ============================================================================
+   WORDPRESS ADMIN MENU STYLES
+   ============================================================================ */
+
+body.woow-dark-mode #adminmenuback,
+body.woow-dark-mode #adminmenuwrap,
+body.woow-dark-mode #adminmenu {
+  background-color: var(--woow-dm-adminmenu-bg) !important;
+}
+
+body.woow-dark-mode #adminmenu a {
+  color: var(--woow-dm-adminmenu-text) !important;
+}
+
+body.woow-dark-mode #adminmenu li.menu-top:hover,
+body.woow-dark-mode #adminmenu li.opensub > a.menu-top,
+body.woow-dark-mode #adminmenu li > a.menu-top:focus {
+  background-color: var(--woow-dm-adminmenu-hover-bg) !important;
+  color: var(--woow-dm-adminmenu-hover-text) !important;
+}
+
+body.woow-dark-mode #adminmenu .wp-has-current-submenu .wp-submenu,
+body.woow-dark-mode #adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap,
+body.woow-dark-mode #adminmenu .wp-has-current-submenu.opensub .wp-submenu,
+body.woow-dark-mode #adminmenu a.wp-has-current-submenu:focus + .wp-submenu {
+  background-color: var(--woow-dm-adminmenu-submenu-bg) !important;
+}
+
+body.woow-dark-mode #adminmenu li.wp-has-current-submenu a.wp-has-current-submenu,
+body.woow-dark-mode #adminmenu li.current a.menu-top {
+  background-color: var(--woow-dm-adminmenu-current-bg) !important;
+  color: var(--woow-dm-adminmenu-current-text) !important;
+}
+
+body.woow-dark-mode #adminmenu .wp-submenu a {
+  color: var(--woow-dm-adminmenu-submenu-text) !important;
+}
+
+body.woow-dark-mode #adminmenu .wp-submenu a:hover,
+body.woow-dark-mode #adminmenu .wp-submenu a:focus {
+  color: var(--woow-dm-adminmenu-hover-text) !important;
+}
+
+/* Admin menu separator */
+body.woow-dark-mode #adminmenu li.wp-menu-separator {
+  background-color: var(--woow-dm-border-primary) !important;
+}
+
+/* ============================================================================
+   WORDPRESS CONTENT AREA STYLES
+   ============================================================================ */
+
+body.woow-dark-mode #wpcontent,
+body.woow-dark-mode #wpbody-content {
+  background-color: var(--woow-dm-content-bg) !important;
+  color: var(--woow-dm-content-text) !important;
+}
+
+body.woow-dark-mode .wrap h1,
+body.woow-dark-mode .wrap h2,
+body.woow-dark-mode .wrap h3,
+body.woow-dark-mode .wrap h4,
+body.woow-dark-mode .wrap h5,
+body.woow-dark-mode .wrap h6 {
+  color: var(--woow-dm-content-heading) !important;
+}
+
+/* ============================================================================
+   WORDPRESS CARDS AND PANELS
+   ============================================================================ */
+
+body.woow-dark-mode .postbox,
+body.woow-dark-mode .stuffbox,
+body.woow-dark-mode .card,
+body.woow-dark-mode .notice,
+body.woow-dark-mode .widefat {
+  background-color: var(--woow-dm-card-bg) !important;
+  border-color: var(--woow-dm-card-border) !important;
+  box-shadow: 0 1px 3px var(--woow-dm-card-shadow) !important;
+}
+
+body.woow-dark-mode .postbox .hndle,
+body.woow-dark-mode .stuffbox .hndle {
+  color: var(--woow-dm-content-heading) !important;
+  border-bottom-color: var(--woow-dm-border-primary) !important;
+}
+
+/* ============================================================================
+   WORDPRESS FORM INPUTS
+   ============================================================================ */
+
+body.woow-dark-mode input[type="text"],
+body.woow-dark-mode input[type="password"],
+body.woow-dark-mode input[type="email"],
+body.woow-dark-mode input[type="url"],
+body.woow-dark-mode input[type="search"],
+body.woow-dark-mode input[type="number"],
+body.woow-dark-mode input[type="tel"],
+body.woow-dark-mode input[type="date"],
+body.woow-dark-mode input[type="time"],
+body.woow-dark-mode textarea,
+body.woow-dark-mode select {
+  background-color: var(--woow-dm-input-bg) !important;
+  border-color: var(--woow-dm-input-border) !important;
+  color: var(--woow-dm-input-text) !important;
+}
+
+body.woow-dark-mode input[type="text"]::placeholder,
+body.woow-dark-mode input[type="password"]::placeholder,
+body.woow-dark-mode input[type="email"]::placeholder,
+body.woow-dark-mode textarea::placeholder {
+  color: var(--woow-dm-input-placeholder) !important;
+}
+
+body.woow-dark-mode input[type="text"]:focus,
+body.woow-dark-mode input[type="password"]:focus,
+body.woow-dark-mode input[type="email"]:focus,
+body.woow-dark-mode textarea:focus,
+body.woow-dark-mode select:focus {
+  border-color: var(--woow-dm-input-focus-border) !important;
+  box-shadow: 0 0 0 1px var(--woow-dm-input-focus-ring) !important;
+}
+
+/* ============================================================================
+   WORDPRESS BUTTONS
+   ============================================================================ */
+
+body.woow-dark-mode .button,
+body.woow-dark-mode .button-secondary {
+  background-color: var(--woow-dm-button-secondary-bg) !important;
+  border-color: var(--woow-dm-border-primary) !important;
+  color: var(--woow-dm-button-secondary-text) !important;
+}
+
+body.woow-dark-mode .button:hover,
+body.woow-dark-mode .button-secondary:hover {
+  background-color: var(--woow-dm-button-secondary-hover) !important;
+  border-color: var(--woow-dm-border-secondary) !important;
+}
+
+body.woow-dark-mode .button-primary {
+  background-color: var(--woow-dm-button-primary-bg) !important;
+  border-color: var(--woow-dm-button-primary-bg) !important;
+  color: var(--woow-dm-button-primary-text) !important;
+}
+
+body.woow-dark-mode .button-primary:hover {
+  background-color: var(--woow-dm-button-primary-hover) !important;
+  border-color: var(--woow-dm-button-primary-hover) !important;
+}
+
+/* ============================================================================
+   WORDPRESS TABLES
+   ============================================================================ */
+
+body.woow-dark-mode .widefat,
+body.woow-dark-mode .wp-list-table {
+  background-color: var(--woow-dm-table-bg) !important;
+  border-color: var(--woow-dm-table-border) !important;
+}
+
+body.woow-dark-mode .widefat thead tr th,
+body.woow-dark-mode .widefat tfoot tr th {
+  background-color: var(--woow-dm-bg-secondary) !important;
+  border-color: var(--woow-dm-table-border) !important;
+  color: var(--woow-dm-text-primary) !important;
+}
+
+body.woow-dark-mode .widefat tbody tr:nth-child(odd),
+body.woow-dark-mode .striped > tbody > :nth-child(odd) {
+  background-color: var(--woow-dm-table-stripe) !important;
+}
+
+body.woow-dark-mode .widefat tbody tr:hover,
+body.woow-dark-mode .wp-list-table tbody tr:hover {
+  background-color: var(--woow-dm-table-hover) !important;
+}
+
+body.woow-dark-mode .widefat td,
+body.woow-dark-mode .widefat th {
+  border-color: var(--woow-dm-table-border) !important;
+  color: var(--woow-dm-text-primary) !important;
+}
+
+/* ============================================================================
+   WORDPRESS NOTICES
+   ============================================================================ */
+
+body.woow-dark-mode .notice-info,
+body.woow-dark-mode .notice.notice-info {
+  background-color: var(--woow-dm-notice-info-bg) !important;
+  border-left-color: var(--woow-dm-notice-info-border) !important;
+}
+
+body.woow-dark-mode .notice-success,
+body.woow-dark-mode .notice.notice-success {
+  background-color: var(--woow-dm-notice-success-bg) !important;
+  border-left-color: var(--woow-dm-notice-success-border) !important;
+}
+
+body.woow-dark-mode .notice-warning,
+body.woow-dark-mode .notice.notice-warning {
+  background-color: var(--woow-dm-notice-warning-bg) !important;
+  border-left-color: var(--woow-dm-notice-warning-border) !important;
+}
+
+body.woow-dark-mode .notice-error,
+body.woow-dark-mode .notice.notice-error {
+  background-color: var(--woow-dm-notice-error-bg) !important;
+  border-left-color: var(--woow-dm-notice-error-border) !important;
+}
+
+/* ============================================================================
+   WORDPRESS LOGIN SCREEN
+   ============================================================================ */
+
+body.woow-dark-mode.login {
+  background-color: var(--woow-dm-bg-primary) !important;
+}
+
+body.woow-dark-mode.login #login {
+  color: var(--woow-dm-text-primary) !important;
+}
+
+body.woow-dark-mode.login form {
+  background-color: var(--woow-dm-card-bg) !important;
+  border-color: var(--woow-dm-card-border) !important;
+  box-shadow: 0 1px 3px var(--woow-dm-card-shadow) !important;
+}
+
+body.woow-dark-mode.login label {
+  color: var(--woow-dm-text-primary) !important;
+}
+
+body.woow-dark-mode.login input[type="text"],
+body.woow-dark-mode.login input[type="password"] {
+  background-color: var(--woow-dm-input-bg) !important;
+  border-color: var(--woow-dm-input-border) !important;
+  color: var(--woow-dm-input-text) !important;
+}
+
+body.woow-dark-mode.login .button-primary {
+  background-color: var(--woow-dm-button-primary-bg) !important;
+  border-color: var(--woow-dm-button-primary-bg) !important;
+  color: var(--woow-dm-button-primary-text) !important;
+}
+
+body.woow-dark-mode.login #backtoblog a,
+body.woow-dark-mode.login #nav a {
+  color: var(--woow-dm-text-secondary) !important;
+}
+
+body.woow-dark-mode.login #backtoblog a:hover,
+body.woow-dark-mode.login #nav a:hover {
+  color: var(--woow-dm-text-primary) !important;
+}
+
+/* ============================================================================
+   GLASSMORPHISM EFFECTS IN DARK MODE
+   ============================================================================ */
+
+/**
+ * Glassmorphism Integration for Dark Mode
+ * 
+ * Requirements 8.1, 8.2, 8.3, 8.4, 8.5:
+ * - Adjusted backdrop-blur values for dark mode visibility
+ * - Adjusted background opacity for proper contrast
+ * - Updated border colors to match dark theme palette
+ * - Adjusted shadow effects for depth perception in dark mode
+ * - WCAG AA contrast ratios maintained (4.5:1 minimum)
+ */
+
+/* Standard Glass Effect - Dark Mode (Requirement 8.1, 8.2) */
+body.woow-dark-mode .woow-glass {
+  /* Increased blur for better visibility against dark backgrounds */
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  
+  /* Adjusted opacity for proper contrast (Requirement 8.2) */
+  background: rgba(31, 41, 59, 0.75) !important;
+  
+  /* Dark theme border colors (Requirement 8.3) */
+  border-color: rgba(55, 65, 81, 0.5) !important;
+  
+  /* Enhanced shadows for depth in dark mode (Requirement 8.4) */
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 
+              0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Strong Glass Effect - Dark Mode (Primary UI Elements) */
+body.woow-dark-mode .woow-glass-strong {
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  
+  /* Higher opacity for primary elements */
+  background: rgba(31, 41, 59, 0.9) !important;
+  
+  /* Stronger border for definition */
+  border-color: rgba(55, 65, 81, 0.6) !important;
+  
+  /* Prominent shadow for elevation */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 
+              0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Subtle Glass Effect - Dark Mode (Secondary Elements) */
+body.woow-dark-mode .woow-glass-subtle {
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  
+  /* Lower opacity for subtle elements */
+  background: rgba(31, 41, 59, 0.6) !important;
+  
+  /* Subtle border */
+  border-color: rgba(55, 65, 81, 0.3) !important;
+  
+  /* Soft shadow */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 
+              0 1px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Glass Hover Effect - Dark Mode */
+body.woow-dark-mode .woow-glass-hover:hover {
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  
+  /* Increased opacity on hover */
+  background: rgba(31, 41, 59, 0.95) !important;
+  
+  /* Enhanced border on hover */
+  border-color: rgba(129, 140, 248, 0.4) !important;
+  
+  /* Elevated shadow on hover */
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 
+              0 6px 16px rgba(0, 0, 0, 0.5),
+              0 0 0 1px rgba(129, 140, 248, 0.2) !important;
+}
+
+/* Glass Cards with Text - Ensure WCAG AA Contrast (Requirement 8.5) */
+body.woow-dark-mode .woow-glass,
+body.woow-dark-mode .woow-glass-strong,
+body.woow-dark-mode .woow-glass-subtle {
+  /* Ensure text has sufficient contrast (4.5:1 minimum) */
+  color: var(--woow-dm-text-primary) !important;
+}
+
+body.woow-dark-mode .woow-glass h1,
+body.woow-dark-mode .woow-glass h2,
+body.woow-dark-mode .woow-glass h3,
+body.woow-dark-mode .woow-glass h4,
+body.woow-dark-mode .woow-glass h5,
+body.woow-dark-mode .woow-glass h6,
+body.woow-dark-mode .woow-glass-strong h1,
+body.woow-dark-mode .woow-glass-strong h2,
+body.woow-dark-mode .woow-glass-strong h3,
+body.woow-dark-mode .woow-glass-strong h4,
+body.woow-dark-mode .woow-glass-strong h5,
+body.woow-dark-mode .woow-glass-strong h6 {
+  /* Headings use primary text color for maximum contrast */
+  color: var(--woow-dm-text-primary) !important;
+}
+
+body.woow-dark-mode .woow-glass p,
+body.woow-dark-mode .woow-glass span,
+body.woow-dark-mode .woow-glass-strong p,
+body.woow-dark-mode .woow-glass-strong span {
+  /* Body text uses primary text color */
+  color: var(--woow-dm-text-primary) !important;
+}
+
+body.woow-dark-mode .woow-glass-subtle p,
+body.woow-dark-mode .woow-glass-subtle span {
+  /* Subtle glass uses secondary text for proper contrast */
+  color: var(--woow-dm-text-secondary) !important;
+}
+
+/* Glass Effect on WordPress Admin Elements */
+body.woow-dark-mode #wpadminbar.woow-glass,
+body.woow-dark-mode #adminmenu.woow-glass {
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  background: rgba(31, 41, 59, 0.8) !important;
+  border-color: rgba(55, 65, 81, 0.5) !important;
+}
+
+/* Glass Effect on Cards and Panels */
+body.woow-dark-mode .postbox.woow-glass,
+body.woow-dark-mode .card.woow-glass,
+body.woow-dark-mode .notice.woow-glass {
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  background: rgba(31, 41, 59, 0.85) !important;
+  border-color: rgba(55, 65, 81, 0.5) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Glass Effect on Modals and Overlays */
+body.woow-dark-mode .woow-modal.woow-glass,
+body.woow-dark-mode .woow-overlay.woow-glass {
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  background: rgba(15, 23, 42, 0.9) !important;
+  border-color: rgba(55, 65, 81, 0.6) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Fallback for browsers without backdrop-filter support */
+@supports not (backdrop-filter: blur(1px)) {
+  body.woow-dark-mode .woow-glass,
+  body.woow-dark-mode .woow-glass-strong,
+  body.woow-dark-mode .woow-glass-subtle {
+    /* Use solid background as fallback */
+    background: var(--woow-dm-card-bg) !important;
+  }
+}
+
+/* ============================================================================
+   ACCESSIBILITY - FOCUS INDICATORS
+   ============================================================================ */
+
+body.woow-dark-mode *:focus-visible {
+  outline-color: var(--woow-dm-border-focus) !important;
+  outline-offset: 2px;
+  outline-width: 2px;
+  outline-style: solid;
+}
+
+/* ============================================================================
+   SCROLLBAR STYLES (Webkit browsers)
+   ============================================================================ */
+
+body.woow-dark-mode ::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+body.woow-dark-mode ::-webkit-scrollbar-track {
+  background: var(--woow-dm-bg-secondary);
+}
+
+body.woow-dark-mode ::-webkit-scrollbar-thumb {
+  background: var(--woow-dm-border-secondary);
+  border-radius: 6px;
+}
+
+body.woow-dark-mode ::-webkit-scrollbar-thumb:hover {
+  background: var(--woow-dm-text-tertiary);
+}
+
+/* ============================================================================
+   SELECTION STYLES
+   ============================================================================ */
+
+body.woow-dark-mode ::selection {
+  background: rgba(129, 140, 248, 0.3);
+  color: var(--woow-dm-text-primary);
+}
+
+body.woow-dark-mode ::-moz-selection {
+  background: rgba(129, 140, 248, 0.3);
+  color: var(--woow-dm-text-primary);
+}
+
+/* ============================================================================
+   INLINE CRITICAL CSS FOR INSTANT THEME APPLICATION
+   ============================================================================ */
+
+/* This prevents flash of unstyled content (FOUC) */
+body.woow-dark-mode-loading {
+  visibility: hidden;
+}
+
+body.woow-dark-mode-ready {
+  visibility: visible;
+}
+
+/* ============================================================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================================================ */
+
+/**
+ * Performance Optimizations
+ * 
+ * Requirements 9.1, 9.2, 9.3, 9.4, 9.5:
+ * - Conditional CSS loading (only load when needed) - handled by PHP
+ * - Inline critical CSS for instant application - handled by PHP
+ * - Initialization completes within 100ms - handled by JS
+ * - Prevent layout shifts during theme switch (9.5)
+ * - Use passive event listeners where possible - handled by JS
+ */
+
+/* Prevent layout shifts during theme switch (Requirement 9.5) */
+/* Use content-visibility for better rendering performance */
+body.woow-dark-mode,
+body:not(.woow-dark-mode) {
+  /* Ensure consistent layout regardless of theme */
+  /* This prevents layout shifts when switching themes */
+  contain: layout style paint;
+}
+
+/* Optimize rendering performance for large lists */
+.wp-list-table tbody tr {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 48px;
+}
+
+/* Optimize rendering for admin menu */
+#adminmenu li {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 36px;
+}
+
+/* Use will-change for elements that will transition */
+/* But only during transitions, not all the time */
+body:not(.woow-preload) #wpadminbar,
+body:not(.woow-preload) #adminmenu,
+body:not(.woow-preload) #wpcontent {
+  will-change: background-color, color;
+}
+
+/* Remove will-change after transition completes */
+body.woow-preload #wpadminbar,
+body.woow-preload #adminmenu,
+body.woow-preload #wpcontent {
+  will-change: auto;
+}
+
+/* Optimize font rendering for better performance */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Use GPU acceleration for transitions */
+body:not(.woow-preload) * {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Optimize scrolling performance */
+body {
+  scroll-behavior: smooth;
+}
+
+/* Reduce paint areas during transitions */
+body:not(.woow-preload) {
+  isolation: isolate;
+}
+
+/* Optimize repaints by creating stacking contexts */
+#wpadminbar,
+#adminmenu,
+#wpcontent {
+  position: relative;
+  z-index: auto;
+}
+
+/* Prevent unnecessary repaints on hover */
+body.woow-dark-mode *:hover {
+  /* Only transition properties that are actually changing */
+  transition-property: background-color, color, border-color;
+}
+
+/* Optimize for reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  /* Disable all animations and transitions */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  /* Remove will-change to save resources */
+  body:not(.woow-preload) #wpadminbar,
+  body:not(.woow-preload) #adminmenu,
+  body:not(.woow-preload) #wpcontent {
+    will-change: auto !important;
+  }
+}
+
+/* Optimize for high refresh rate displays */
+@media (min-resolution: 120dpi) {
+  body:not(.woow-preload) * {
+    /* Use shorter transitions for smoother appearance on high refresh rate displays */
+    transition-duration: 200ms;
+  }
+}
+
+/* Optimize for low-end devices */
+@media (prefers-reduced-data: reduce) {
+  /* Disable backdrop-filter on low-end devices to save resources */
+  body.woow-dark-mode .woow-glass,
+  body.woow-dark-mode .woow-glass-strong,
+  body.woow-dark-mode .woow-glass-subtle {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: var(--woow-dm-card-bg) !important;
+  }
+}

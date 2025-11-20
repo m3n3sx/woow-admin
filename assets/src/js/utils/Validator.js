@@ -213,6 +213,8 @@ const FIELD_TYPE_MAP = {
     'typography.body_font': FIELD_TYPES.KEYWORD,
     'typography.heading_font': FIELD_TYPES.KEYWORD,
     'typography.heading_weight': FIELD_TYPES.KEYWORD,
+    'body_font': FIELD_TYPES.KEYWORD,
+    'heading_font': FIELD_TYPES.KEYWORD,
     
     // Effects fields
     'effects.glassmorphism_blur': FIELD_TYPES.NUMBER,
@@ -284,6 +286,42 @@ const VALID_KEYWORDS = {
     'spacing_mode': ['all', 'individual'],
     'margin_mode': ['all', 'individual'],
     'border_radius_mode': ['all', 'individual'],
+    
+    // Typography font names (50+ Google Fonts)
+    'body_font': [
+        'system',  // System default option
+        // Sans-Serif Fonts
+        'inter', 'roboto', 'open sans', 'lato', 'montserrat', 'poppins', 'raleway', 
+        'nunito', 'ubuntu', 'work sans', 'rubik', 'nunito sans', 'source sans pro', 
+        'oswald', 'mukta', 'barlow', 'quicksand', 'karla', 'oxygen', 'manrope',
+        // Serif Fonts
+        'playfair display', 'merriweather', 'lora', 'pt serif', 'crimson text', 
+        'libre baskerville', 'cormorant garamond', 'eb garamond', 'spectral', 
+        'bitter', 'cardo', 'alegreya', 'vollkorn', 'arvo', 'rokkitt',
+        // Monospace Fonts
+        'roboto mono', 'source code pro', 'fira code', 'jetbrains mono', 
+        'ibm plex mono', 'space mono', 'inconsolata', 'courier prime',
+        // Handwriting/Display Fonts
+        'pacifico', 'dancing script', 'caveat', 'satisfy', 'kalam', 
+        'indie flower', 'shadows into light', 'permanent marker'
+    ],
+    'heading_font': [
+        'system',  // System default option
+        // Sans-Serif Fonts
+        'inter', 'roboto', 'open sans', 'lato', 'montserrat', 'poppins', 'raleway', 
+        'nunito', 'ubuntu', 'work sans', 'rubik', 'nunito sans', 'source sans pro', 
+        'oswald', 'mukta', 'barlow', 'quicksand', 'karla', 'oxygen', 'manrope',
+        // Serif Fonts
+        'playfair display', 'merriweather', 'lora', 'pt serif', 'crimson text', 
+        'libre baskerville', 'cormorant garamond', 'eb garamond', 'spectral', 
+        'bitter', 'cardo', 'alegreya', 'vollkorn', 'arvo', 'rokkitt',
+        // Monospace Fonts
+        'roboto mono', 'source code pro', 'fira code', 'jetbrains mono', 
+        'ibm plex mono', 'space mono', 'inconsolata', 'courier prime',
+        // Handwriting/Display Fonts
+        'pacifico', 'dancing script', 'caveat', 'satisfy', 'kalam', 
+        'indie flower', 'shadows into light', 'permanent marker'
+    ],
 };
 
 /**
@@ -299,6 +337,11 @@ class Validator {
      * @throws {Error} If validation fails
      */
     static validate(value, key) {
+        // Special handling for font weight arrays
+        if (key.includes('weights')) {
+            return this.validateWeightArray(value, key);
+        }
+        
         const fieldType = this.getFieldType(key);
         
         switch (fieldType) {
@@ -547,6 +590,46 @@ class Validator {
         }
         
         throw new Error(`Invalid boolean for '${key}': ${value}. Expected true/false.`);
+    }
+    
+    /**
+     * Validate font weight array
+     * Validates that all weights are valid numbers between 100 and 900
+     * 
+     * @param {Array} weights - Array of font weights
+     * @param {string} key - Field key
+     * @returns {Array} Validated array of weights
+     * @throws {Error} If validation fails
+     */
+    static validateWeightArray(weights, key) {
+        if (!Array.isArray(weights)) {
+            throw new Error(`Font weights for '${key}' must be an array. Got: ${typeof weights}`);
+        }
+        
+        // Empty array is valid (will default to 400)
+        if (weights.length === 0) {
+            return [];
+        }
+        
+        const validWeights = [100, 200, 300, 400, 500, 600, 700, 800, 900];
+        const validated = [];
+        
+        for (const weight of weights) {
+            const numWeight = parseInt(weight, 10);
+            
+            if (isNaN(numWeight)) {
+                throw new Error(`Invalid weight in '${key}': ${weight}. Must be a number.`);
+            }
+            
+            if (!validWeights.includes(numWeight)) {
+                throw new Error(`Invalid weight in '${key}': ${numWeight}. Must be one of: ${validWeights.join(', ')}`);
+            }
+            
+            validated.push(numWeight);
+        }
+        
+        // Remove duplicates and sort
+        return [...new Set(validated)].sort((a, b) => a - b);
     }
     
     /**

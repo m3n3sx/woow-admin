@@ -13,6 +13,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Define default values for typography
 $defaults = array(
     'enabled'          => true,
+    
+    // Google Fonts
+    'body_font'        => 'system',
+    'heading_font'     => 'system',
+    'body_weights'     => array(400, 600, 700),
+    'heading_weights'  => array(400, 600, 700),
+    
     'h1_size'          => '32px',
     'h1_weight'        => '700',
     'h1_line_height'   => 1.3,
@@ -34,6 +41,10 @@ $defaults = array(
 
 // Merge with saved settings
 $typography = array_merge( $defaults, $this->settings->get_section( 'typography' ) ?? array() );
+
+// Get Google Fonts instance
+$google_fonts = new WOOW_Google_Fonts();
+$fonts_by_category = $google_fonts->get_fonts_by_category();
 ?>
 
 <div class="woow-tab-pane" id="tab-typography">
@@ -54,6 +65,248 @@ $typography = array_merge( $defaults, $this->settings->get_section( 'typography'
                 <span class="woow-toggle-slider"></span>
                 <span class="woow-toggle-label"><?php esc_html_e( 'Apply custom typography', 'woow-admin' ); ?></span>
             </label>
+        </div>
+    </div>
+
+    <!-- Google Fonts: Body Font -->
+    <div class="woow-card">
+        <div class="woow-card-header">
+            <h3><?php esc_html_e( 'Body Font', 'woow-admin' ); ?></h3>
+            <p class="woow-card-description">
+                <?php esc_html_e( 'Select a Google Font for body text (paragraphs, inputs, buttons)', 'woow-admin' ); ?>
+            </p>
+        </div>
+        <div class="woow-card-body">
+            <div class="woow-form-group">
+                <label class="woow-label"><?php esc_html_e( 'Font Family', 'woow-admin' ); ?></label>
+                <select name="typography[body_font]" class="woow-select woow-font-selector" data-font-type="body">
+                    <option value="system" <?php selected( $typography['body_font'], 'system' ); ?>>
+                        <?php esc_html_e( 'System Default', 'woow-admin' ); ?>
+                    </option>
+                    
+                    <optgroup label="<?php esc_attr_e( 'Sans-Serif', 'woow-admin' ); ?>">
+                        <?php foreach ( $fonts_by_category['sans-serif'] as $font_name => $font_data ) : ?>
+                            <option value="<?php echo esc_attr( $font_name ); ?>" <?php selected( $typography['body_font'], $font_name ); ?>>
+                                <?php echo esc_html( $font_name ); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </optgroup>
+                    
+                    <optgroup label="<?php esc_attr_e( 'Serif', 'woow-admin' ); ?>">
+                        <?php foreach ( $fonts_by_category['serif'] as $font_name => $font_data ) : ?>
+                            <option value="<?php echo esc_attr( $font_name ); ?>" <?php selected( $typography['body_font'], $font_name ); ?>>
+                                <?php echo esc_html( $font_name ); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </optgroup>
+                    
+                    <optgroup label="<?php esc_attr_e( 'Monospace', 'woow-admin' ); ?>">
+                        <?php foreach ( $fonts_by_category['monospace'] as $font_name => $font_data ) : ?>
+                            <option value="<?php echo esc_attr( $font_name ); ?>" <?php selected( $typography['body_font'], $font_name ); ?>>
+                                <?php echo esc_html( $font_name ); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </optgroup>
+                    
+                    <optgroup label="<?php esc_attr_e( 'Handwriting', 'woow-admin' ); ?>">
+                        <?php foreach ( $fonts_by_category['handwriting'] as $font_name => $font_data ) : ?>
+                            <option value="<?php echo esc_attr( $font_name ); ?>" <?php selected( $typography['body_font'], $font_name ); ?>>
+                                <?php echo esc_html( $font_name ); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </optgroup>
+                </select>
+                <p class="woow-field-description">
+                    <?php esc_html_e( 'Choose from 50+ popular Google Fonts or use system default', 'woow-admin' ); ?>
+                </p>
+            </div>
+
+            <div class="woow-form-group">
+                <label class="woow-label"><?php esc_html_e( 'Font Weights', 'woow-admin' ); ?></label>
+                <div class="woow-checkbox-group">
+                    <?php
+                    $available_weights = array( 300, 400, 500, 600, 700, 800, 900 );
+                    $selected_weights = is_array( $typography['body_weights'] ) ? $typography['body_weights'] : array( 400, 600, 700 );
+                    
+                    foreach ( $available_weights as $weight ) :
+                        $checked = in_array( $weight, $selected_weights, true );
+                    ?>
+                        <label class="woow-checkbox-label">
+                            <input 
+                                type="checkbox" 
+                                name="typography[body_weights][]" 
+                                value="<?php echo esc_attr( $weight ); ?>"
+                                <?php checked( $checked, true ); ?>
+                                class="woow-checkbox"
+                            />
+                            <span><?php echo esc_html( $weight ); ?></span>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
+                <p class="woow-field-description">
+                    <?php esc_html_e( 'Select which font weights to load (affects page performance)', 'woow-admin' ); ?>
+                </p>
+            </div>
+
+            <div class="woow-form-group">
+                <button type="button" class="button woow-font-preview-btn" data-font-type="body">
+                    <?php esc_html_e( 'Preview Font', 'woow-admin' ); ?>
+                </button>
+            </div>
+
+            <!-- Preview Panel -->
+            <div class="woow-font-preview-panel" data-font-type="body" style="display: none;">
+                <div class="woow-font-preview-content">
+                    <h4><?php esc_html_e( 'Font Preview', 'woow-admin' ); ?></h4>
+                    <div class="woow-font-preview-samples">
+                        <p style="font-weight: 300;">
+                            <?php esc_html_e( 'The quick brown fox jumps over the lazy dog (Light 300)', 'woow-admin' ); ?>
+                        </p>
+                        <p style="font-weight: 400;">
+                            <?php esc_html_e( 'The quick brown fox jumps over the lazy dog (Regular 400)', 'woow-admin' ); ?>
+                        </p>
+                        <p style="font-weight: 500;">
+                            <?php esc_html_e( 'The quick brown fox jumps over the lazy dog (Medium 500)', 'woow-admin' ); ?>
+                        </p>
+                        <p style="font-weight: 600;">
+                            <?php esc_html_e( 'The quick brown fox jumps over the lazy dog (Semibold 600)', 'woow-admin' ); ?>
+                        </p>
+                        <p style="font-weight: 700;">
+                            <?php esc_html_e( 'The quick brown fox jumps over the lazy dog (Bold 700)', 'woow-admin' ); ?>
+                        </p>
+                        <p style="font-weight: 800;">
+                            <?php esc_html_e( 'The quick brown fox jumps over the lazy dog (Extra Bold 800)', 'woow-admin' ); ?>
+                        </p>
+                        <p style="font-weight: 900;">
+                            <?php esc_html_e( 'The quick brown fox jumps over the lazy dog (Black 900)', 'woow-admin' ); ?>
+                        </p>
+                    </div>
+                    <button type="button" class="button woow-font-preview-close" data-font-type="body">
+                        <?php esc_html_e( 'Close Preview', 'woow-admin' ); ?>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Google Fonts: Heading Font -->
+    <div class="woow-card">
+        <div class="woow-card-header">
+            <h3><?php esc_html_e( 'Heading Font', 'woow-admin' ); ?></h3>
+            <p class="woow-card-description">
+                <?php esc_html_e( 'Select a Google Font for headings (H1-H6)', 'woow-admin' ); ?>
+            </p>
+        </div>
+        <div class="woow-card-body">
+            <div class="woow-form-group">
+                <label class="woow-label"><?php esc_html_e( 'Font Family', 'woow-admin' ); ?></label>
+                <select name="typography[heading_font]" class="woow-select woow-font-selector" data-font-type="heading">
+                    <option value="system" <?php selected( $typography['heading_font'], 'system' ); ?>>
+                        <?php esc_html_e( 'System Default', 'woow-admin' ); ?>
+                    </option>
+                    
+                    <optgroup label="<?php esc_attr_e( 'Sans-Serif', 'woow-admin' ); ?>">
+                        <?php foreach ( $fonts_by_category['sans-serif'] as $font_name => $font_data ) : ?>
+                            <option value="<?php echo esc_attr( $font_name ); ?>" <?php selected( $typography['heading_font'], $font_name ); ?>>
+                                <?php echo esc_html( $font_name ); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </optgroup>
+                    
+                    <optgroup label="<?php esc_attr_e( 'Serif', 'woow-admin' ); ?>">
+                        <?php foreach ( $fonts_by_category['serif'] as $font_name => $font_data ) : ?>
+                            <option value="<?php echo esc_attr( $font_name ); ?>" <?php selected( $typography['heading_font'], $font_name ); ?>>
+                                <?php echo esc_html( $font_name ); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </optgroup>
+                    
+                    <optgroup label="<?php esc_attr_e( 'Monospace', 'woow-admin' ); ?>">
+                        <?php foreach ( $fonts_by_category['monospace'] as $font_name => $font_data ) : ?>
+                            <option value="<?php echo esc_attr( $font_name ); ?>" <?php selected( $typography['heading_font'], $font_name ); ?>>
+                                <?php echo esc_html( $font_name ); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </optgroup>
+                    
+                    <optgroup label="<?php esc_attr_e( 'Handwriting', 'woow-admin' ); ?>">
+                        <?php foreach ( $fonts_by_category['handwriting'] as $font_name => $font_data ) : ?>
+                            <option value="<?php echo esc_attr( $font_name ); ?>" <?php selected( $typography['heading_font'], $font_name ); ?>>
+                                <?php echo esc_html( $font_name ); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </optgroup>
+                </select>
+                <p class="woow-field-description">
+                    <?php esc_html_e( 'Choose from 50+ popular Google Fonts or use system default', 'woow-admin' ); ?>
+                </p>
+            </div>
+
+            <div class="woow-form-group">
+                <label class="woow-label"><?php esc_html_e( 'Font Weights', 'woow-admin' ); ?></label>
+                <div class="woow-checkbox-group">
+                    <?php
+                    $available_weights = array( 300, 400, 500, 600, 700, 800, 900 );
+                    $selected_weights = is_array( $typography['heading_weights'] ) ? $typography['heading_weights'] : array( 400, 600, 700 );
+                    
+                    foreach ( $available_weights as $weight ) :
+                        $checked = in_array( $weight, $selected_weights, true );
+                    ?>
+                        <label class="woow-checkbox-label">
+                            <input 
+                                type="checkbox" 
+                                name="typography[heading_weights][]" 
+                                value="<?php echo esc_attr( $weight ); ?>"
+                                <?php checked( $checked, true ); ?>
+                                class="woow-checkbox"
+                            />
+                            <span><?php echo esc_html( $weight ); ?></span>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
+                <p class="woow-field-description">
+                    <?php esc_html_e( 'Select which font weights to load (affects page performance)', 'woow-admin' ); ?>
+                </p>
+            </div>
+
+            <div class="woow-form-group">
+                <button type="button" class="button woow-font-preview-btn" data-font-type="heading">
+                    <?php esc_html_e( 'Preview Font', 'woow-admin' ); ?>
+                </button>
+            </div>
+
+            <!-- Preview Panel -->
+            <div class="woow-font-preview-panel" data-font-type="heading" style="display: none;">
+                <div class="woow-font-preview-content">
+                    <h4><?php esc_html_e( 'Font Preview', 'woow-admin' ); ?></h4>
+                    <div class="woow-font-preview-samples">
+                        <h1 style="font-weight: 300;">
+                            <?php esc_html_e( 'Heading 1 Sample (Light 300)', 'woow-admin' ); ?>
+                        </h1>
+                        <h2 style="font-weight: 400;">
+                            <?php esc_html_e( 'Heading 2 Sample (Regular 400)', 'woow-admin' ); ?>
+                        </h2>
+                        <h3 style="font-weight: 500;">
+                            <?php esc_html_e( 'Heading 3 Sample (Medium 500)', 'woow-admin' ); ?>
+                        </h3>
+                        <h4 style="font-weight: 600;">
+                            <?php esc_html_e( 'Heading 4 Sample (Semibold 600)', 'woow-admin' ); ?>
+                        </h4>
+                        <h5 style="font-weight: 700;">
+                            <?php esc_html_e( 'Heading 5 Sample (Bold 700)', 'woow-admin' ); ?>
+                        </h5>
+                        <h6 style="font-weight: 800;">
+                            <?php esc_html_e( 'Heading 6 Sample (Extra Bold 800)', 'woow-admin' ); ?>
+                        </h6>
+                        <p style="font-weight: 900; font-size: 18px;">
+                            <?php esc_html_e( 'Large Text Sample (Black 900)', 'woow-admin' ); ?>
+                        </p>
+                    </div>
+                    <button type="button" class="button woow-font-preview-close" data-font-type="heading">
+                        <?php esc_html_e( 'Close Preview', 'woow-admin' ); ?>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 

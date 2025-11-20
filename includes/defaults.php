@@ -295,6 +295,12 @@ function woow_get_default_settings() {
         'typography' => array(
             'enabled' => true,
             
+            // Google Fonts
+            'body_font' => 'system',
+            'heading_font' => 'system',
+            'body_weights' => array(400, 600, 700),
+            'heading_weights' => array(400, 600, 700),
+            
             // Headings
             'h1_color' => '#0f172a',
             'h1_font_size' => '28',

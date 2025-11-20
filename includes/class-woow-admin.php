@@ -327,6 +327,33 @@ class WOOW_Admin {
 			return;
 		}
 
+		// Check if typography is enabled and Google Fonts are being used
+		$typo_settings = $settings['typography'] ?? [];
+		$typo_enabled = $typo_settings['enabled'] ?? true;
+		$body_font = $typo_settings['body_font'] ?? 'system';
+		$heading_font = $typo_settings['heading_font'] ?? 'system';
+		
+		// Add preconnect links if Google Fonts are being used
+		if ( $typo_enabled && ( $body_font !== 'system' || $heading_font !== 'system' ) ) {
+			$google_fonts = new WOOW_Google_Fonts();
+			
+			// Check if at least one font is valid
+			$has_valid_fonts = false;
+			if ( $body_font !== 'system' && $google_fonts->is_valid_font( $body_font ) ) {
+				$has_valid_fonts = true;
+			}
+			if ( $heading_font !== 'system' && $google_fonts->is_valid_font( $heading_font ) ) {
+				$has_valid_fonts = true;
+			}
+			
+			// Output preconnect links
+			if ( $has_valid_fonts ) {
+				echo "\n<!-- WOOW! Admin Google Fonts Preconnect -->\n";
+				echo $google_fonts->get_preconnect_links(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo "<!-- /WOOW! Admin Google Fonts Preconnect -->\n\n";
+			}
+		}
+
 		// Try to get CSS from cache
 		$css = $this->cache->get( 'generated_css' );
 
