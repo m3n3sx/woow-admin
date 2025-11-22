@@ -171,6 +171,9 @@ class WOOW_Admin {
 		
 		// Inject CSS for login page
 		add_action( 'login_enqueue_scripts', array( $this, 'inject_login_css' ) );
+		
+		// Add body class for glassmorphism
+		add_filter( 'admin_body_class', array( $this, 'add_glassmorphism_body_class' ) );
 
 		// Register AJAX handlers
 		add_action( 'wp_ajax_woow_save_settings', array( $this, 'ajax_save_settings' ) );
@@ -181,6 +184,23 @@ class WOOW_Admin {
 		add_action( 'wp_ajax_woow_export_settings', array( $this, 'ajax_export_settings' ) );
 		add_action( 'wp_ajax_woow_import_settings', array( $this, 'ajax_import_settings' ) );
 		add_action( 'wp_ajax_woow_upload_image', array( $this, 'ajax_upload_image' ) );
+	}
+	
+	/**
+	 * Add glassmorphism body class when enabled
+	 *
+	 * @param string $classes Existing body classes.
+	 * @return string Modified body classes.
+	 */
+	public function add_glassmorphism_body_class( string $classes ): string {
+		$settings = $this->settings->get_all();
+		
+		// Check if Glass Style is enabled in general settings
+		if ( isset( $settings['general']['glass_style'] ) && $settings['general']['glass_style'] ) {
+			$classes .= ' woow-glass-enabled';
+		}
+		
+		return $classes;
 	}
 
 	/**
@@ -240,6 +260,15 @@ class WOOW_Admin {
 			'woow-admin-styles',
 			WOOW_ASSETS_URL . 'style.css',
 			array(),
+			WOOW_VERSION,
+			'all'
+		);
+
+		// Enqueue glassmorphism system CSS
+		wp_enqueue_style(
+			'woow-glassmorphism-system',
+			WOOW_PLUGIN_URL . 'assets/src/css/glassmorphism-system.css',
+			array( 'woow-admin-styles' ),
 			WOOW_VERSION,
 			'all'
 		);

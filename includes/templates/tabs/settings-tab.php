@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $advanced = $this->settings->get_section( 'advanced' );
+$visual_effects = $this->settings->get_section( 'visual_effects' );
 $backups = []; // Will be populated by backup manager
 ?>
 
@@ -177,6 +178,75 @@ $backups = []; // Will be populated by backup manager
                 <p class="woow-field-description">
                     <?php esc_html_e( 'Start with the live preview panel collapsed to maximize content area.', 'woow-admin' ); ?>
                 </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Glassmorphism -->
+    <div class="woow-card">
+        <div class="woow-card-header">
+            <h3>
+                <span class="woow-icon">✨</span>
+                <?php esc_html_e( 'Glassmorphism', 'woow-admin' ); ?>
+            </h3>
+            <p class="woow-section-description">
+                <?php esc_html_e( 'Apply modern frosted glass effects to your admin interface', 'woow-admin' ); ?>
+            </p>
+        </div>
+        <div class="woow-card-body">
+            <!-- Global Toggle -->
+            <div class="woow-form-group">
+                <label class="woow-toggle">
+                    <input 
+                        type="checkbox" 
+                        name="visual_effects[enable_glassmorphism]" 
+                        value="1"
+                        class="woow-toggle-input woow-condition-trigger"
+                        data-target="glassmorphism_enabled"
+                        <?php checked( $visual_effects['enable_glassmorphism'] ?? false, true ); ?>
+                    />
+                    <span class="woow-toggle-slider"></span>
+                    <span class="woow-toggle-label"><?php esc_html_e( 'Enable Glassmorphism Globally', 'woow-admin' ); ?></span>
+                </label>
+                <p class="woow-field-description">
+                    <?php esc_html_e( 'Apply frosted glass effect to admin bar, menu, and widgets', 'woow-admin' ); ?>
+                </p>
+            </div>
+            
+            <!-- Strength Selector -->
+            <div class="woow-form-group woow-conditional-field" data-condition="glassmorphism_enabled" data-value="1">
+                <label class="woow-label">
+                    <?php esc_html_e( 'Glassmorphism Strength', 'woow-admin' ); ?>
+                </label>
+                <select 
+                    name="visual_effects[glass_strength]" 
+                    class="woow-select"
+                >
+                    <option value="sm" <?php selected( $visual_effects['glass_strength'] ?? 'md', 'sm' ); ?>>
+                        <?php esc_html_e( 'Light (4px blur)', 'woow-admin' ); ?>
+                    </option>
+                    <option value="md" <?php selected( $visual_effects['glass_strength'] ?? 'md', 'md' ); ?>>
+                        <?php esc_html_e( 'Medium (8px blur)', 'woow-admin' ); ?>
+                    </option>
+                    <option value="lg" <?php selected( $visual_effects['glass_strength'] ?? 'md', 'lg' ); ?>>
+                        <?php esc_html_e( 'Strong (12px blur)', 'woow-admin' ); ?>
+                    </option>
+                    <option value="xl" <?php selected( $visual_effects['glass_strength'] ?? 'md', 'xl' ); ?>>
+                        <?php esc_html_e( 'Extra Strong (16px blur)', 'woow-admin' ); ?>
+                    </option>
+                </select>
+                <p class="woow-field-description">
+                    <?php esc_html_e( 'Control the intensity of the frosted glass effect', 'woow-admin' ); ?>
+                </p>
+            </div>
+            
+            <!-- Browser Compatibility Notice -->
+            <div class="woow-notice woow-notice-info">
+                <span class="woow-notice-icon">ℹ️</span>
+                <div class="woow-notice-content">
+                    <strong><?php esc_html_e( 'Browser Compatibility:', 'woow-admin' ); ?></strong>
+                    <?php esc_html_e( 'Glassmorphism requires modern browsers (Chrome 76+, Safari 9+, Firefox 103+, Edge 79+). Older browsers will show solid backgrounds.', 'woow-admin' ); ?>
+                </div>
             </div>
         </div>
     </div>

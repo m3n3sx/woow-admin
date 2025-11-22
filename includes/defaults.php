@@ -22,6 +22,7 @@ function woow_get_default_settings() {
             'current_template' => 'default',
             'rounded_style' => true,  // Global rounded corners
             'glass_style' => false,   // Global glassmorphism
+            'floating_style' => false, // No margins/spacing - elements stick to edges
         ),
         
         'admin_bar' => array(
@@ -335,6 +336,10 @@ function woow_get_default_settings() {
             'global_glassmorphism' => true,
             'global_blur_strength' => '12',
             'global_opacity' => 0.9,
+            
+            // Glassmorphism System (New Global System)
+            'enable_glassmorphism' => false,
+            'glass_strength' => 'md',
             
             // Animations
             'enable_animations' => true,

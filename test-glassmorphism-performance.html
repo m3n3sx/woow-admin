@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glassmorphism Performance Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.secondary {
+            background: #6c757d;
+        }
+
+        .results {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .metric-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .metric-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .metric.pass {
+            border-left-color: #28a745;
+        }
+
+        .metric.pass .metric-value {
+            color: #28a745;
+        }
+
+        .metric.fail {
+            border-left-color: #dc3545;
+        }
+
+        .metric.fail .metric-value {
+            color: #dc3545;
+        }
+
+        .metric.warning {
+            border-left-color: #ffc107;
+        }
+
+        .metric.warning .metric-value {
+            color: #ffc107;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .status-badge.pass {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.fail {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-badge.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .test-area {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            height: 600px;
+            overflow-y: scroll;
+        }
+
+        /* Glassmorphism styles */
+        .glass-enabled {
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            background: rgba(255, 255, 255, 0.15) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .test-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: transform 0.2s;
+        }
+
+        .test-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .fps-counter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #0f0;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 14px;
+            z-index: 1000;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .summary h2 {
+            margin-bottom: 15px;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .summary-stat {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .summary-stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .summary-stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="fps-counter" id="fpsCounter">FPS: --</div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Glassmorphism Performance Test</h1>
+            <p class="subtitle">Comprehensive performance testing for glassmorphism effects</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label>Test Controls</label>
+                <button onclick="runPerformanceTest()">▶️ Run Performance Test</button>
+                <button onclick="toggleGlassmorphism()" class="secondary">🔄 Toggle Glassmorphism</button>
+                <button onclick="resetTests()" class="secondary">🔄 Reset</button>
+            </div>
+        </div>
+
+        <div class="results" id="results">
+            <h2>Performance Metrics</h2>
+            <div class="loading">Click "Run Performance Test" to begin...</div>
+        </div>
+
+        <div class="test-area" id="testArea">
+            <h3>Scrollable Test Area</h3>
+            <p>Scroll this area to test frame rate and smoothness with glassmorphism enabled.</p>
+            <!-- Generate test cards -->
+        </div>
+    </div>
+
+    <script>
+        let glassmorphismEnabled = false;
+        let performanceData = {
+            renderStart: 0,
+            renderEnd: 0,
+            renderTime: 0,
+            fps: [],
+            scrollEvents: 0,
+            frameDrops: 0
+        };
+
+        // FPS Counter
+        let lastFrameTime = performance.now();
+        let frameCount = 0;
+        let fps = 0;
+
+        function updateFPS() {
+            const now = performance.now();
+            frameCount++;
+
+            if (now >= lastFrameTime + 1000) {
+                fps = Math.round((frameCount * 1000) / (now - lastFrameTime));
+                document.getElementById('fpsCounter').textContent = `FPS: ${fps}`;
+                
+                performanceData.fps.push(fps);
+                
+                // Detect frame drops (below 55 FPS is considered a drop)
+                if (fps < 55) {
+                    performanceData.frameDrops++;
+                }
+
+                frameCount = 0;
+                lastFrameTime = now;
+            }
+
+            requestAnimationFrame(updateFPS);
+        }
+
+        updateFPS();
+
+        // Generate test content
+        function generateTestContent() {
+            const testArea = document.getElementById('testArea');
+            const existingContent = testArea.innerHTML;
+            
+            for (let i = 0; i < 50; i++) {
+                const card = document.createElement('div');
+                card.className = 'test-card';
+                card.innerHTML = `
+                    <h4>Test Card ${i + 1}</h4>
+                    <p>This is test content to create a scrollable area. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                `;
+                testArea.appendChild(card);
+            }
+        }
+
+        generateTestContent();
+
+        // Toggle glassmorphism
+        function toggleGlassmorphism() {
+            glassmorphismEnabled = !glassmorphismEnabled;
+            const elements = [
+                document.querySelector('.header'),
+                document.querySelector('.controls'),
+                document.querySelector('.results'),
+                document.querySelector('.test-area')
+            ];
+
+            elements.forEach(el => {
+                if (glassmorphismEnabled) {
+                    el.classList.add('glass-enabled');
+                } else {
+                    el.classList.remove('glass-enabled');
+                }
+            });
+
+            console.log(`Glassmorphism ${glassmorphismEnabled ? 'enabled' : 'disabled'}`);
+        }
+
+        // Run performance test
+        async function runPerformanceTest() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="loading">Running performance tests...</div>';
+
+            // Reset data
+            performanceData = {
+                renderStart: 0,
+                renderEnd: 0,
+                renderTime: 0,
+                fps: [],
+                scrollEvents: 0,
+                frameDrops: 0
+            };
+
+            // Test 1: Measure render time with glassmorphism
+            console.log('Test 1: Measuring render time...');
+            performanceData.renderStart = performance.now();
+            
+            // Enable glassmorphism
+            if (!glassmorphismEnabled) {
+                toggleGlassmorphism();
+            }
+
+            // Force reflow
+            document.body.offsetHeight;
+
+            performanceData.renderEnd = performance.now();
+            performanceData.renderTime = performanceData.renderEnd - performanceData.renderStart;
+
+            // Test 2: Monitor FPS for 3 seconds
+            console.log('Test 2: Monitoring FPS...');
+            await new Promise(resolve => setTimeout(resolve, 3000));
+
+            // Test 3: Scroll test
+            console.log('Test 3: Testing scroll performance...');
+            const testArea = document.getElementById('testArea');
+            const scrollStart = performance.now();
+            
+            // Simulate scrolling
+            for (let i = 0; i < 10; i++) {
+                testArea.scrollTop = (i / 10) * testArea.scrollHeight;
+                await new Promise(resolve => setTimeout(resolve, 100));
+                performanceData.scrollEvents++;
+            }
+
+            const scrollEnd = performance.now();
+            const scrollTime = scrollEnd - scrollStart;
+
+            // Calculate metrics
+            const avgFPS = performanceData.fps.length > 0 
+                ? Math.round(performanceData.fps.reduce((a, b) => a + b, 0) / performanceData.fps.length)
+                : 0;
+            
+            const minFPS = performanceData.fps.length > 0 
+                ? Math.min(...performanceData.fps)
+                : 0;
+
+            // Display results
+            displayResults({
+                renderTime: performanceData.renderTime,
+                avgFPS: avgFPS,
+                minFPS: minFPS,
+                frameDrops: performanceData.frameDrops,
+                scrollTime: scrollTime,
+                scrollEvents: performanceData.scrollEvents
+            });
+        }
+
+        function displayResults(metrics) {
+            const resultsDiv = document.getElementById('results');
+            
+            // Determine pass/fail status
+            const renderPass = metrics.renderTime < 50;
+            const fpsPass = metrics.avgFPS >= 55;
+            const scrollPass = metrics.frameDrops < 5;
+            const overallPass = renderPass && fpsPass && scrollPass;
+
+            resultsDiv.innerHTML = `
+                <h2>Performance Test Results ${overallPass ? '✅' : '⚠️'}</h2>
+                
+                <div class="metric ${renderPass ? 'pass' : 'fail'}">
+                    <span class="metric-label">
+                        Render Time Impact
+                        <span class="status-badge ${renderPass ? 'pass' : 'fail'}">
+                            ${renderPass ? 'PASS' : 'FAIL'}
+                        </span>
+                    </span>
+                    <span class="metric-value">${metrics.renderTime.toFixed(2)}ms</span>
+                </div>
+
+                <div class="metric ${fpsPass ? 'pass' : 'warning'}">
+                    <span class="metric-label">
+                        Average FPS
+                        <span class="status-badge ${fpsPass ? 'pass' : 'warning'}">
+                            ${fpsPass ? 'PASS' : 'WARNING'}
+                        </span>
+                    </span>
+                    <span class="metric-value">${metrics.avgFPS} FPS</span>
+                </div>
+
+                <div class="metric ${metrics.minFPS >= 50 ? 'pass' : 'warning'}">
+                    <span class="metric-label">
+                        Minimum FPS
+                        <span class="status-badge ${metrics.minFPS >= 50 ? 'pass' : 'warning'}">
+                            ${metrics.minFPS >= 50 ? 'PASS' : 'WARNING'}
+                        </span>
+                    </span>
+                    <span class="metric-value">${metrics.minFPS} FPS</span>
+                </div>
+
+                <div class="metric ${scrollPass ? 'pass' : 'warning'}">
+                    <span class="metric-label">
+                        Frame Drops During Scroll
+                        <span class="status-badge ${scrollPass ? 'pass' : 'warning'}">
+                            ${scrollPass ? 'PASS' : 'WARNING'}
+                        </span>
+                    </span>
+                    <span class="metric-value">${metrics.frameDrops}</span>
+                </div>
+
+                <div class="metric pass">
+                    <span class="metric-label">Scroll Events Processed</span>
+                    <span class="metric-value">${metrics.scrollEvents}</span>
+                </div>
+
+                <div class="metric pass">
+                    <span class="metric-label">Total Scroll Time</span>
+                    <span class="metric-value">${metrics.scrollTime.toFixed(2)}ms</span>
+                </div>
+            `;
+
+            // Add summary
+            const summary = document.createElement('div');
+            summary.className = 'summary';
+            summary.innerHTML = `
+                <h2>${overallPass ? '✅ All Tests Passed!' : '⚠️ Some Tests Need Attention'}</h2>
+                <p>${overallPass 
+                    ? 'Glassmorphism performance is excellent with minimal impact on rendering and frame rate.' 
+                    : 'Some performance metrics are below optimal thresholds. Consider optimizing or reducing glassmorphism intensity.'
+                }</p>
+                
+                <div class="summary-stats">
+                    <div class="summary-stat">
+                        <div class="summary-stat-value">${metrics.renderTime < 50 ? '✅' : '❌'}</div>
+                        <div class="summary-stat-label">Render Time < 50ms</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="summary-stat-value">${metrics.avgFPS >= 55 ? '✅' : '⚠️'}</div>
+                        <div class="summary-stat-label">Smooth FPS (≥55)</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="summary-stat-value">${metrics.frameDrops < 5 ? '✅' : '⚠️'}</div>
+                        <div class="summary-stat-label">Minimal Frame Drops</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="summary-stat-value">${overallPass ? '✅' : '⚠️'}</div>
+                        <div class="summary-stat-label">Overall Status</div>
+                    </div>
+                </div>
+            `;
+
+            resultsDiv.appendChild(summary);
+
+            // Log to console
+            console.log('=== Performance Test Results ===');
+            console.log(`Render Time: ${metrics.renderTime.toFixed(2)}ms (Target: <50ms) - ${renderPass ? 'PASS' : 'FAIL'}`);
+            console.log(`Average FPS: ${metrics.avgFPS} (Target: ≥55) - ${fpsPass ? 'PASS' : 'WARNING'}`);
+            console.log(`Minimum FPS: ${metrics.minFPS}`);
+            console.log(`Frame Drops: ${metrics.frameDrops} (Target: <5) - ${scrollPass ? 'PASS' : 'WARNING'}`);
+            console.log(`Scroll Performance: ${metrics.scrollTime.toFixed(2)}ms for ${metrics.scrollEvents} events`);
+            console.log(`Overall: ${overallPass ? 'PASS ✅' : 'NEEDS ATTENTION ⚠️'}`);
+        }
+
+        function resetTests() {
+            if (glassmorphismEnabled) {
+                toggleGlassmorphism();
+            }
+            
+            performanceData = {
+                renderStart: 0,
+                renderEnd: 0,
+                renderTime: 0,
+                fps: [],
+                scrollEvents: 0,
+                frameDrops: 0
+            };
+
+            document.getElementById('results').innerHTML = '<h2>Performance Metrics</h2><div class="loading">Click "Run Performance Test" to begin...</div>';
+            document.getElementById('testArea').scrollTop = 0;
+            
+            console.log('Tests reset');
+        }
+
+        // Initial message
+        console.log('Glassmorphism Performance Test Ready');
+        console.log('Click "Run Performance Test" to begin testing');
+    </script>
+</body>
+</html>

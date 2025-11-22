@@ -1300,6 +1300,28 @@ class WOOW_Settings {
                         $error_message = "Value must be a string";
                     }
                 }
+                // Glassmorphism enable toggle (boolean)
+                elseif ( $key === 'enable_glassmorphism' ) {
+                    // Convert string "1" or "0" to boolean (from form checkboxes)
+                    if ( $value === '1' || $value === 1 ) {
+                        $value = true;
+                    } elseif ( $value === '0' || $value === 0 || $value === '' ) {
+                        $value = false;
+                    }
+                    
+                    if ( ! is_bool( $value ) ) {
+                        $is_valid = false;
+                        $error_message = "Glassmorphism toggle must be boolean (true/false)";
+                    }
+                }
+                // Glassmorphism strength level (keyword)
+                elseif ( $key === 'glass_strength' ) {
+                    // Validate against allowed strength values
+                    if ( ! in_array( $value, array( 'sm', 'md', 'lg', 'xl' ), true ) ) {
+                        $is_valid = false;
+                        $error_message = "Invalid glassmorphism strength (expected: sm, md, lg, xl)";
+                    }
+                }
                 // Admin Bar keyword fields
                 elseif ( $section === 'admin_bar' && ( 
                     $key === 'font_weight' || 

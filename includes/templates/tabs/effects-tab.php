@@ -12,12 +12,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Define default values for effects
 $defaults = array(
-    'enabled'             => true,
-    'shadow_preset'       => 'md',
-    'animation_duration'  => '200ms',
-    'easing_function'     => 'cubic-bezier(0.4, 0, 0.2, 1)',
-    'glassmorphism_blur'  => '12px',
-    'custom_css'          => '',
+    'enabled'                => true,
+    'shadow_preset'          => 'md',
+    'animation_duration'     => '200ms',
+    'easing_function'        => 'cubic-bezier(0.4, 0, 0.2, 1)',
+    'glassmorphism_enabled'  => false,
+    'glassmorphism_blur'     => '12px',
+    'custom_css'             => '',
 );
 
 // Merge with saved settings
@@ -99,6 +100,15 @@ $effects = array_merge( $defaults, $this->settings->get_section( 'effects' ) ?? 
             <h3><?php esc_html_e( 'Glassmorphism', 'woow-admin' ); ?></h3>
         </div>
         <div class="woow-card-body">
+            <div class="woow-form-group">
+                <label class="woow-toggle">
+                    <input type="checkbox" name="effects[glassmorphism_enabled]" value="1" <?php checked( $effects['glassmorphism_enabled'] ?? false, true ); ?> class="woow-toggle-input" />
+                    <span class="woow-toggle-slider"></span>
+                    <span class="woow-toggle-label"><?php esc_html_e( 'Enable Global Glassmorphism', 'woow-admin' ); ?></span>
+                </label>
+                <p class="woow-field-description"><?php esc_html_e( 'Apply glassmorphism effect to all WordPress admin elements (dashboard, tables, widgets, etc.)', 'woow-admin' ); ?></p>
+            </div>
+            
             <div class="woow-form-group">
                 <label class="woow-label"><?php esc_html_e( 'Global Blur Strength', 'woow-admin' ); ?></label>
                 <div class="woow-slider-group">

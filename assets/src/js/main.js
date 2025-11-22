@@ -199,6 +199,9 @@ class WoowAdmin {
         
         // Handle typography font changes for live preview
         this.setupTypographyLivePreview();
+        
+        // Handle glassmorphism toggle and strength changes for live preview
+        this.setupGlassmorphismHandlers();
     }
     
     /**
@@ -1910,6 +1913,132 @@ class WoowAdmin {
             fontSelectors: fontSelectors.length,
             weightCheckboxes: weightCheckboxes.length
         });
+    }
+    
+    /**
+     * Setup glassmorphism toggle and strength handlers for live preview
+     * Implements Requirements 16.1, 16.2, 16.3, 16.4
+     */
+    setupGlassmorphismHandlers() {
+        console.log('[WOOW Admin] Setting up glassmorphism handlers...');
+        
+        // Get glassmorphism toggle checkbox
+        const glassToggle = document.querySelector('input[name="visual_effects[enable_glassmorphism]"]');
+        
+        // Get glassmorphism strength selector
+        const glassStrength = document.querySelector('select[name="visual_effects[glass_strength]"]');
+        
+        if (!glassToggle) {
+            console.warn('[WOOW Admin] Glassmorphism toggle not found');
+            return;
+        }
+        
+        // Add glassmorphism toggle handler (Requirement 16.1, 16.3)
+        glassToggle.addEventListener('change', (e) => {
+            const isEnabled = e.target.checked;
+            console.log('[WOOW Admin] Glassmorphism toggled:', isEnabled ? 'ON' : 'OFF');
+            
+            // Toggle .woow-glass-enabled class on elements
+            this.toggleGlassmorphismClasses(isEnabled);
+            
+            // Mark as unsaved
+            this.state.unsavedChanges = true;
+            this.updateSaveButtonState();
+            
+            // Update preview immediately (Requirement 16.3)
+            if (this.state.realtimeEnabled) {
+                this.debouncedPreview();
+            }
+        });
+        
+        // Add strength level change handler (Requirement 16.2, 16.4)
+        if (glassStrength) {
+            glassStrength.addEventListener('change', (e) => {
+                const strength = e.target.value;
+                console.log('[WOOW Admin] Glassmorphism strength changed:', strength);
+                
+                // Update CSS variable values dynamically (Requirement 16.4)
+                this.updateGlassmorphismStrength(strength);
+                
+                // Mark as unsaved
+                this.state.unsavedChanges = true;
+                this.updateSaveButtonState();
+                
+                // Update preview immediately (Requirement 16.4)
+                if (this.state.realtimeEnabled) {
+                    this.debouncedPreview();
+                }
+            });
+        }
+        
+        console.log('[WOOW Admin] Glassmorphism handlers initialized');
+    }
+    
+    /**
+     * Toggle glassmorphism classes on admin elements
+     * Implements Requirement 16.3
+     * 
+     * @param {boolean} enabled - Whether glassmorphism is enabled
+     */
+    toggleGlassmorphismClasses(enabled) {
+        // Add class to body to enable glassmorphism globally
+        // This is more efficient than adding to individual elements
+        const body = document.body;
+        
+        if (enabled) {
+            body.classList.add('woow-glass-enabled');
+            console.log('[WOOW Admin] Added .woow-glass-enabled to body - glassmorphism enabled globally');
+        } else {
+            body.classList.remove('woow-glass-enabled');
+            console.log('[WOOW Admin] Removed .woow-glass-enabled from body - glassmorphism disabled');
+        }
+        
+        // Also add to specific elements for immediate effect
+        const elements = [
+            document.querySelector('#wpadminbar'),
+            document.querySelector('#adminmenu'),
+            document.querySelector('#wpbody-content'),
+            ...document.querySelectorAll('.woow-card')
+        ];
+        
+        elements.forEach(element => {
+            if (!element) return;
+            
+            if (enabled) {
+                element.classList.add('woow-glass-enabled');
+            } else {
+                element.classList.remove('woow-glass-enabled');
+            }
+        });
+    }
+    
+    /**
+     * Update CSS variable values for glassmorphism strength
+     * Implements Requirement 16.4
+     * 
+     * @param {string} strength - Strength level (sm, md, lg, xl)
+     */
+    updateGlassmorphismStrength(strength) {
+        // Blur strength mapping
+        const blurMap = {
+            'sm': '4px',
+            'md': '8px',
+            'lg': '12px',
+            'xl': '16px'
+        };
+        
+        const blurValue = blurMap[strength] || '8px';
+        
+        // Update CSS variables dynamically
+        const root = document.documentElement;
+        
+        // Update blur strength variable
+        root.style.setProperty('--glass-blur-sm', strength === 'sm' ? blurValue : '4px');
+        root.style.setProperty('--glass-blur-md', strength === 'md' ? blurValue : '8px');
+        root.style.setProperty('--glass-blur-lg', strength === 'lg' ? blurValue : '12px');
+        root.style.setProperty('--glass-blur-xl', strength === 'xl' ? blurValue : '16px');
+        
+        console.log('[WOOW Admin] Updated glassmorphism CSS variables for strength:', strength, 'blur:', blurValue);
     }
 }
 

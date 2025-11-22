@@ -11,6 +11,9 @@
 /* CSS Variables and Base Styles */
 @import './variables.css';
 
+/* Glassmorphism System */
+@import './glassmorphism-system.css';
+
 /* Utilities */
 @import './utilities/glassmorphism.css';
 

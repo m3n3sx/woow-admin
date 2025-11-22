@@ -69,8 +69,8 @@ export class ConditionalFields {
     }
 
     /**
-     * Initialize fields with condition triggers (radio buttons)
-     * Used for radio button groups
+     * Initialize fields with condition triggers (radio buttons and checkboxes)
+     * Used for radio button groups and checkbox toggles
      */
     initConditionTriggers() {
         const triggers = document.querySelectorAll('.woow-condition-trigger[data-target]');
@@ -78,13 +78,31 @@ export class ConditionalFields {
         triggers.forEach(trigger => {
             const targetName = trigger.dataset.target;
             
+            // Determine the value to use for conditional matching
+            const getValue = () => {
+                if (trigger.type === 'checkbox') {
+                    // For checkboxes, use "1" when checked, "0" when unchecked
+                    return trigger.checked ? '1' : '0';
+                } else {
+                    // For radio buttons, use the actual value
+                    return trigger.value;
+                }
+            };
+            
             // Initial state
-            this.updateConditionalFields(targetName, trigger.value, trigger.checked);
+            const initialValue = getValue();
+            this.updateConditionalFields(targetName, initialValue, trigger.checked || trigger.type !== 'checkbox');
             
             // Listen for changes
             trigger.addEventListener('change', (e) => {
-                if (e.target.checked) {
-                    this.updateConditionalFields(targetName, e.target.value, true);
+                const currentValue = getValue();
+                
+                if (trigger.type === 'checkbox') {
+                    // For checkboxes, always update (checked or unchecked)
+                    this.updateConditionalFields(targetName, currentValue, true);
+                } else if (e.target.checked) {
+                    // For radio buttons, only update when checked
+                    this.updateConditionalFields(targetName, currentValue, true);
                 }
             });
         });

@@ -15,6 +15,7 @@ $general = array_merge(
     array(
         'rounded_style' => true,
         'glass_style' => false,
+        'floating_style' => false,
     ),
     $settings['general'] ?? array()
 );
@@ -22,7 +23,7 @@ $general = array_merge(
 
 <div class="woow-tab-pane" id="tab-general">
     <!-- Global Style Toggles -->
-    <div class="woow-grid woow-grid-2" style="margin-bottom: 24px;">
+    <div class="woow-grid woow-grid-3" style="margin-bottom: 24px;">
         <!-- Rounded Style Toggle -->
         <div class="woow-card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%); border: 1px solid rgba(99, 102, 241, 0.1);">
             <div style="display: flex; align-items: center; justify-content: space-between;">
@@ -75,6 +76,35 @@ $general = array_merge(
                         name="general[glass_style]" 
                         value="1"
                         <?php checked( $general['glass_style'], true ); ?>
+                    />
+                    <span class="woow-switch-slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Floating Style Toggle -->
+        <div class="woow-card" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(5, 150, 105, 0.05) 100%); border: 1px solid rgba(16, 185, 129, 0.1);">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <div style="width: 48px; height: 48px; border-radius: 16px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <span class="dashicons dashicons-editor-expand" style="font-size: 24px; width: 24px; height: 24px; color: white;"></span>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 16px; font-weight: 600; color: #0f172a; margin: 0 0 4px 0;">
+                            <?php esc_html_e( 'Floating Style', 'woow-admin' ); ?>
+                        </h3>
+                        <p style="font-size: 13px; color: #6b7280; margin: 0;">
+                            <?php esc_html_e( 'Remove margins - stick to edges', 'woow-admin' ); ?>
+                        </p>
+                    </div>
+                </div>
+                <label class="woow-switch">
+                    <input type="hidden" name="general[floating_style]" value="0" />
+                    <input 
+                        type="checkbox" 
+                        name="general[floating_style]" 
+                        value="1"
+                        <?php checked( $general['floating_style'], true ); ?>
                     />
                     <span class="woow-switch-slider"></span>
                 </label>

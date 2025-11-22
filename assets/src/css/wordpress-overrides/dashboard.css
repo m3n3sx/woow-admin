@@ -25,12 +25,6 @@
 .postbox,
 #dashboard-widgets .postbox,
 .wrap > div.card {
-  /* Glassmorphism */
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  background: rgba(255, 255, 255, 0.9) !important;
-  border: 1px solid rgba(255, 255, 255, 0.4) !important;
-  
   /* Dimensions */
   border-radius: 24px !important;
   padding: 24px !important;
@@ -44,6 +38,20 @@
   border-top: none !important;
   border-left: none !important;
   border-right: none !important;
+  
+  /* Default background (when glassmorphism is disabled) */
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #0f172a !important;
+  transition: all 200ms ease;
+}
+
+/* Solid background when glassmorphism is NOT enabled */
+body:not(.woow-glass-enabled) .postbox,
+body:not(.woow-glass-enabled) #dashboard-widgets .postbox,
+body:not(.woow-glass-enabled) .wrap > div.card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
 }
 
 /* Card Headers */
@@ -70,13 +78,23 @@
     rgba(99, 102, 241, 0.1),   /* indigo-500/10 */
     rgba(139, 92, 246, 0.1),   /* purple-500/10 */
     rgba(236, 72, 153, 0.1)    /* pink-500/10 */
-  ) !important;
-  backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  );
+  border: 1px solid #e2e8f0;
   border-radius: 24px !important;
   padding: 32px !important;
   margin-bottom: 24px !important;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Solid background when glassmorphism is NOT enabled */
+body:not(.woow-glass-enabled) #welcome-panel {
+  background: linear-gradient(
+    to bottom right,
+    rgba(99, 102, 241, 0.1),   /* indigo-500/10 */
+    rgba(139, 92, 246, 0.1),   /* purple-500/10 */
+    rgba(236, 72, 153, 0.1)    /* pink-500/10 */
+  ) !important;
+  border: 1px solid #e2e8f0 !important;
 }
 
 #welcome-panel h2 {
@@ -94,18 +112,26 @@
 
 /* Welcome Panel Actions */
 .welcome-panel-column {
-  background: rgba(255, 255, 255, 0.6) !important;
-  backdrop-filter: blur(8px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 16px !important;
   padding: 20px !important;
   transition: all 200ms;
 }
 
+body:not(.woow-glass-enabled) .welcome-panel-column {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
 .welcome-panel-column:hover {
-  background: rgba(255, 255, 255, 0.8) !important;
+  background: rgba(255, 255, 255, 0.8);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
   transform: translateY(-2px);
+}
+
+body:not(.woow-glass-enabled) .welcome-panel-column:hover {
+  background: rgba(255, 255, 255, 0.8) !important;
 }
 
 /* At a Glance Widget */
@@ -114,9 +140,8 @@
 }
 
 #dashboard_right_now li {
-  background: rgba(255, 255, 255, 0.6) !important;
-  backdrop-filter: blur(8px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 16px !important;
   padding: 16px !important;
   margin-bottom: 12px !important;
@@ -126,9 +151,18 @@
   transition: all 200ms;
 }
 
+body:not(.woow-glass-enabled) #dashboard_right_now li {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
 #dashboard_right_now li:hover {
-  background: rgba(255, 255, 255, 0.8) !important;
+  background: #f8fafc;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+body:not(.woow-glass-enabled) #dashboard_right_now li:hover {
+  background: #f8fafc !important;
 }
 
 #dashboard_right_now li a {
@@ -153,12 +187,16 @@
 
 /* Activity Widget */
 #dashboard_activity .activity-block {
-  background: rgba(255, 255, 255, 0.6) !important;
-  backdrop-filter: blur(8px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 16px !important;
   padding: 16px !important;
   margin-bottom: 12px !important;
+}
+
+body:not(.woow-glass-enabled) #dashboard_activity .activity-block {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
 }
 
 #dashboard_activity .avatar {
@@ -172,12 +210,16 @@
 #dashboard_quick_press .input-text-wrap input {
   height: 40px !important;
   border-radius: 12px !important;
-  border: 1px solid rgba(255, 255, 255, 0.4) !important;
-  background: rgba(255, 255, 255, 0.6) !important;
-  backdrop-filter: blur(8px) !important;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
   padding: 10px 14px !important;
   font-size: 15px !important;
   transition: all 200ms;
+}
+
+body:not(.woow-glass-enabled) #dashboard_quick_press .input-text-wrap input {
+  border: 1px solid #e2e8f0 !important;
+  background: #ffffff !important;
 }
 
 #dashboard_quick_press .input-text-wrap input:focus {
@@ -188,12 +230,16 @@
 
 #dashboard_quick_press textarea {
   border-radius: 12px !important;
-  border: 1px solid rgba(255, 255, 255, 0.4) !important;
-  background: rgba(255, 255, 255, 0.6) !important;
-  backdrop-filter: blur(8px) !important;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
   padding: 14px !important;
   font-size: 15px !important;
   min-height: 120px !important;
+}
+
+body:not(.woow-glass-enabled) #dashboard_quick_press textarea {
+  border: 1px solid #e2e8f0 !important;
+  background: #ffffff !important;
 }
 
 #dashboard_quick_press .button {
@@ -262,8 +308,15 @@
   .postbox,
   #dashboard-widgets .postbox,
   .wrap > div.card {
-    background: rgba(30, 41, 59, 0.9) !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
+    background: #1e293b;
+    border-color: #334155;
+  }
+
+  body:not(.woow-glass-enabled) .postbox,
+  body:not(.woow-glass-enabled) #dashboard-widgets .postbox,
+  body:not(.woow-glass-enabled) .wrap > div.card {
+    background: #1e293b !important;
+    border-color: #334155 !important;
   }
 
   .postbox-header,
@@ -273,6 +326,15 @@
   }
 
   #welcome-panel {
+    background: linear-gradient(
+      to bottom right,
+      rgba(99, 102, 241, 0.15),
+      rgba(139, 92, 246, 0.15),
+      rgba(236, 72, 153, 0.15)
+    );
+  }
+
+  body:not(.woow-glass-enabled) #welcome-panel {
     background: linear-gradient(
       to bottom right,
       rgba(99, 102, 241, 0.15),
@@ -288,15 +350,28 @@
   .welcome-panel-column,
   #dashboard_right_now li,
   #dashboard_activity .activity-block {
-    background: rgba(30, 41, 59, 0.6) !important;
-    border-color: rgba(255, 255, 255, 0.08) !important;
+    background: #1e293b;
+    border-color: #334155;
+  }
+
+  body:not(.woow-glass-enabled) .welcome-panel-column,
+  body:not(.woow-glass-enabled) #dashboard_right_now li,
+  body:not(.woow-glass-enabled) #dashboard_activity .activity-block {
+    background: #1e293b !important;
+    border-color: #334155 !important;
   }
 
   #dashboard_quick_press .input-text-wrap input,
   #dashboard_quick_press textarea {
-    background: rgba(30, 41, 59, 0.6) !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
+    background: #1e293b;
+    border-color: #334155;
     color: #f1f5f9 !important;
+  }
+
+  body:not(.woow-glass-enabled) #dashboard_quick_press .input-text-wrap input,
+  body:not(.woow-glass-enabled) #dashboard_quick_press textarea {
+    background: #1e293b !important;
+    border-color: #334155 !important;
   }
 }
 

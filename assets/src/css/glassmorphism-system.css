@@ -1,0 +1,509 @@
+/**
+ * Glassmorphism System
+ * 
+ * Global CSS variables and utility classes for consistent glass effects
+ * across the WOOW! Admin interface.
+ * 
+ * Features:
+ * - 4 strength levels (sm, md, lg, xl)
+ * - CSS variable-based system for easy customization
+ * - Dark mode support via prefers-color-scheme
+ * - Hardware-accelerated backdrop-filter
+ * - Graceful degradation for unsupported browsers
+ * 
+ * @package WOOW_Admin
+ * @since 1.0.0
+ */
+
+/* ============================================
+   CSS Variables - Blur Strength
+   ============================================ */
+
+:root {
+    /* Blur Strength Variables */
+    --glass-blur-sm: 4px;
+    --glass-blur-md: 8px;
+    --glass-blur-lg: 12px;
+    --glass-blur-xl: 16px;
+    
+    /* Opacity Variables (for future use) */
+    --glass-opacity-sm: 0.25;
+    --glass-opacity-md: 0.15;
+    --glass-opacity-lg: 0.10;
+    --glass-opacity-xl: 0.08;
+}
+
+/* ============================================
+   Light Mode Utility Classes
+   ============================================ */
+
+/* Small Glassmorphism - Subtle effect for content-heavy areas */
+.woow-glass-sm {
+    backdrop-filter: blur(var(--glass-blur-sm));
+    -webkit-backdrop-filter: blur(var(--glass-blur-sm));
+    background: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+}
+
+/* Medium Glassmorphism - Default balanced effect */
+.woow-glass-md {
+    backdrop-filter: blur(var(--glass-blur-md));
+    -webkit-backdrop-filter: blur(var(--glass-blur-md));
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.25);
+}
+
+/* Large Glassmorphism - Strong effect for decorative elements */
+.woow-glass-lg {
+    backdrop-filter: blur(var(--glass-blur-lg));
+    -webkit-backdrop-filter: blur(var(--glass-blur-lg));
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+}
+
+/* Extra Large Glassmorphism - Maximum effect for hero areas */
+.woow-glass-xl {
+    backdrop-filter: blur(var(--glass-blur-xl));
+    -webkit-backdrop-filter: blur(var(--glass-blur-xl));
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+}
+
+/* ============================================
+   Dark Mode Support
+   ============================================ */
+
+/**
+ * Dark mode glassmorphism overrides
+ * Automatically adapts to system dark mode preference
+ * Uses darker semi-transparent backgrounds for better contrast
+ */
+@media (prefers-color-scheme: dark) {
+    /* Small Glassmorphism - Dark Mode */
+    .woow-glass-sm {
+        background: rgba(30, 41, 59, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Medium Glassmorphism - Dark Mode */
+    .woow-glass-md {
+        background: rgba(30, 41, 59, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    
+    /* Large Glassmorphism - Dark Mode */
+    .woow-glass-lg {
+        background: rgba(30, 41, 59, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    
+    /* Extra Large Glassmorphism - Dark Mode */
+    .woow-glass-xl {
+        background: rgba(30, 41, 59, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+}
+
+/* ============================================
+   Global Application Classes
+   ============================================ */
+
+/**
+ * WordPress Admin Bar Glassmorphism
+ * Applied when global glassmorphism is enabled
+ * Uses medium blur for balanced effect
+ */
+#wpadminbar.woow-glass-enabled {
+    backdrop-filter: blur(var(--glass-blur-md));
+    -webkit-backdrop-filter: blur(var(--glass-blur-md));
+    background: rgba(255, 255, 255, 0.15) !important;
+}
+
+/**
+ * WordPress Admin Menu Glassmorphism
+ * Applied when global glassmorphism is enabled
+ * Uses light blur for better readability
+ */
+#adminmenu.woow-glass-enabled {
+    backdrop-filter: blur(var(--glass-blur-sm));
+    -webkit-backdrop-filter: blur(var(--glass-blur-sm));
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/**
+ * Dashboard Widget/Card Glassmorphism
+ * Applied when global glassmorphism is enabled
+ * Uses light blur to maintain content readability
+ */
+.woow-card.woow-glass-enabled {
+    backdrop-filter: blur(var(--glass-blur-sm));
+    -webkit-backdrop-filter: blur(var(--glass-blur-sm));
+}
+
+/**
+ * WordPress Content Area Glassmorphism
+ * Applied when global glassmorphism is enabled
+ * Uses light blur for main content area
+ */
+#wpbody-content.woow-glass-enabled {
+    backdrop-filter: blur(var(--glass-blur-sm));
+    -webkit-backdrop-filter: blur(var(--glass-blur-sm));
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/**
+ * WordPress Postbox/Widget Glassmorphism
+ * Applied to dashboard widgets and meta boxes
+ */
+.woow-glass-enabled .postbox,
+.woow-glass-enabled .wrap > div.card,
+.woow-glass-enabled #dashboard-widgets .postbox {
+    backdrop-filter: blur(var(--glass-blur-sm));
+    -webkit-backdrop-filter: blur(var(--glass-blur-sm));
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/**
+ * WordPress Welcome Panel Glassmorphism
+ */
+.woow-glass-enabled #welcome-panel {
+    backdrop-filter: blur(var(--glass-blur-md));
+    -webkit-backdrop-filter: blur(var(--glass-blur-md));
+    background: rgba(255, 255, 255, 0.12) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/**
+ * WordPress Form Tables Glassmorphism
+ */
+.woow-glass-enabled .form-table,
+.woow-glass-enabled .widefat {
+    backdrop-filter: blur(var(--glass-blur-sm));
+    -webkit-backdrop-filter: blur(var(--glass-blur-sm));
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/**
+ * WordPress Notice Boxes Glassmorphism
+ */
+.woow-glass-enabled .notice,
+.woow-glass-enabled .updated,
+.woow-glass-enabled .error {
+    backdrop-filter: blur(var(--glass-blur-sm));
+    -webkit-backdrop-filter: blur(var(--glass-blur-sm));
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/**
+ * WordPress List Tables Glassmorphism
+ * Applied to all list tables (posts, pages, plugins, etc.)
+ */
+.woow-glass-enabled .wp-list-table,
+.woow-glass-enabled table.widefat,
+.woow-glass-enabled .tablenav {
+    backdrop-filter: blur(var(--glass-blur-sm));
+    -webkit-backdrop-filter: blur(var(--glass-blur-sm));
+    background: rgba(255, 255, 255, 0.12) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/**
+ * WordPress List Table Rows Glassmorphism
+ */
+.woow-glass-enabled .wp-list-table tr,
+.woow-glass-enabled table.widefat tr {
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.woow-glass-enabled .wp-list-table tr:hover,
+.woow-glass-enabled table.widefat tr:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+}
+
+.woow-glass-enabled .wp-list-table .alternate,
+.woow-glass-enabled table.widefat .alternate {
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/**
+ * WordPress Meta Boxes Glassmorphism
+ * Applied to all meta boxes in post/page editor
+ */
+.woow-glass-enabled .postbox-container .postbox,
+.woow-glass-enabled #poststuff .postbox,
+.woow-glass-enabled .stuffbox {
+    backdrop-filter: blur(var(--glass-blur-sm));
+    -webkit-backdrop-filter: blur(var(--glass-blur-sm));
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/**
+ * WordPress Settings Sections Glassmorphism
+ */
+.woow-glass-enabled .form-wrap,
+.woow-glass-enabled .wp-editor-container,
+.woow-glass-enabled #post-body-content {
+    backdrop-filter: blur(var(--glass-blur-sm));
+    -webkit-backdrop-filter: blur(var(--glass-blur-sm));
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/**
+ * WordPress Plugin/Theme Cards Glassmorphism
+ */
+.woow-glass-enabled .plugin-card,
+.woow-glass-enabled .theme-browser .theme,
+.woow-glass-enabled .theme-overlay {
+    backdrop-filter: blur(var(--glass-blur-sm));
+    -webkit-backdrop-filter: blur(var(--glass-blur-sm));
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/**
+ * WordPress Media Library Glassmorphism
+ */
+.woow-glass-enabled .attachments-browser,
+.woow-glass-enabled .attachment-details,
+.woow-glass-enabled .media-frame,
+.woow-glass-enabled .media-sidebar {
+    backdrop-filter: blur(var(--glass-blur-sm));
+    -webkit-backdrop-filter: blur(var(--glass-blur-sm));
+    background: rgba(255, 255, 255, 0.12) !important;
+}
+
+/**
+ * WordPress Widgets Page Glassmorphism
+ */
+.woow-glass-enabled .widget,
+.woow-glass-enabled .widget-inside,
+.woow-glass-enabled #available-widgets .widget {
+    backdrop-filter: blur(var(--glass-blur-sm));
+    -webkit-backdrop-filter: blur(var(--glass-blur-sm));
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/**
+ * WordPress Customizer Glassmorphism
+ */
+.woow-glass-enabled .customize-control,
+.woow-glass-enabled .customize-section,
+.woow-glass-enabled .customize-panel {
+    backdrop-filter: blur(var(--glass-blur-sm));
+    -webkit-backdrop-filter: blur(var(--glass-blur-sm));
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/**
+ * WordPress Comments Section Glassmorphism
+ */
+.woow-glass-enabled .comment-item,
+.woow-glass-enabled #the-comment-list .comment {
+    backdrop-filter: blur(var(--glass-blur-sm));
+    -webkit-backdrop-filter: blur(var(--glass-blur-sm));
+    background: rgba(255, 255, 255, 0.12) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/**
+ * WordPress Toolbar/Tablenav Glassmorphism
+ */
+.woow-glass-enabled .tablenav,
+.woow-glass-enabled .subsubsub,
+.woow-glass-enabled .wp-filter {
+    backdrop-filter: blur(var(--glass-blur-sm));
+    -webkit-backdrop-filter: blur(var(--glass-blur-sm));
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/**
+ * WordPress Search/Filter Boxes Glassmorphism
+ */
+.woow-glass-enabled .search-box,
+.woow-glass-enabled .filter-items,
+.woow-glass-enabled #posts-filter {
+    backdrop-filter: blur(var(--glass-blur-sm));
+    -webkit-backdrop-filter: blur(var(--glass-blur-sm));
+}
+
+/**
+ * WordPress Update/Install Screens Glassmorphism
+ */
+.woow-glass-enabled .update-php,
+.woow-glass-enabled .update-nag,
+.woow-glass-enabled .plugin-update-tr,
+.woow-glass-enabled .theme-update-tr {
+    backdrop-filter: blur(var(--glass-blur-sm));
+    -webkit-backdrop-filter: blur(var(--glass-blur-sm));
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* ============================================
+   Performance Optimization
+   ============================================ */
+
+/**
+ * Will-Change Hints
+ * Informs the browser that backdrop-filter will be animated/changed
+ * Enables hardware acceleration and optimizes rendering
+ * 
+ * Requirements: 10.1, 10.4
+ */
+.woow-glass-sm,
+.woow-glass-md,
+.woow-glass-lg,
+.woow-glass-xl,
+#wpadminbar.woow-glass-enabled,
+#adminmenu.woow-glass-enabled,
+.woow-card.woow-glass-enabled,
+#wpbody-content.woow-glass-enabled,
+.woow-glass-enabled .postbox,
+.woow-glass-enabled .wrap > div.card,
+.woow-glass-enabled #dashboard-widgets .postbox,
+.woow-glass-enabled #welcome-panel,
+.woow-glass-enabled .form-table,
+.woow-glass-enabled .widefat,
+.woow-glass-enabled .notice,
+.woow-glass-enabled .wp-list-table,
+.woow-glass-enabled table.widefat,
+.woow-glass-enabled .plugin-card,
+.woow-glass-enabled .theme-browser .theme,
+.woow-glass-enabled .widget,
+.woow-glass-enabled .postbox-container .postbox,
+.woow-glass-enabled #poststuff .postbox {
+    will-change: backdrop-filter;
+}
+
+/* ============================================
+   Browser Fallback Support
+   ============================================ */
+
+/**
+ * Graceful Degradation for Unsupported Browsers
+ * Provides solid semi-transparent backgrounds when backdrop-filter is not supported
+ * Ensures the interface remains usable in older browsers
+ * 
+ * Requirements: 14.2, 14.3, 14.4
+ */
+@supports not (backdrop-filter: blur(1px)) {
+    /* Light Mode Fallbacks */
+    .woow-glass-sm,
+    .woow-glass-md,
+    .woow-glass-lg,
+    .woow-glass-xl {
+        background: rgba(255, 255, 255, 0.9);
+    }
+    
+    #wpadminbar.woow-glass-enabled {
+        background: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    #adminmenu.woow-glass-enabled {
+        background: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    .woow-card.woow-glass-enabled {
+        background: rgba(255, 255, 255, 0.9);
+    }
+    
+    #wpbody-content.woow-glass-enabled {
+        background: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    .woow-glass-enabled .postbox,
+    .woow-glass-enabled .wrap > div.card,
+    .woow-glass-enabled #dashboard-widgets .postbox {
+        background: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    .woow-glass-enabled #welcome-panel {
+        background: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    .woow-glass-enabled .form-table,
+    .woow-glass-enabled .widefat {
+        background: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    .woow-glass-enabled .notice {
+        background: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    .woow-glass-enabled .wp-list-table,
+    .woow-glass-enabled table.widefat,
+    .woow-glass-enabled .plugin-card,
+    .woow-glass-enabled .theme-browser .theme,
+    .woow-glass-enabled .widget,
+    .woow-glass-enabled .postbox-container .postbox,
+    .woow-glass-enabled #poststuff .postbox,
+    .woow-glass-enabled .attachments-browser,
+    .woow-glass-enabled .media-frame {
+        background: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    /* Dark Mode Fallbacks */
+    @media (prefers-color-scheme: dark) {
+        .woow-glass-sm,
+        .woow-glass-md,
+        .woow-glass-lg,
+        .woow-glass-xl {
+            background: rgba(30, 41, 59, 0.9);
+        }
+        
+        #wpadminbar.woow-glass-enabled {
+            background: rgba(30, 41, 59, 0.9) !important;
+        }
+        
+        #adminmenu.woow-glass-enabled {
+            background: rgba(30, 41, 59, 0.9) !important;
+        }
+        
+        .woow-card.woow-glass-enabled {
+            background: rgba(30, 41, 59, 0.9);
+        }
+        
+        #wpbody-content.woow-glass-enabled {
+            background: rgba(30, 41, 59, 0.9) !important;
+        }
+        
+        .woow-glass-enabled .postbox,
+        .woow-glass-enabled .wrap > div.card,
+        .woow-glass-enabled #dashboard-widgets .postbox {
+            background: rgba(30, 41, 59, 0.9) !important;
+        }
+        
+        .woow-glass-enabled #welcome-panel {
+            background: rgba(30, 41, 59, 0.9) !important;
+        }
+        
+        .woow-glass-enabled .form-table,
+        .woow-glass-enabled .widefat {
+            background: rgba(30, 41, 59, 0.9) !important;
+        }
+        
+        .woow-glass-enabled .notice {
+            background: rgba(30, 41, 59, 0.9) !important;
+        }
+        
+        .woow-glass-enabled .wp-list-table,
+        .woow-glass-enabled table.widefat,
+        .woow-glass-enabled .plugin-card,
+        .woow-glass-enabled .theme-browser .theme,
+        .woow-glass-enabled .widget,
+        .woow-glass-enabled .postbox-container .postbox,
+        .woow-glass-enabled #poststuff .postbox,
+        .woow-glass-enabled .attachments-browser,
+        .woow-glass-enabled .media-frame {
+            background: rgba(30, 41, 59, 0.9) !important;
+        }
+    }
+}

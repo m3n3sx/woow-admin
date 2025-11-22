@@ -103,6 +103,9 @@ class WOOW_CSS_Generator {
         
         // Add responsive styles
         $this->add_responsive_styles();
+        
+        // Add glassmorphism CSS
+        $this->css .= $this->generate_glassmorphism_css();
 
         // Minify in production
         if ( defined( 'WP_DEBUG' ) && ! WP_DEBUG ) {
@@ -188,12 +191,13 @@ class WOOW_CSS_Generator {
         
         $rounded_style = $general['rounded_style'] ?? true;
         $glass_style = $general['glass_style'] ?? false;
+        $floating_style = $general['floating_style'] ?? false;
         
         $this->css .= "/* Global Styles */\n";
         
-        // Rounded Style - Tables and filter buttons
-        if ( ! $rounded_style ) {
-            $this->css .= "/* Disable Rounded Corners - Tables & Filters */\n";
+        // Floating Style or Rounded Style disabled - Remove all rounded corners globally
+        if ( $floating_style || ! $rounded_style ) {
+            $this->css .= "/* Disable Rounded Corners - All Elements */\n";
             
             // Tables (strony, wpisy, wtyczki)
             $this->css .= ".wp-list-table,\n";
@@ -220,6 +224,77 @@ class WOOW_CSS_Generator {
             $this->css .= ".search-box .button {\n";
             $this->css .= "    border-radius: 0 !important;\n";
             $this->css .= "}\n\n";
+            
+            // Dashboard Widgets
+            $this->css .= ".postbox,\n";
+            $this->css .= ".postbox-container,\n";
+            $this->css .= "#dashboard-widgets .postbox,\n";
+            $this->css .= "#dashboard-widgets .meta-box-sortables {\n";
+            $this->css .= "    border-radius: 0 !important;\n";
+            $this->css .= "}\n\n";
+            
+            // Forms and Inputs
+            $this->css .= "input[type='text'],\n";
+            $this->css .= "input[type='email'],\n";
+            $this->css .= "input[type='url'],\n";
+            $this->css .= "input[type='password'],\n";
+            $this->css .= "input[type='search'],\n";
+            $this->css .= "input[type='number'],\n";
+            $this->css .= "input[type='tel'],\n";
+            $this->css .= "input[type='date'],\n";
+            $this->css .= "textarea,\n";
+            $this->css .= "select {\n";
+            $this->css .= "    border-radius: 0 !important;\n";
+            $this->css .= "}\n\n";
+            
+            // All Buttons
+            $this->css .= ".button,\n";
+            $this->css .= ".button-primary,\n";
+            $this->css .= ".button-secondary,\n";
+            $this->css .= ".button-large,\n";
+            $this->css .= ".button-small,\n";
+            $this->css .= "button,\n";
+            $this->css .= "input[type='submit'],\n";
+            $this->css .= "input[type='button'] {\n";
+            $this->css .= "    border-radius: 0 !important;\n";
+            $this->css .= "}\n\n";
+            
+            // Notices and Messages
+            $this->css .= ".notice,\n";
+            $this->css .= ".updated,\n";
+            $this->css .= ".error,\n";
+            $this->css .= ".message {\n";
+            $this->css .= "    border-radius: 0 !important;\n";
+            $this->css .= "}\n\n";
+            
+            // Meta Boxes
+            $this->css .= ".meta-box-sortables,\n";
+            $this->css .= ".postbox,\n";
+            $this->css .= ".stuffbox {\n";
+            $this->css .= "    border-radius: 0 !important;\n";
+            $this->css .= "}\n\n";
+            
+            // Cards and Panels
+            $this->css .= ".card,\n";
+            $this->css .= ".welcome-panel,\n";
+            $this->css .= ".wp-core-ui .button-group {\n";
+            $this->css .= "    border-radius: 0 !important;\n";
+            $this->css .= "}\n\n";
+            
+            // Media Library
+            $this->css .= ".attachment,\n";
+            $this->css .= ".attachment-preview,\n";
+            $this->css .= ".media-modal,\n";
+            $this->css .= ".media-frame {\n";
+            $this->css .= "    border-radius: 0 !important;\n";
+            $this->css .= "}\n\n";
+            
+            // Tooltips and Popovers
+            $this->css .= ".wp-pointer,\n";
+            $this->css .= ".wp-pointer-content,\n";
+            $this->css .= ".contextual-help-tabs {\n";
+            $this->css .= "    border-radius: 0 !important;\n";
+            $this->css .= "}\n\n";
         }
         
         // Glass Style - REMOVED global override
@@ -242,12 +317,13 @@ class WOOW_CSS_Generator {
         $top_offset = $bar['top_offset'] ?? '16px';
         
         // Border Radius - handle mode (all or individual)
-        // Check global rounded_style setting
+        // Check global rounded_style and floating_style settings
         $general = $this->settings->get_section( 'general' );
         $rounded_style = $general['rounded_style'] ?? true;
+        $floating_style = $general['floating_style'] ?? false;
         
-        if ( ! $rounded_style ) {
-            // Global rounded style disabled - force zero radius
+        if ( $floating_style || ! $rounded_style ) {
+            // Floating style or global rounded style disabled - force zero radius
             $border_radius = '0';
         } else {
             // Use configured border radius
@@ -281,18 +357,26 @@ class WOOW_CSS_Generator {
         $box_shadow = $shadows[ $shadow_style ] ?? $shadows['md'];
         
         // Margin/Offset (from browser edges)
-        $margin_mode = $bar['margin_mode'] ?? 'all';
-        if ( $margin_mode === 'all' ) {
-            $margin_all = $bar['margin_all'] ?? '16';
-            $margin_top = $margin_all;
-            $margin_right = $margin_all;
-            $margin_bottom = $margin_all;
-            $margin_left = $margin_all;
+        // Override margins to 0 if floating_style is enabled
+        if ( $floating_style ) {
+            $margin_top = '0';
+            $margin_right = '0';
+            $margin_bottom = '0';
+            $margin_left = '0';
         } else {
-            $margin_top = $bar['margin_top'] ?? '16';
-            $margin_right = $bar['margin_right'] ?? '16';
-            $margin_bottom = $bar['margin_bottom'] ?? '16';
-            $margin_left = $bar['margin_left'] ?? '16';
+            $margin_mode = $bar['margin_mode'] ?? 'all';
+            if ( $margin_mode === 'all' ) {
+                $margin_all = $bar['margin_all'] ?? '16';
+                $margin_top = $margin_all;
+                $margin_right = $margin_all;
+                $margin_bottom = $margin_all;
+                $margin_left = $margin_all;
+            } else {
+                $margin_top = $bar['margin_top'] ?? '16';
+                $margin_right = $bar['margin_right'] ?? '16';
+                $margin_bottom = $bar['margin_bottom'] ?? '16';
+                $margin_left = $bar['margin_left'] ?? '16';
+            }
         }
         
         // Calculate width with unit and margins
@@ -483,8 +567,8 @@ class WOOW_CSS_Generator {
         $hover_bg = $bar['hover_bg_color'] ?? 'rgba(255, 255, 255, 0.1)';
         $hover_text = $bar['hover_text_color'] ?? '#ffffff';
         
-        // Determine hover border radius based on global rounded_style
-        $hover_border_radius = $rounded_style ? '12px' : '0';
+        // Determine hover border radius based on global rounded_style and floating_style
+        $hover_border_radius = ( $floating_style || ! $rounded_style ) ? '0' : '12px';
         
         if ( $hover_style === 'compact' ) {
             // Compact hover: padding from edges
@@ -539,8 +623,8 @@ class WOOW_CSS_Generator {
             $submenu_hover_bg = $bar['hover_bg_color'];
             $submenu_hover_text = $bar['hover_text_color'];
             
-            // Get border radius from admin bar (handle mode) - respects global rounded_style
-            if ( ! $rounded_style ) {
+            // Get border radius from admin bar (handle mode) - respects global rounded_style and floating_style
+            if ( $floating_style || ! $rounded_style ) {
                 $submenu_radius = '0';
             } else {
                 $border_radius_mode = $bar['border_radius_mode'] ?? 'all';
@@ -557,16 +641,16 @@ class WOOW_CSS_Generator {
             $submenu_item_height = $bar['height'] ?? '48';
             $submenu_item_border_radius = $submenu_radius;
         } else {
-            // Custom submenu styles - apply global rounded_style
+            // Custom submenu styles - apply global rounded_style and floating_style
             $submenu_bg = $bar['submenu_bg_color'] ?? 'rgba(255, 255, 255, 0.98)';
             $submenu_text = $bar['submenu_text_color'] ?? '#0f172a';
             $submenu_hover_bg = $bar['submenu_hover_bg_color'] ?? '#f1f5f9';
             $submenu_hover_text = $bar['submenu_hover_text_color'] ?? '#6366f1';
-            $submenu_radius = $rounded_style ? ( $bar['submenu_border_radius'] ?? '12' ) : '0';
+            $submenu_radius = ( $floating_style || ! $rounded_style ) ? '0' : ( $bar['submenu_border_radius'] ?? '12' );
             $submenu_font_size = $bar['submenu_font_size'] ?? '14';
             $submenu_font_weight = $bar['submenu_font_weight'] ?? '400';
             $submenu_item_height = $bar['submenu_item_height'] ?? '36';
-            $submenu_item_border_radius = $rounded_style ? ( $bar['submenu_item_border_radius'] ?? '8' ) : '0';
+            $submenu_item_border_radius = ( $floating_style || ! $rounded_style ) ? '0' : ( $bar['submenu_item_border_radius'] ?? '8' );
         }
         
         // Distance from menu
@@ -671,9 +755,10 @@ class WOOW_CSS_Generator {
     private function add_admin_menu_styles(): void {
         $menu = $this->settings->get_section( 'admin_menu' );
         
-        // Check global rounded_style setting
+        // Check global rounded_style and floating_style settings
         $general = $this->settings->get_section( 'general' );
         $rounded_style = $general['rounded_style'] ?? true;
+        $floating_style = $general['floating_style'] ?? false;
         
         // Get settings with defaults
         $width = $menu['width'] ?? '256';
@@ -683,9 +768,9 @@ class WOOW_CSS_Generator {
         $hover_text_color = $menu['hover_text_color'] ?? '#6366f1';
         $hover_bg_color = $menu['hover_bg_color'] ?? '#f8fafc';
         
-        // Border Radius - handle mode (all or individual) and global rounded_style
-        if ( ! $rounded_style ) {
-            // Global rounded style disabled - force zero radius
+        // Border Radius - handle mode (all or individual) and global rounded_style/floating_style
+        if ( $floating_style || ! $rounded_style ) {
+            // Floating style or global rounded style disabled - force zero radius
             $border_radius = '0';
             $item_border_radius = '0';
         } else {
@@ -740,23 +825,31 @@ class WOOW_CSS_Generator {
         }
         
         // Margin (external - menu container)
-        // Align with #wpbody-content (which has 16px padding)
-        $bar = $this->settings->get_section( 'admin_bar' );
-        $adminbar_height = intval( $bar['height'] ?? '48' );
-        $wpbody_content_padding = 16; // #wpbody-content padding-top
-        
-        $margin_mode = $menu['margin_mode'] ?? 'individual';
-        if ( $margin_mode === 'all' ) {
-            $margin_all = $menu['margin_all'] ?? '16';
-            $margin_top = $wpbody_content_padding; // Align with #wpbody-content inner content
-            $margin_right = $margin_all;
-            $margin_bottom = $margin_all;
-            $margin_left = $margin_all;
+        // Override margins to 0 if floating_style is enabled
+        if ( $floating_style ) {
+            $margin_top = '0';
+            $margin_right = '0';
+            $margin_bottom = '0';
+            $margin_left = '0';
         } else {
-            $margin_top = $wpbody_content_padding; // Align with #wpbody-content inner content
-            $margin_right = $menu['margin_right'] ?? '0';
-            $margin_bottom = $menu['margin_bottom'] ?? '16';
-            $margin_left = $menu['margin_left'] ?? '16';
+            // Align with #wpbody-content (which has 16px padding)
+            $bar = $this->settings->get_section( 'admin_bar' );
+            $adminbar_height = intval( $bar['height'] ?? '48' );
+            $wpbody_content_padding = 16; // #wpbody-content padding-top
+            
+            $margin_mode = $menu['margin_mode'] ?? 'individual';
+            if ( $margin_mode === 'all' ) {
+                $margin_all = $menu['margin_all'] ?? '16';
+                $margin_top = $wpbody_content_padding; // Align with #wpbody-content inner content
+                $margin_right = $margin_all;
+                $margin_bottom = $margin_all;
+                $margin_left = $margin_all;
+            } else {
+                $margin_top = $wpbody_content_padding; // Align with #wpbody-content inner content
+                $margin_right = $menu['margin_right'] ?? '0';
+                $margin_bottom = $menu['margin_bottom'] ?? '16';
+                $margin_left = $menu['margin_left'] ?? '16';
+            }
         }
         
         // Icons
@@ -788,15 +881,15 @@ class WOOW_CSS_Generator {
             $submenu_text_color = $menu['submenu_text_color'] ?? '#0f172a';
             $submenu_hover_text_color = $menu['submenu_hover_text_color'] ?? '#6366f1';
             $submenu_hover_bg_color = $menu['submenu_hover_bg_color'] ?? '#f1f5f9';
-            // Apply global rounded_style to submenu
-            $submenu_border_radius = $rounded_style ? ( $menu['submenu_border_radius'] ?? '12' ) : '0';
+            // Apply global rounded_style and floating_style to submenu
+            $submenu_border_radius = ( $floating_style || ! $rounded_style ) ? '0' : ( $menu['submenu_border_radius'] ?? '12' );
             $submenu_font_size = $menu['submenu_font_size'] ?? '13';
             $submenu_font_weight = $menu['submenu_font_weight'] ?? '400';
         }
         
-        // Submenu item settings (not affected by inherit) - apply global rounded_style
+        // Submenu item settings (not affected by inherit) - apply global rounded_style and floating_style
         $submenu_item_height = $menu['submenu_item_height'] ?? '36';
-        $submenu_item_border_radius = $rounded_style ? ( $menu['submenu_item_border_radius'] ?? '8' ) : '0';
+        $submenu_item_border_radius = ( $floating_style || ! $rounded_style ) ? '0' : ( $menu['submenu_item_border_radius'] ?? '8' );
 
         $this->css .= "/* Admin Menu Styling - Customizable */\n";
         
@@ -1495,9 +1588,11 @@ class WOOW_CSS_Generator {
     private function add_dashboard_widget_styles(): void {
         $widgets = $this->settings->get_section( 'dashboard_widgets' );
         
-        // Check global rounded_style setting
+        // Check global rounded_style, floating_style, and glass_style settings
         $general = $this->settings->get_section( 'general' );
         $rounded_style = $general['rounded_style'] ?? true;
+        $floating_style = $general['floating_style'] ?? false;
+        $glass_style = $general['glass_style'] ?? false;
         
         // Get colors with defaults
         $background_color = $widgets['background_color'] ?? '#ffffff';
@@ -1505,8 +1600,8 @@ class WOOW_CSS_Generator {
         $text_color = $widgets['text_color'] ?? '#0f172a';
         $heading_color = $widgets['heading_color'] ?? '#0f172a';
         
-        // Get dimensions - apply global rounded_style
-        $border_radius = $rounded_style ? ( $widgets['border_radius'] ?? '24px' ) : '0';
+        // Get dimensions - apply global rounded_style and floating_style
+        $border_radius = ( $floating_style || ! $rounded_style ) ? '0' : ( $widgets['border_radius'] ?? '24px' );
         $padding = $widgets['padding'] ?? '24px';
         
         // Get shadow
@@ -1519,6 +1614,15 @@ class WOOW_CSS_Generator {
             'xl' => '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
         ];
         $box_shadow = $shadows[$shadow_style] ?? $shadows['md'];
+        
+        // Apply glassmorphism if global glass_style is enabled OR local glassmorphism is enabled
+        $apply_glassmorphism = $glass_style || ( $widgets['glassmorphism'] ?? false );
+        
+        // If glassmorphism is enabled, use transparent background
+        if ( $apply_glassmorphism ) {
+            $opacity = $widgets['opacity'] ?? 0.9;
+            $background_color = $this->hex_to_rgba( $background_color, $opacity );
+        }
 
         $this->css .= "/* Dashboard Widgets Styling */\n";
         $this->css .= ".postbox,\n";
@@ -1533,11 +1637,13 @@ class WOOW_CSS_Generator {
         $this->css .= "    color: {$text_color} !important;\n";
         $this->css .= "    transition: all 200ms ease;\n";
         
-        // Glassmorphism
-        if ( $widgets['glassmorphism'] ?? false ) {
-            $blur_strength = $widgets['blur_strength'] ?? '8px';
-            $this->css .= "    backdrop-filter: blur({$blur_strength}) !important;\n";
-            $this->css .= "    -webkit-backdrop-filter: blur({$blur_strength}) !important;\n";
+        // Glassmorphism - apply if global glass_style OR local glassmorphism is enabled
+        if ( $apply_glassmorphism ) {
+            $blur_strength = $widgets['blur_strength'] ?? '12';
+            // Remove 'px' if already present to avoid 'pxpx'
+            $blur_strength = str_replace( 'px', '', $blur_strength );
+            $this->css .= "    backdrop-filter: blur({$blur_strength}px) !important;\n";
+            $this->css .= "    -webkit-backdrop-filter: blur({$blur_strength}px) !important;\n";
         }
         
         $this->css .= "}\n\n";
@@ -1584,7 +1690,7 @@ class WOOW_CSS_Generator {
         $this->css .= "    background: linear-gradient(to bottom right, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1)) !important;\n";
         $this->css .= "    backdrop-filter: blur(12px) !important;\n";
         $this->css .= "    border: 1px solid rgba(255, 255, 255, 0.4) !important;\n";
-        $this->css .= "    border-radius: {$widgets['border_radius']} !important;\n";
+        $this->css .= "    border-radius: {$border_radius} !important;\n";
         $this->css .= "    padding: 32px !important;\n";
         $this->css .= "    margin-bottom: {$widgets['margin_bottom']} !important;\n";
         $this->css .= "    box-shadow: {$this->get_shadow_value($widgets['shadow_style'])} !important;\n";
@@ -1597,12 +1703,13 @@ class WOOW_CSS_Generator {
         $this->css .= "    margin-bottom: 8px !important;\n";
         $this->css .= "}\n\n";
         
-        // At a Glance widget
+        // At a Glance widget - apply floating_style
+        $glance_item_radius = ( $floating_style || ! $rounded_style ) ? '0' : '16px';
         $this->css .= "#dashboard_right_now li {\n";
         $this->css .= "    background: rgba(255, 255, 255, 0.6) !important;\n";
         $this->css .= "    backdrop-filter: blur(8px) !important;\n";
         $this->css .= "    border: 1px solid rgba(255, 255, 255, 0.4) !important;\n";
-        $this->css .= "    border-radius: 16px !important;\n";
+        $this->css .= "    border-radius: {$glance_item_radius} !important;\n";
         $this->css .= "    padding: 16px !important;\n";
         $this->css .= "    margin-bottom: 12px !important;\n";
         $this->css .= "    display: flex !important;\n";
@@ -1616,13 +1723,14 @@ class WOOW_CSS_Generator {
         $this->css .= "    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;\n";
         $this->css .= "}\n\n";
         
+        $glance_icon_radius = ( $floating_style || ! $rounded_style ) ? '0' : '12px';
         $this->css .= "#dashboard_right_now li .dashicons {\n";
         $this->css .= "    width: 40px !important;\n";
         $this->css .= "    height: 40px !important;\n";
         $this->css .= "    font-size: 20px !important;\n";
         $this->css .= "    background: linear-gradient(to bottom right, #6366f1, #8b5cf6) !important;\n";
         $this->css .= "    color: #ffffff !important;\n";
-        $this->css .= "    border-radius: 12px !important;\n";
+        $this->css .= "    border-radius: {$glance_icon_radius} !important;\n";
         $this->css .= "    display: flex !important;\n";
         $this->css .= "    align-items: center !important;\n";
         $this->css .= "    justify-content: center !important;\n";
@@ -2129,32 +2237,39 @@ class WOOW_CSS_Generator {
     private function add_content_styling_styles(): void {
         $content = $this->settings->get_section( 'content_styling' );
         
-        // Check global rounded_style setting
+        // Check global rounded_style, floating_style, and glass_style settings
         $general = $this->settings->get_section( 'general' );
         $rounded_style = $general['rounded_style'] ?? true;
+        $floating_style = $general['floating_style'] ?? false;
+        $glass_style = $general['glass_style'] ?? false;
         
-        // Get settings with defaults - apply global rounded_style
-        $wpbody_border_radius = $rounded_style ? ( $content['wpbody_content_border_radius'] ?? '24' ) : '0';
-        $wpbody_glassmorphism = $content['wpbody_content_glassmorphism'] ?? false;
+        // Get settings with defaults - apply global rounded_style and floating_style
+        $wpbody_border_radius = ( $floating_style || ! $rounded_style ) ? '0' : ( $content['wpbody_content_border_radius'] ?? '24' );
+        
+        // Apply glassmorphism if global glass_style is enabled OR local glassmorphism is enabled
+        $apply_glassmorphism = $glass_style || ( $content['wpbody_content_glassmorphism'] ?? false );
+        
         $wpbody_opacity = $content['wpbody_content_opacity'] ?? 0.9;
         $wpbody_blur = $content['wpbody_content_blur_strength'] ?? '12';
         
-        $table_border_radius = $rounded_style ? ( $content['wp_list_table_border_radius'] ?? '12' ) : '0';
+        $table_border_radius = ( $floating_style || ! $rounded_style ) ? '0' : ( $content['wp_list_table_border_radius'] ?? '12' );
         
         $this->css .= "/* Content Styling */\n";
         
-        // WPBody Content
-        $this->css .= "#wpbody-content {\n";
-        $this->css .= "    border-radius: {$wpbody_border_radius}px !important;\n";
-        
-        // Apply glassmorphism if local setting is enabled
-        if ( $wpbody_glassmorphism ) {
+        // WPBody Content - only add glassmorphism if enabled
+        // Note: padding and other base styles are set in add_background_styles()
+        if ( $apply_glassmorphism ) {
+            $this->css .= "#wpbody-content {\n";
             $this->css .= "    backdrop-filter: blur({$wpbody_blur}px) !important;\n";
             $this->css .= "    -webkit-backdrop-filter: blur({$wpbody_blur}px) !important;\n";
             $this->css .= "    background: rgba(255, 255, 255, {$wpbody_opacity}) !important;\n";
             $this->css .= "    border: 1px solid rgba(0, 0, 0, 0.1) !important;\n";
+            $this->css .= "}\n\n";
         }
         
+        // Border radius for wpbody-content (separate from glassmorphism)
+        $this->css .= "#wpbody-content {\n";
+        $this->css .= "    border-radius: {$wpbody_border_radius}px !important;\n";
         $this->css .= "}\n\n";
         
         // WP List Table
@@ -2179,6 +2294,31 @@ class WOOW_CSS_Generator {
         $this->css .= ".wp-list-table thead th:last-child,\n";
         $this->css .= ".widefat thead th:last-child {\n";
         $this->css .= "    border-top-right-radius: {$table_border_radius}px !important;\n";
+        $this->css .= "}\n\n";
+        
+        // WOOW! Admin Plugin Page - Sidebar and Header styling
+        // Match border-radius with wpbody-content for visual consistency
+        $this->css .= "/* WOOW! Admin Plugin Page - Sidebar and Header */\n";
+        $this->css .= ".woow-sidebar {\n";
+        $this->css .= "    border-top-left-radius: {$wpbody_border_radius}px !important;\n";
+        $this->css .= "    border-bottom-left-radius: {$wpbody_border_radius}px !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".woow-header {\n";
+        $this->css .= "    border-top-right-radius: {$wpbody_border_radius}px !important;\n";
+        $this->css .= "}\n\n";
+        
+        $this->css .= ".woow-main-content {\n";
+        $this->css .= "    border-bottom-right-radius: {$wpbody_border_radius}px !important;\n";
+        $this->css .= "}\n\n";
+        
+        // WOOW! Admin Plugin Page - Remove left/right padding from wpbody-content
+        // This allows sidebar and content to be flush with edges
+        $this->css .= "/* WOOW! Admin Plugin Page - Remove wpbody-content padding */\n";
+        $this->css .= ".toplevel_page_woow-admin #wpbody-content,\n";
+        $this->css .= "body[class*='woow'] #wpbody-content {\n";
+        $this->css .= "    padding-left: 0 !important;\n";
+        $this->css .= "    padding-right: 0 !important;\n";
         $this->css .= "}\n\n";
     }
 
@@ -2431,6 +2571,64 @@ class WOOW_CSS_Generator {
         $this->css .= "@media (min-width: 1024px) {\n";
         $this->css .= "    /* Full layout enabled */\n";
         $this->css .= "}\n\n";
+    }
+
+    /**
+     * Generate glassmorphism CSS based on settings
+     *
+     * @return string Generated glassmorphism CSS
+     */
+    private function generate_glassmorphism_css(): string {
+        // Get settings from settings manager
+        $settings = $this->settings->get_all_settings();
+        
+        // Check if glassmorphism is enabled
+        if ( empty( $settings['enable_glassmorphism'] ) ) {
+            return '';
+        }
+        
+        // Get strength level with default
+        $strength = $settings['glass_strength'] ?? 'md';
+        
+        // Validate strength against allowed values
+        $valid_strengths = array( 'sm', 'md', 'lg', 'xl' );
+        if ( ! in_array( $strength, $valid_strengths, true ) ) {
+            $strength = 'md';
+        }
+        
+        // Create blur strength mapping
+        $blur_map = array(
+            'sm' => '4px',
+            'md' => '8px',
+            'lg' => '12px',
+            'xl' => '16px',
+        );
+        
+        // Get blur value from map
+        $blur = $blur_map[ $strength ];
+        
+        // Generate CSS with comment indicating strength level
+        $css = "/* Glassmorphism System - Strength: {$strength} */\n";
+        
+        // Generate admin bar CSS
+        $css .= "#wpadminbar {\n";
+        $css .= "    backdrop-filter: blur({$blur}) !important;\n";
+        $css .= "    -webkit-backdrop-filter: blur({$blur}) !important;\n";
+        $css .= "}\n\n";
+        
+        // Generate admin menu CSS
+        $css .= "#adminmenu {\n";
+        $css .= "    backdrop-filter: blur({$blur}) !important;\n";
+        $css .= "    -webkit-backdrop-filter: blur({$blur}) !important;\n";
+        $css .= "}\n\n";
+        
+        // Generate widget CSS
+        $css .= ".woow-card {\n";
+        $css .= "    backdrop-filter: blur({$blur}) !important;\n";
+        $css .= "    -webkit-backdrop-filter: blur({$blur}) !important;\n";
+        $css .= "}\n\n";
+        
+        return $css;
     }
 
     /**

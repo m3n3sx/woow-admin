@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WOOW! Admin - Glassmorphism Browser Compatibility Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+        }
+        
+        .test-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #1f2937;
+        }
+        
+        h2 {
+            font-size: 1.5rem;
+            margin: 30px 0 15px;
+            color: #374151;
+        }
+        
+        h3 {
+            font-size: 1.25rem;
+            margin-bottom: 10px;
+            color: #4b5563;
+        }
+        
+        p {
+            line-height: 1.6;
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: #6b7280;
+            margin-bottom: 30px;
+        }
+        
+        .test-box {
+            margin: 20px 0;
+            padding: 30px;
+            border-radius: 16px;
+            border: 2px solid rgba(255,255,255,0.2);
+            position: relative;
+            min-height: 120px;
+            overflow: hidden;
+        }
+        
+        .test-box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: 
+                repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(99, 102, 241, 0.1) 10px, rgba(99, 102, 241, 0.1) 20px),
+                repeating-linear-gradient(-45deg, transparent, transparent 10px, rgba(139, 92, 246, 0.1) 10px, rgba(139, 92, 246, 0.1) 20px);
+            z-index: -1;
+        }
+        
+        .glass-test {
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .glass-sm {
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        .glass-md {
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .glass-lg {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .glass-xl {
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .fallback-test {
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        @supports not (backdrop-filter: blur(1px)) {
+            .glass-test,
+            .glass-sm,
+            .glass-md,
+            .glass-lg,
+            .glass-xl {
+                background: rgba(255, 255, 255, 0.9);
+            }
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .supported {
+            background: #10b981;
+            color: white;
+        }
+        
+        .not-supported {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .warning {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .info {
+            background: #f3f4f6;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 4px solid #6366f1;
+        }
+        
+        .info h3 {
+            margin-top: 0;
+            color: #1f2937;
+        }
+        
+        .info p {
+            margin-bottom: 8px;
+        }
+        
+        code {
+            background: #1f2937;
+            color: #10b981;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', Consolas, Monaco, monospace;
+            font-size: 0.9em;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .grid-item {
+            padding: 15px;
+            border-radius: 12px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .grid-item strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #374151;
+        }
+        
+        hr {
+            border: none;
+            border-top: 1px solid #e5e7eb;
+            margin: 30px 0;
+        }
+        
+        .strength-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #6366f1;
+            margin-bottom: 5px;
+        }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .alert {
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            display: flex;
+            align-items: start;
+            gap: 12px;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            border: 1px solid #10b981;
+            color: #065f46;
+        }
+        
+        .alert-error {
+            background: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #991b1b;
+        }
+        
+        .alert-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #6366f1;
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 10px 10px 10px 0;
+            cursor: pointer;
+            border: none;
+            font-size: 0.95rem;
+        }
+        
+        .button:hover {
+            background: #4f46e5;
+        }
+        
+        .button-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        
+        .button-secondary:hover {
+            background: #d1d5db;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔍 Glassmorphism Browser Compatibility Test</h1>
+        <p class="subtitle">Testing backdrop-filter support for WOOW! Admin glassmorphism system</p>
+        
+        <div class="info">
+            <h3>📋 Your Browser Information</h3>
+            <div class="grid">
+                <div class="grid-item">
+                    <strong>Browser:</strong>
+                    <span id="browserName">Detecting...</span>
+                </div>
+                <div class="grid-item">
+                    <strong>Version:</strong>
+                    <span id="browserVersion">Detecting...</span>
+                </div>
+                <div class="grid-item">
+                    <strong>Platform:</strong>
+                    <span id="platform">Detecting...</span>
+                </div>
+            </div>
+            <p style="margin-top: 15px; font-size: 0.85rem;"><strong>User Agent:</strong> <code id="userAgent" style="font-size: 0.75rem;"></code></p>
+        </div>
+        
+        <div id="supportAlert"></div>
+        
+        <h2>🎨 Glassmorphism Strength Levels Test</h2>
+        <p>These boxes test all 4 strength levels used in WOOW! Admin. If your browser supports backdrop-filter, you should see increasing blur intensity.</p>
+        
+        <div class="test-grid">
+            <div class="test-box glass-sm">
+                <div class="strength-label">SMALL (4px blur)</div>
+                <h3>Light Effect</h3>
+                <p>Subtle blur for content-heavy areas like admin menu.</p>
+                <div id="statusSm"></div>
+            </div>
+            
+            <div class="test-box glass-md">
+                <div class="strength-label">MEDIUM (8px blur)</div>
+                <h3>Balanced Effect</h3>
+                <p>Default strength for admin bar and general use.</p>
+                <div id="statusMd"></div>
+            </div>
+            
+            <div class="test-box glass-lg">
+                <div class="strength-label">LARGE (12px blur)</div>
+                <h3>Strong Effect</h3>
+                <p>Pronounced blur for decorative elements.</p>
+                <div id="statusLg"></div>
+            </div>
+            
+            <div class="test-box glass-xl">
+                <div class="strength-label">EXTRA LARGE (16px blur)</div>
+                <h3>Maximum Effect</h3>
+                <p>Strongest blur for hero areas and emphasis.</p>
+                <div id="statusXl"></div>
+            </div>
+        </div>
+        
+        <h2>🔄 Fallback Test</h2>
+        <div class="test-box fallback-test">
+            <h3>Fallback Background</h3>
+            <p>This box uses a solid semi-transparent background (rgba 0.9 opacity). This is what users with older browsers will see instead of the blur effect.</p>
+            <p style="margin-top: 10px;"><strong>Expected:</strong> Solid white background with slight transparency, no blur effect.</p>
+        </div>
+        
+        <div class="info">
+            <h3>🧪 Technical Test Results</h3>
+            <div id="testResults"></div>
+        </div>
+        
+        <div class="info">
+            <h3>💻 Computed CSS Properties</h3>
+            <div id="computedStyles"></div>
+        </div>
+        
+        <hr>
+        
+        <h2>🛠️ Testing Tools</h2>
+        <button class="button" onclick="testBackdropFilter()">Run Backdrop Filter Test</button>
+        <button class="button button-secondary" onclick="simulateFallback()">Simulate Fallback Mode</button>
+        <button class="button button-secondary" onclick="location.reload()">Reset Page</button>
+        
+        <div id="testOutput" style="margin-top: 20px;"></div>
+    </div>
+    
+    <script>
+        // Detect browser information
+        function detectBrowser() {
+            const ua = navigator.userAgent;
+            document.getElementById('userAgent').textContent = ua;
+            document.getElementById('platform').textContent = navigator.platform;
+            
+            let browserName = 'Unknown';
+            let browserVersion = 'Unknown';
+            let isSupported = false;
+            let minVersion = 0;
+            
+            if (ua.indexOf('Chrome') > -1 && ua.indexOf('Edg') === -1 && ua.indexOf('OPR') === -1) {
+                browserName = 'Chrome';
+                browserVersion = ua.match(/Chrome\/(\d+)/)?.[1] || 'Unknown';
+                minVersion = 76;
+                isSupported = parseInt(browserVersion) >= minVersion;
+            } else if (ua.indexOf('Safari') > -1 && ua.indexOf('Chrome') === -1) {
+                browserName = 'Safari';
+                browserVersion = ua.match(/Version\/(\d+)/)?.[1] || 'Unknown';
+                minVersion = 9;
+                isSupported = parseInt(browserVersion) >= minVersion;
+            } else if (ua.indexOf('Firefox') > -1) {
+                browserName = 'Firefox';
+                browserVersion = ua.match(/Firefox\/(\d+)/)?.[1] || 'Unknown';
+                minVersion = 103;
+                isSupported = parseInt(browserVersion) >= minVersion;
+            } else if (ua.indexOf('Edg') > -1) {
+                browserName = 'Edge';
+                browserVersion = ua.match(/Edg\/(\d+)/)?.[1] || 'Unknown';
+                minVersion = 79;
+                isSupported = parseInt(browserVersion) >= minVersion;
+            } else if (ua.indexOf('OPR') > -1 || ua.indexOf('Opera') > -1) {
+                browserName = 'Opera';
+                browserVersion = ua.match(/OPR\/(\d+)/)?.[1] || ua.match(/Opera\/(\d+)/)?.[1] || 'Unknown';
+                minVersion = 63;
+                isSupported = parseInt(browserVersion) >= minVersion;
+            }
+            
+            document.getElementById('browserName').textContent = browserName;
+            document.getElementById('browserVersion').textContent = browserVersion;
+            
+            return { browserName, browserVersion, isSupported, minVersion };
+        }
+        
+        // Test backdrop-filter support
+        function testBackdropFilterSupport() {
+            const supportsBackdropFilter = CSS.supports('backdrop-filter', 'blur(1px)');
+            const supportsWebkitBackdropFilter = CSS.supports('-webkit-backdrop-filter', 'blur(1px)');
+            
+            return {
+                standard: supportsBackdropFilter,
+                webkit: supportsWebkitBackdropFilter,
+                any: supportsBackdropFilter || supportsWebkitBackdropFilter
+            };
+        }
+        
+        // Display support status
+        function displaySupportStatus() {
+            const browser = detectBrowser();
+            const support = testBackdropFilterSupport();
+            const alertDiv = document.getElementById('supportAlert');
+            
+            if (support.any) {
+                alertDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <div class="alert-icon">✅</div>
+                        <div>
+                            <strong>Backdrop Filter Supported!</strong><br>
+                            Your browser (${browser.browserName} ${browser.browserVersion}) fully supports glassmorphism effects.
+                            ${support.webkit && !support.standard ? '<br><small>Using -webkit- prefix for compatibility.</small>' : ''}
+                        </div>
+                    </div>
+                `;
+            } else {
+                alertDiv.innerHTML = `
+                    <div class="alert alert-error">
+                        <div class="alert-icon">❌</div>
+                        <div>
+                            <strong>Backdrop Filter Not Supported</strong><br>
+                            Your browser (${browser.browserName} ${browser.browserVersion}) does not support backdrop-filter.
+                            ${browser.minVersion ? `<br><small>Requires ${browser.browserName} ${browser.minVersion}+ for full support.</small>` : ''}
+                            <br><small>Fallback mode will be used with solid backgrounds.</small>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Update status badges for each strength level
+            const statusBadge = support.any ? 
+                '<span class="status supported">✅ Blur Active</span>' :
+                '<span class="status not-supported">❌ Fallback Mode</span>';
+            
+            document.getElementById('statusSm').innerHTML = statusBadge;
+            document.getElementById('statusMd').innerHTML = statusBadge;
+            document.getElementById('statusLg').innerHTML = statusBadge;
+            document.getElementById('statusXl').innerHTML = statusBadge;
+        }
+        
+        // Display test results
+        function displayTestResults() {
+            const browser = detectBrowser();
+            const support = testBackdropFilterSupport();
+            const testResults = document.getElementById('testResults');
+            
+            let html = '<div class="grid">';
+            
+            html += `
+                <div class="grid-item">
+                    <strong>backdrop-filter</strong>
+                    ${support.standard ? '✅ Supported' : '❌ Not Supported'}
+                </div>
+                <div class="grid-item">
+                    <strong>-webkit-backdrop-filter</strong>
+                    ${support.webkit ? '✅ Supported' : '❌ Not Supported'}
+                </div>
+                <div class="grid-item">
+                    <strong>Overall Support</strong>
+                    ${support.any ? '✅ Yes' : '❌ No'}
+                </div>
+                <div class="grid-item">
+                    <strong>Version Check</strong>
+                    ${browser.isSupported ? '✅ Pass' : '❌ Fail'}
+                </div>
+            `;
+            
+            html += '</div>';
+            
+            if (browser.minVersion) {
+                html += `<p style="margin-top: 15px;"><strong>Minimum Required Version:</strong> ${browser.browserName} ${browser.minVersion}+</p>`;
+                html += `<p><strong>Your Version:</strong> ${browser.browserName} ${browser.browserVersion} ${browser.isSupported ? '✅' : '❌'}</p>`;
+            }
+            
+            testResults.innerHTML = html;
+        }
+        
+        // Display computed styles
+        function displayComputedStyles() {
+            const testBox = document.querySelector('.glass-md');
+            const styles = window.getComputedStyle(testBox);
+            const computedDiv = document.getElementById('computedStyles');
+            
+            const backdropFilter = styles.backdropFilter || 'none';
+            const webkitBackdropFilter = styles.webkitBackdropFilter || 'none';
+            const background = styles.background || styles.backgroundColor;
+            
+            computedDiv.innerHTML = `
+                <p><code>backdrop-filter: ${backdropFilter}</code></p>
+                <p><code>-webkit-backdrop-filter: ${webkitBackdropFilter}</code></p>
+                <p><code>background: ${background}</code></p>
+                <p style="margin-top: 10px; font-size: 0.9rem;">
+                    <strong>Expected for supported browsers:</strong> backdrop-filter should show "blur(8px)" or similar.<br>
+                    <strong>Expected for unsupported browsers:</strong> backdrop-filter should show "none", background should be solid.
+                </p>
+            `;
+        }
+        
+        // Run backdrop filter test
+        function testBackdropFilter() {
+            const output = document.getElementById('testOutput');
+            const support = testBackdropFilterSupport();
+            
+            let html = '<div class="info"><h3>🧪 Detailed Test Results</h3>';
+            
+            html += '<p><strong>CSS.supports() Tests:</strong></p>';
+            html += `<p>• <code>CSS.supports('backdrop-filter', 'blur(1px)')</code>: ${support.standard ? '✅ true' : '❌ false'}</p>`;
+            html += `<p>• <code>CSS.supports('-webkit-backdrop-filter', 'blur(1px)')</code>: ${support.webkit ? '✅ true' : '❌ false'}</p>`;
+            
+            html += '<p style="margin-top: 15px;"><strong>Feature Detection:</strong></p>';
+            html += `<p>• Standard backdrop-filter: ${support.standard ? '✅ Supported' : '❌ Not Supported'}</p>`;
+            html += `<p>• WebKit backdrop-filter: ${support.webkit ? '✅ Supported' : '❌ Not Supported'}</p>`;
+            html += `<p>• Overall support: ${support.any ? '✅ YES' : '❌ NO'}</p>`;
+            
+            html += '<p style="margin-top: 15px;"><strong>Recommendation:</strong></p>';
+            if (support.any) {
+                html += '<p style="color: #10b981;">✅ Your browser fully supports glassmorphism. The WOOW! Admin plugin will display frosted glass effects correctly.</p>';
+            } else {
+                html += '<p style="color: #ef4444;">⚠️ Your browser does not support backdrop-filter. The WOOW! Admin plugin will use fallback mode with solid semi-transparent backgrounds.</p>';
+            }
+            
+            html += '</div>';
+            output.innerHTML = html;
+        }
+        
+        // Simulate fallback mode
+        function simulateFallback() {
+            const style = document.createElement('style');
+            style.id = 'fallback-simulation';
+            style.textContent = `
+                .glass-test,
+                .glass-sm,
+                .glass-md,
+                .glass-lg,
+                .glass-xl {
+                    backdrop-filter: none !important;
+                    -webkit-backdrop-filter: none !important;
+                    background: rgba(255, 255, 255, 0.9) !important;
+                }
+            `;
+            
+            // Remove existing simulation if present
+            const existing = document.getElementById('fallback-simulation');
+            if (existing) {
+                existing.remove();
+                document.getElementById('testOutput').innerHTML = '<div class="info"><p>✅ Fallback simulation removed. Page restored to normal mode.</p></div>';
+            } else {
+                document.head.appendChild(style);
+                document.getElementById('testOutput').innerHTML = '<div class="info"><p>⚠️ Fallback mode simulated. All glassmorphism effects are now using solid backgrounds. Click "Simulate Fallback Mode" again to restore normal mode.</p></div>';
+            }
+        }
+        
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            displaySupportStatus();
+            displayTestResults();
+            displayComputedStyles();
+        });
+    </script>
+</body>
+</html>
